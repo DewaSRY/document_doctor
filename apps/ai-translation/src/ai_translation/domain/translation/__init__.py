@@ -7,4 +7,11 @@ from .utils import (
     remove_unique_codes
 )
 
-translator = NLLBModel()
+_translator: NLLBModel | None = None
+
+
+def get_translator() -> NLLBModel:
+    global _translator
+    if _translator is None:
+        _translator = NLLBModel()
+    return _translator

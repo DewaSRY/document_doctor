@@ -58,3 +58,14 @@ gen-proto: ## Generate gRPC code from proto files
 		--python_out=$(GRPC_OUT) \
 		--grpc_python_out=$(GRPC_OUT) \
 		$(PROTO_FILE)
+	touch $(GRPC_OUT)/translation/__init__.py $(GRPC_OUT)/translation/v1/__init__.py
+	sed -i '' 's/from translation.v1 import/from . import/' $(GRPC_OUT)/translation/v1/translation_pb2_grpc.py
+
+.PHONY: clean-proto
+clean-proto: ## Remove generated gRPC code
+	rm -rf $(GRPC_OUT)/translation
+
+
+.PHONY: serve
+serve: ## Run the gRPC server
+	uv run ai-translation-serve
