@@ -1,20 +1,18 @@
 
-from ai_translation.domain.translation.nllb_model import NLLBModel
-from ai_translation.domain.translation.translator import Translator
-
-model = NLLBModel()
-translator = Translator(model=model)
-
+from ai_translation.domain.translation import translator, TranslationParams
 
 def main():
     text = "Hello, how are you?"
     source_language = "en"
-    target_language = "fr"
+    target_language = "id"
 
     translated_text = translator.translate(
-        text=text,
-        source_language="en",
-        target_language="id",
+        translation_params=TranslationParams(
+            text=text,
+            source_language=source_language,
+            target_language=target_language,
+            emotions_tags=["formal"]
+        )
     )
 
     print(translated_text)

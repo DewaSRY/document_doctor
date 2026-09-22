@@ -1,9 +1,9 @@
 
 
 from .constant import LANGUAGES
-from .model import NLLBModel
-
-
+from .nllb_model import NLLBModel
+from .dto import TranslationParams
+from typing import Sequence
 
 class Translator:
     def __init__(self, model: NLLBModel):
@@ -11,16 +11,6 @@ class Translator:
 
     def translate(
         self,
-        text: str,
-        source_language: str,
-        target_language: str,
+        translation_params: TranslationParams
     ) -> str:
-
-        source_code = LANGUAGES[source_language]
-        target_code = LANGUAGES[target_language]
-
-        return self.model.translate(
-            text=text,
-            source_language=source_code,
-            target_language=target_code,
-        )
+        return self.model.translate(translation_params)

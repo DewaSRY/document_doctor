@@ -16,7 +16,7 @@ message TranslateRequest {
 
   repeated string tags = 5;
 
-  string tone = 6;
+  string tone = 6;x
 }
 
 message TranslationContext {
