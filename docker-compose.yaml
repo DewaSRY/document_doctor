@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:8
+    container_name: postgres
+    environment:
+      POSTGRES_USER: sv_translation_ai
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db_translation_ai
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres-translation-ai-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-translation-ai-data:
