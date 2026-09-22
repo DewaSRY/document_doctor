@@ -138,11 +138,16 @@ about what model actually runs). A ready-to-use instance is exported as
    from concurrent import futures
    import grpc
    from ai_translation.infrastructure.grpc.translation.v1 import translation_pb2_grpc
-   from ai_translation.infrastructure.grpc.translation.v1.servicer import TranslationServicer
+   from ai_translation.infrastructure.grpc.translation.v1.servicer import (
+       TranslationServicer,
+   )
+
 
    def serve(port: str = "50051"):
        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-       translation_pb2_grpc.add_TranslationServiceServicer_to_server(TranslationServicer(), server)
+       translation_pb2_grpc.add_TranslationServiceServicer_to_server(
+           TranslationServicer(), server
+       )
        server.add_insecure_port(f"[::]:{port}")
        server.start()
        server.wait_for_termination()

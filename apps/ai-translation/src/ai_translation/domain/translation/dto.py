@@ -1,5 +1,5 @@
-
 from dataclasses import dataclass
+
 
 @dataclass
 class TranslationParams:
@@ -8,7 +8,6 @@ class TranslationParams:
     target_language: str
     emotions_tags: list[str] | None = None
     voice_tags: list[str] | None = None
-
 
 
 @dataclass(frozen=True)

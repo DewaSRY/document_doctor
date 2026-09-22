@@ -8,6 +8,7 @@ from ai_translation.domain.translation import (
     get_voice_name,
     remove_unique_codes,
 )
+
 from . import translation_pb2, translation_pb2_grpc
 
 
@@ -21,7 +22,7 @@ class TranslationServicer(translation_pb2_grpc.TranslationServiceServicer):
                 emotions_tags=[get_emotion_name(tag) for tag in request.emotion_tags],
                 voice_tags=[get_voice_name(tag) for tag in request.voice_tags],
             )
-            
+
             translated_text = get_translator().translate(translation_params=params)
 
             return translation_pb2.TranslateResponse(

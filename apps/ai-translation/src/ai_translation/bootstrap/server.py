@@ -4,7 +4,9 @@ from concurrent import futures
 import grpc
 
 from ai_translation.infrastructure.grpc.translation.v1 import translation_pb2_grpc
-from ai_translation.infrastructure.grpc.translation.v1.servicer import TranslationServicer
+from ai_translation.infrastructure.grpc.translation.v1.servicer import (
+    TranslationServicer,
+)
 
 
 def serve() -> None:
@@ -17,7 +19,7 @@ def serve() -> None:
 
     server.add_insecure_port(f"[::]:{port}")
     server.start()
-    
+
     print(f"gRPC server listening on port {port}")
     server.wait_for_termination()
 

@@ -4,7 +4,7 @@ from .utils import (
     get_language_name,
     get_emotion_name,
     get_voice_name,
-    remove_unique_codes
+    remove_unique_codes,
 )
 
 _translator: NLLBModel | None = None

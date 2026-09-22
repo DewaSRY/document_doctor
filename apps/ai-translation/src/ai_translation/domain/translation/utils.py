@@ -11,8 +11,10 @@ LANGUAGES = {
     "zh": "Chinese",
 }
 
+
 def get_language_name(language_code: str) -> str:
     return LANGUAGES.get(language_code, "Unknown")
+
 
 EMOTIONS = {
     "neutral": "Neutral",
@@ -28,8 +30,10 @@ EMOTIONS = {
     "serious": "Serious",
 }
 
+
 def get_emotion_name(emotion_code: str) -> str:
     return EMOTIONS.get(emotion_code, "Unknown")
+
 
 VOICES = {
     "professional": "Professional",

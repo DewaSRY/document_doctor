@@ -89,6 +89,7 @@ from ai_translation.domain.translation import (
     remove_unique_codes,
 )
 
+
 def main():
     ...
     translated_text = get_translator().translate(
@@ -161,7 +162,9 @@ from concurrent import futures
 import grpc
 
 from ai_translation.infrastructure.grpc.translation.v1 import translation_pb2_grpc
-from ai_translation.infrastructure.grpc.translation.v1.servicer import TranslationServicer
+from ai_translation.infrastructure.grpc.translation.v1.servicer import (
+    TranslationServicer,
+)
 
 
 def serve() -> None:
@@ -239,15 +242,20 @@ using the already-generated `TranslationServiceStub`:
 
 ```python
 import grpc
-from ai_translation.infrastructure.grpc.translation.v1 import translation_pb2, translation_pb2_grpc
+from ai_translation.infrastructure.grpc.translation.v1 import (
+    translation_pb2,
+    translation_pb2_grpc,
+)
 
 channel = grpc.insecure_channel("localhost:50051")
 stub = translation_pb2_grpc.TranslationServiceStub(channel)
-response = stub.Translate(translation_pb2.TranslateRequest(
-    text="Selamat pagi",
-    source_language="id",
-    target_language="en",
-))
+response = stub.Translate(
+    translation_pb2.TranslateRequest(
+        text="Selamat pagi",
+        source_language="id",
+        target_language="en",
+    )
+)
 print(response)
 ```
 
@@ -276,11 +284,14 @@ from grpc_reflection.v1alpha import reflection
 
 from ai_translation.infrastructure.grpc.translation.v1 import translation_pb2
 
+
 def serve() -> None:
     ...
     health_servicer = health.HealthServicer()
     health_pb2_grpc.add_HealthServicer_to_server(health_servicer, server)
-    health_servicer.set("translation.v1.TranslationService", health_pb2.HealthCheckResponse.SERVING)
+    health_servicer.set(
+        "translation.v1.TranslationService", health_pb2.HealthCheckResponse.SERVING
+    )
 
     service_names = (
         translation_pb2.DESCRIPTOR.services_by_name["TranslationService"].full_name,
@@ -304,7 +315,9 @@ request/response mapping without ever loading the LM, by monkeypatching
 from unittest.mock import MagicMock, patch
 
 from ai_translation.infrastructure.grpc.translation.v1 import translation_pb2
-from ai_translation.infrastructure.grpc.translation.v1.servicer import TranslationServicer
+from ai_translation.infrastructure.grpc.translation.v1.servicer import (
+    TranslationServicer,
+)
 
 
 def test_translate_maps_request_to_response():
