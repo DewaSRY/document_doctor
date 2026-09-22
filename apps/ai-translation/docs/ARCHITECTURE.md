@@ -19,6 +19,75 @@ ai-translation (this service)
 Model Runtime (NLLB-200 / future LLM)
 ```
 
+## Current code strcuture
+
+```bash
+/apps/ai-translation
+│
+├── pyproject.toml
+├── README.md
+├── Dockerfile
+├── Makefile
+│
+├── proto/
+│   └── translation/
+│       └── v1/
+│           └── translation.proto
+│
+├── src/
+│   └── ai_translation/
+│       │
+│       ├── main.py
+│       │
+│       ├── bootstrap/
+│       │   ├── __init__.py
+│       │   ├── container.py
+│       │   ├── config.py
+│       │   └── logging.py
+│       │
+│       ├── domain/
+│       │   └── translation/
+│       │       ├── __init__.py
+│       │       ├── models.py
+│       │       ├── errors.py
+│       │       └── service.py
+│       │
+│       ├── app/
+│       │   └── translation/
+│       │       ├── __init__.py
+│       │       ├── translate.py
+│       │       └── ports.py
+│       │
+│       ├── infrastructure/
+│       │   │
+│       │   ├── ai/
+│       │   │   ├── __init__.py
+│       │   │   ├── openai_provider.py
+│       │   │   ├── prompt_builder.py
+│       │   │   └── response_parser.py
+│       │   │
+│       │   └── grpc/
+│       │       ├── __init__.py
+│       │       ├── server.py
+│       │       ├── translation_service.py
+│       │       └── generated/
+│       │           ├── translation_pb2.py
+│       │           └── translation_pb2_grpc.py
+│       │
+│       └── shared/
+│           ├── __init__.py
+│           └── ...
+│
+└── tests/
+    ├── unit/
+    │   ├── domain/
+    │   ├── application/
+    │   └── infrastructure/
+    │
+    └── integration/
+        └── grpc/
+```
+
 ## Modules
 
 <!-- TODO: fill in — describe the internal modules/packages and their responsibilities, e.g.

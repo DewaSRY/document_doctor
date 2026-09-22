@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package translation.v1;
+
+service TranslationService {
+  rpc Translate(TranslateRequest) returns (TranslateResponse);
+}
+
+message TranslateRequest {
+  string text = 1;
+
+  string source_language = 2;
+  string target_language = 3;
+
+  TranslationContext context = 4;
+
+  repeated string tags = 5;
+
+  string tone = 6;
+}
+
+message TranslationContext {
+  string title = 1;
+  string surrounding_text = 2;
+  string domain = 3;
+}
+
+message TranslateResponse {
+  string translated_text = 1;
+
+  string source_language = 2;
+  string target_language = 3;
+
+  string model = 4;
+}

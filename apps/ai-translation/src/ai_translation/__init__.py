@@ -1,2 +1,7 @@
-def main() -> None:
-    print("Hello from ai-translation!")
+
+
+from .main import main
+
+
+if __name__ == "__main__":
+    main()
