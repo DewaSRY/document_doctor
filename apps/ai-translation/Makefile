@@ -39,13 +39,16 @@ format: ## Format the codebase
 
 .PHONY: clean
 clean: ## Remove caches and build artifacts
+	@echo "Cleaning caches and build artifacts..."
+	@echo "if file is not removed, run this codey"
+	@echo "  rm -rf .pytest_cache .ruff_cache dist build **/__pycache__"
 	rm -rf .pytest_cache .ruff_cache dist build **/__pycache__
 
 .PHONY: clean-venv
 clean-venv: ## Remove the virtual environment entirely
 	rm -rf $(VENV)
 
-
+## PROTOBUF / gRPC
 
 PROTO_DIR := ./proto
 PROTO_FILE := $(PROTO_DIR)/translation/v1/translation.proto
@@ -69,3 +72,34 @@ clean-proto: ## Remove generated gRPC code
 .PHONY: serve
 serve: ## Run the gRPC server
 	uv run ai-translation-serve
+
+## DOCKER
+
+IMAGE_NAME := sdewa/ai-translation
+IMAGE_TAG := latest
+CONTAINER_NAME := ai-translation
+GRPC_PORT := 50051
+
+.PHONY: docker-build
+docker-build: ## Build the Docker image
+	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
+
+.PHONY: docker-run
+docker-run: ## Run the Docker image
+	docker run --rm --name $(CONTAINER_NAME) -p $(GRPC_PORT):$(GRPC_PORT) $(IMAGE_NAME):$(IMAGE_TAG)
+
+.PHONY: docker-stop
+docker-stop: ## Stop the running Docker container
+	docker stop $(CONTAINER_NAME)
+
+.PHONY: docker-logs
+docker-logs: ## Tail logs from the running Docker container
+	docker logs -f $(CONTAINER_NAME)
+
+.PHONY: docker-shell
+docker-shell: ## Open a shell inside a running/new Docker container
+	docker run --rm -it --entrypoint /bin/bash $(IMAGE_NAME):$(IMAGE_TAG)
+
+.PHONY: docker-clean
+docker-clean: ## Remove the built Docker image
+	docker rmi $(IMAGE_NAME):$(IMAGE_TAG)
