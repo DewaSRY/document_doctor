@@ -1,7 +1,10 @@
-from .nllb_model import NLLBModel
-from .translator import Translator
+from .nllb_translator import NLLBModel
 from .dto import TranslationParams
+from .utils import (
+    get_language_name,
+    get_emotion_name,
+    get_voice_name,
+    remove_unique_codes
+)
 
-model = NLLBModel()
-translator = Translator(model=model)
-
+translator = NLLBModel()

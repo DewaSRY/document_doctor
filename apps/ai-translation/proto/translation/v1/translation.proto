@@ -12,18 +12,11 @@ message TranslateRequest {
   string source_language = 2;
   string target_language = 3;
 
-  TranslationContext context = 4;
-
-  repeated string tags = 5;
-
-  string tone = 6;x
+  repeated string emotion_tags = 4;
+  repeated string voice_tags = 5;
 }
 
-message TranslationContext {
-  string title = 1;
-  string surrounding_text = 2;
-  string domain = 3;
-}
+
 
 message TranslateResponse {
   string translated_text = 1;

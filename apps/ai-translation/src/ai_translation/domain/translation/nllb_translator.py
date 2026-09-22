@@ -19,7 +19,7 @@ class NLLBModel:
             model_name,
             dtype=torch.float16 if self.device.type != "cpu" else torch.float32,
         )
-        # Load fully onto a single device instead of "auto" to avoid disk offloading
+
         self.model.to(self.device)
         self.model.eval()
 
@@ -27,16 +27,17 @@ class NLLBModel:
         tags = []
         if translation_params.voice_tags:
             tags.extend(t.strip() for t in translation_params.voice_tags if t.strip())
+
         if translation_params.emotions_tags:
             tags.extend(t.strip() for t in translation_params.emotions_tags if t.strip())
 
         style_instruction = f"Apply these vocal/emotion styles: {', '.join(tags)}." if tags else ""
 
         system_prompt = (
-            "You are a professional translator. "
-            f"Translate the user's text into {translation_params.target_language}. "
+            f"You are a professional {translation_params.target_language} translator. "
+            f"Translate this text into {translation_params.target_language}. "
             f"{style_instruction} "
-            "Output ONLY the translated text prefixed with the requested tags in brackets."
+            "Output ONLY the translated text."
         )
 
         user_content = translation_params.text
@@ -65,7 +66,7 @@ class NLLBModel:
         outputs = self.model.generate(
             **inputs,
             max_new_tokens=256,
-            temperature=0.3, # Low temperature ensures reliable, accurate translations
+            temperature=0.3, 
             do_sample=True,
         )
 

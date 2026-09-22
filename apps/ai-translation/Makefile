@@ -46,3 +46,15 @@ clean-venv: ## Remove the virtual environment entirely
 	rm -rf $(VENV)
 
 
+
+PROTO_DIR := ./proto
+PROTO_FILE := $(PROTO_DIR)/translation/v1/translation.proto
+GRPC_OUT := ./src/ai_translation/infrastructure/grpc
+
+.PHONY: gen-proto
+gen-proto: ## Generate gRPC code from proto files
+	$(PYTHON) -m grpc_tools.protoc \
+		-I$(PROTO_DIR) \
+		--python_out=$(GRPC_OUT) \
+		--grpc_python_out=$(GRPC_OUT) \
+		$(PROTO_FILE)
