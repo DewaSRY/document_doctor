@@ -1,13 +1,32 @@
+import os
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
 from .dto import TranslationParams
 
 
-class NLLBModel:
+class NllbTranslatorModel:
+    # Map common language names to FLORES-200 codes used by NLLB
+    LANG_CODE_MAP = {
+        "english": "eng_Latn",
+        "indonesian": "ind_Latn",
+        "spanish": "spa_Latn",
+        "french": "fra_Latn",
+        "german": "deu_Latn",
+        "japanese": "jpn_Jpan",
+        "chinese": "zho_Hans",
+        # Add more mappings as needed
+    }
+
     def __init__(
         self,
-        model_name: str = "Qwen/Qwen2.5-1.5B-Instruct",  # or "meta-llama/Llama-3.2-1B-Instruct"
+        model_name: str | None = None,
     ):
+        if model_name is None:
+            model_name = os.environ.get(
+                "MODEL_PATH", os.environ.get("NLLB_MODEL_NAME", "facebook/nllb-200-distilled-600M")
+            )
+
         if torch.cuda.is_available():
             self.device = torch.device("cuda")
         elif torch.backends.mps.is_available():
@@ -16,62 +35,45 @@ class NLLBModel:
             self.device = torch.device("cpu")
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(
+        
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(
             model_name,
-            dtype=torch.float16 if self.device.type != "cpu" else torch.float32,
+            torch_dtype=torch.float16 if self.device.type != "cpu" else torch.float32,
         )
 
         self.model.to(self.device)
         self.model.eval()
 
-    def _build_messages(self, translation_params: TranslationParams) -> list:
-        tags = []
-        if translation_params.voice_tags:
-            tags.extend(t.strip() for t in translation_params.voice_tags if t.strip())
-
-        if translation_params.emotions_tags:
-            tags.extend(
-                t.strip() for t in translation_params.emotions_tags if t.strip()
-            )
-
-        style_instruction = (
-            f"Apply these vocal/emotion styles: {', '.join(tags)}." if tags else ""
-        )
-
-        system_prompt = (
-            f"You are a professional {translation_params.target_language} translator. "
-            f"Translate this text into {translation_params.target_language}. "
-            f"{style_instruction} "
-            "Output ONLY the translated text."
-        )
-
-        user_content = translation_params.text
-
-        return [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content},
-        ]
+    def _resolve_lang_code(self, lang_name: str) -> str:
+        """Helper to convert 'English' or 'eng_Latn' into a valid NLLB code."""
+        cleaned = lang_name.strip().lower()
+        if cleaned in self.LANG_CODE_MAP:
+            return self.LANG_CODE_MAP[cleaned]
+    
+        return lang_name
 
     @torch.inference_mode()
     def translate(
         self,
         translation_params: TranslationParams,
     ) -> str:
-        messages = self._build_messages(translation_params)
+  
+        source_lang = getattr(translation_params, "source_language", "eng_Latn")
+        src_code = self._resolve_lang_code(source_lang)
+        tgt_code = self._resolve_lang_code(translation_params.target_language)
 
-        # Apply standard chat template for the pre-trained model
-        prompt = self.tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
-        )
+        self.tokenizer.src_lang = src_code
 
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        inputs = self.tokenizer(translation_params.text, return_tensors="pt").to(self.device)
 
+        target_lang_id = self.tokenizer.convert_tokens_to_ids(tgt_code)
+
+        # Generate translation
         outputs = self.model.generate(
             **inputs,
+            forced_bos_token_id=target_lang_id,
             max_new_tokens=256,
-            temperature=0.3,
-            do_sample=True,
+            num_beams=4, # Beam search is standard & high accuracy for Seq2Seq models
         )
 
-        generated_tokens = outputs[0][inputs.input_ids.shape[1] :]
-        return self.tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True).strip()

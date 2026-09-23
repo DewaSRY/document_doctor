@@ -79,14 +79,18 @@ IMAGE_NAME := sdewa/ai-translation
 IMAGE_TAG := latest
 CONTAINER_NAME := ai-translation
 GRPC_PORT := 50051
+MODEL_CACHE_VOLUME := ai-translation-model-cache
 
 .PHONY: docker-build
 docker-build: ## Build the Docker image
 	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
 
 .PHONY: docker-run
-docker-run: ## Run the Docker image
-	docker run --rm --name $(CONTAINER_NAME) -p $(GRPC_PORT):$(GRPC_PORT) $(IMAGE_NAME):$(IMAGE_TAG)
+docker-run: ## Run the Docker image (model cache persisted in a named volume, see docs/MODEL_STORAGE.md)
+	docker run --rm --name $(CONTAINER_NAME) -p $(GRPC_PORT):$(GRPC_PORT) \
+		-v $(MODEL_CACHE_VOLUME):/app/.cache/huggingface \
+		--env-file .env \
+		$(IMAGE_NAME):$(IMAGE_TAG)
 
 .PHONY: docker-stop
 docker-stop: ## Stop the running Docker container

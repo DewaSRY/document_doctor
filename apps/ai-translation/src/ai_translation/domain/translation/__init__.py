@@ -1,4 +1,6 @@
-from .nllb_translator import NLLBModel
+from .qwan_translator import QwanTranslatorModel
+from .nllb_translator import NllbTranslatorModel
+
 from .dto import TranslationParams
 from .utils import (
     get_language_name,
@@ -7,11 +9,11 @@ from .utils import (
     remove_unique_codes,
 )
 
-_translator: NLLBModel | None = None
+_translator: NllbTranslatorModel | None = None
 
 
-def get_translator() -> NLLBModel:
+def get_translator() -> NllbTranslatorModel:
     global _translator
     if _translator is None:
-        _translator = NLLBModel()
+        _translator = NllbTranslatorModel()
     return _translator
