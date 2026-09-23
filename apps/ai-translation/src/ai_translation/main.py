@@ -1,20 +1,24 @@
+from dotenv import load_dotenv
+
 from ai_translation.domain.translation import (
-    get_translator,
     TranslationParams,
-    get_language_name,
-    get_voice_name,
     get_emotion_name,
+    get_language_name,
+    get_translator,
+    get_voice_name,
     remove_unique_codes,
 )
 
 
 def main():
+    load_dotenv()
+
     text = """
         Dengan ini saya ingin menyampaikan keberatan terhadap keputusan yang telah anda ambil 
     """
 
     source_language = "id"
-    target_language = "zh"
+    target_language = "en"
     emotion_tag = "formal"
     voice_tag = "professional"
 

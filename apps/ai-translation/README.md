@@ -74,7 +74,13 @@ docs/                 # service-specific documentation
 
 ## Configuration
 
-<!-- TODO: fill in — environment variables, config files, secrets, etc. -->
+This service reads configuration from environment variables. Copy [.env.example](.env.example)
+to `.env` and fill in the values — it is loaded automatically at startup via `python-dotenv`.
+
+| Variable    | Required | Default | Description                                                                                                                                     |
+| ----------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HF_TOKEN`  | No       | —       | Hugging Face Hub read token. Avoids rate limits/warnings when downloading model weights. [Get a token](https://huggingface.co/settings/tokens). |
+| `GRPC_PORT` | No       | `50051` | Port the gRPC server binds to (`make serve`).                                                                                                   |
 
 ## Testing
 

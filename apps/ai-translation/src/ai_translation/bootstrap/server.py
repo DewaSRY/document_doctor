@@ -2,6 +2,7 @@ import os
 from concurrent import futures
 
 import grpc
+from dotenv import load_dotenv
 
 from ai_translation.infrastructure.grpc.translation.v1 import translation_pb2_grpc
 from ai_translation.infrastructure.grpc.translation.v1.servicer import (
@@ -10,6 +11,7 @@ from ai_translation.infrastructure.grpc.translation.v1.servicer import (
 
 
 def serve() -> None:
+    load_dotenv()
     port = os.environ.get("GRPC_PORT", "50051")
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
