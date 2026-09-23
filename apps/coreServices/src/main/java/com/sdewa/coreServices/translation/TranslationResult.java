@@ -5,5 +5,4 @@ public record TranslationResult(
 		String sourceLanguage,
 		String targetLanguage,
 		String model) {
-
 }

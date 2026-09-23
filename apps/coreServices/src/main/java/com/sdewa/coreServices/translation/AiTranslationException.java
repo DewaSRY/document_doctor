@@ -8,7 +8,7 @@ public class AiTranslationException extends RuntimeException {
 	private final Status.Code statusCode;
 
 	public AiTranslationException(Status.Code statusCode, String message, Throwable cause) {
-		super(message, cause);
+		super(String.format("AI translation failed: %s: %s", statusCode, message), cause);
 		this.statusCode = statusCode;
 	}
 

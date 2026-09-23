@@ -33,8 +33,11 @@ public class AiTranslationClient {
 			response = stub.translate(request);
 		}
 		catch (StatusRuntimeException ex) {
-			throw new AiTranslationException(ex.getStatus().getCode(),
-					"AI translation failed: " + ex.getStatus().getCode() + " " + ex.getStatus().getDescription(), ex);
+			throw new AiTranslationException(
+					ex.getStatus().getCode(), 
+					ex.getStatus().getDescription(),
+					ex
+			);
 		}
 
 		return new TranslationResult(response.getTranslatedText(), response.getSourceLanguage(),
