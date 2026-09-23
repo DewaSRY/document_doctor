@@ -1,6 +1,20 @@
 spring:
   application:
     name: coreServices
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5437/db-translation-ai}
+    username: ${DATABASE_USERNAME:user-translation-ai}
+    password: ${DATABASE_PASSWORD:pass-translation-ai}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   grpc:
     client:
       channel:
@@ -13,3 +27,8 @@ spring:
           default:
             # First call after server start also loads the model, so keep this generous.
             deadline: ${AI_TRANSLATION_GRPC_DEADLINE:120s}
+
+translation:
+  smoke-test:
+    # Call the AI server once on startup and log the result (see TranslationSmokeTestRunner).
+    enabled: ${TRANSLATION_SMOKE_TEST_ENABLED:true}
