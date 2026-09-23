@@ -1,17 +1,17 @@
 [project]
 name = "ai-translation"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI translation service powered by Qwen"
 readme = "README.md"
 authors = [
     { name = "DewaAriesta", email = "dewa.ariesta@cashenable.com" }
 ]
 requires-python = ">=3.12"
+
 dependencies = [
     "accelerate>=1.15.0",
     "grpcio>=1.84.0",
     "python-dotenv>=1.0.1",
-    "pytest>=9.1.1",
     "requests>=2.34.2",
     "sentencepiece>=0.2.2",
     "torch>=2.14.0",
@@ -34,5 +34,3 @@ dev = [
     "pytest-cov>=7.1.0",
     "ruff>=0.16.8",
 ]
-
-

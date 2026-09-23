@@ -9,11 +9,11 @@ from .utils import (
     remove_unique_codes,
 )
 
-_translator: NllbTranslatorModel | None = None
+_translator: QwanTranslatorModel | None = None
 
 
-def get_translator() -> NllbTranslatorModel:
+def get_translator() -> QwanTranslatorModel:
     global _translator
     if _translator is None:
-        _translator = NllbTranslatorModel()
+        _translator = QwanTranslatorModel()
     return _translator
