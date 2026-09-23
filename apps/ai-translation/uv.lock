@@ -31,6 +31,7 @@ source = { editable = "." }
 dependencies = [
     { name = "accelerate" },
     { name = "grpcio" },
+    { name = "protobuf" },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "sentencepiece" },
@@ -51,6 +52,7 @@ dev = [
 requires-dist = [
     { name = "accelerate", specifier = ">=1.15.0" },
     { name = "grpcio", specifier = ">=1.84.0" },
+    { name = "protobuf", specifier = ">=7.35.1" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "sentencepiece", specifier = ">=0.2.2" },
