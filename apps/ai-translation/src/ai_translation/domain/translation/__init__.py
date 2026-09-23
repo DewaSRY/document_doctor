@@ -1,19 +1,17 @@
-from .qwan_translator import QwanTranslatorModel
-from .nllb_translator import NllbTranslatorModel
+from .qwen_translator import QwenTranslatorModel
 
 from .dto import TranslationParams
 from .utils import (
     get_language_name,
     get_emotion_name,
     get_voice_name,
-    remove_unique_codes,
 )
 
-_translator: QwanTranslatorModel | None = None
+_translator: QwenTranslatorModel | None = None
 
 
-def get_translator() -> QwanTranslatorModel:
+def get_translator() -> QwenTranslatorModel:
     global _translator
     if _translator is None:
-        _translator = QwanTranslatorModel()
+        _translator = QwenTranslatorModel()
     return _translator

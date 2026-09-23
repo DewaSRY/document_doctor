@@ -56,16 +56,3 @@ VOICES = {
 
 def get_voice_name(voice_code: str) -> str:
     return VOICES.get(voice_code, "Unknown")
-
-
-def remove_unique_codes(text: str) -> str:
-    """
-    Remove special/unique codes while preserving letters, numbers,
-    whitespace, and punctuation.
-    """
-
-    return re.sub(
-        r"[^a-zA-Z0-9\s.,!?;:'\"()\[\]{}\-–—/]",
-        "",
-        text,
-    )

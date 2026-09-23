@@ -47,7 +47,7 @@ If that prints `ok` with no `ImportError`, the fix worked.
 ## Step 2 — Make the model lazy-loaded
 
 Right now `domain/translation/__init__.py:10` runs `translator = NLLBModel()`
-at import time, so *anything* that imports `ai_translation.domain.translation`
+at import time, so _anything_ that imports `ai_translation.domain.translation`
 (including just to reach `get_language_name`) loads the full model. Fix that
 before wiring the servicer, or the server (and every test that imports it)
 pays that cost unconditionally.
@@ -112,7 +112,6 @@ from ai_translation.domain.translation import (
     get_language_name,
     get_emotion_name,
     get_voice_name,
-    remove_unique_codes,
 )
 from . import translation_pb2, translation_pb2_grpc
 
@@ -121,7 +120,7 @@ class TranslationServicer(translation_pb2_grpc.TranslationServiceServicer):
     def Translate(self, request, context):
         try:
             params = TranslationParams(
-                text=remove_unique_codes(request.text),
+                text=request.text,
                 source_language=get_language_name(request.source_language),
                 target_language=get_language_name(request.target_language),
                 emotions_tags=[get_emotion_name(tag) for tag in request.emotion_tags],
@@ -343,14 +342,14 @@ def test_translate_maps_request_to_response():
 
 ## Recap
 
-| Step | File touched | Result |
-|---|---|---|
-| 1 | `Makefile` | Codegen produces importable stubs |
-| 2 | `domain/translation/__init__.py`, `main.py` | Model loads lazily, not at import |
-| 3 | `infrastructure/grpc/translation/v1/servicer.py` (new) | Proto ↔ domain adapter |
-| 4 | `bootstrap/server.py` (new) | Composition root / `serve()` |
-| 5 | `pyproject.toml` | `ai-translation-serve` entry point |
-| 6 | `Makefile` | `make serve` |
-| 7 | — | Verified with `grpcurl` / a Python client |
-| 8 | `pyproject.toml`, `bootstrap/server.py` | Health check + reflection |
-| 9 | `tests/test_servicer.py` (new) | Servicer tested without loading the model |
+| Step | File touched                                           | Result                                    |
+| ---- | ------------------------------------------------------ | ----------------------------------------- |
+| 1    | `Makefile`                                             | Codegen produces importable stubs         |
+| 2    | `domain/translation/__init__.py`, `main.py`            | Model loads lazily, not at import         |
+| 3    | `infrastructure/grpc/translation/v1/servicer.py` (new) | Proto ↔ domain adapter                    |
+| 4    | `bootstrap/server.py` (new)                            | Composition root / `serve()`              |
+| 5    | `pyproject.toml`                                       | `ai-translation-serve` entry point        |
+| 6    | `Makefile`                                             | `make serve`                              |
+| 7    | —                                                      | Verified with `grpcurl` / a Python client |
+| 8    | `pyproject.toml`, `bootstrap/server.py`                | Health check + reflection                 |
+| 9    | `tests/test_servicer.py` (new)                         | Servicer tested without loading the model |

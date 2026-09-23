@@ -5,8 +5,7 @@ from ai_translation.domain.translation import (
     TranslationParams,
     get_language_name,
     get_emotion_name,
-    get_voice_name,
-    remove_unique_codes,
+    get_voice_name
 )
 
 from . import translation_pb2, translation_pb2_grpc
@@ -16,7 +15,7 @@ class TranslationServicer(translation_pb2_grpc.TranslationServiceServicer):
     def Translate(self, request, context):
         try:
             params = TranslationParams(
-                text=remove_unique_codes(request.text),
+                text=request.text,
                 source_language=get_language_name(request.source_language),
                 target_language=get_language_name(request.target_language),
                 emotions_tags=[get_emotion_name(tag) for tag in request.emotion_tags],

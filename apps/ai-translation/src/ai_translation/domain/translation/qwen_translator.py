@@ -6,7 +6,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from .dto import TranslationParams
 
-
 class QwenTranslatorModel:
     """
     Long-lived Qwen inference engine.
