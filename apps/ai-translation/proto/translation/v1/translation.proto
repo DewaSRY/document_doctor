@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package translation.v1;
 
+option java_multiple_files = true;
+option java_package = "com.sdewa.coreServices.grpc.translation.v1";
+option java_outer_classname = "TranslationProto";
+
 service TranslationService {
   rpc Translate(TranslateRequest) returns (TranslateResponse);
 }

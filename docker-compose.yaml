@@ -1,31 +1,55 @@
 services:
   ai-translation:
-    image: sdewa/ai-translation
+    image: sdewa/ai-translation:latest
+    container_name: ai-translation
+    restart: unless-stopped
+
     ports:
       - "50051:50051"
+
     env_file:
       - .env
 
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - translation-network
+
   postgres:
     image: postgres:16
-    restart: always
+    container_name: postgres-translation-ai
+    restart: unless-stopped
+
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:user-translation-ai}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:pass-translation-ai}
-      POSTGRES_DB: ${POSTGRES_DB:db-translation-ai}
+      POSTGRES_USER: ${POSTGRES_USER:-user-translation-ai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pass-translation-ai}
+      POSTGRES_DB: ${POSTGRES_DB:-db-translation-ai}
+
     ports:
       - "5437:5432"
+
     volumes:
       - postgres-translation-ai-data:/var/lib/postgresql/data
+
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:user-translation-ai} -d ${POSTGRES_DB:db-translation-ai}",
+          "pg_isready -U ${POSTGRES_USER:-user-translation-ai} -d ${POSTGRES_DB:-db-translation-ai}",
         ]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+
+    networks:
+      - translation-network
+
+networks:
+  translation-network:
+    driver: bridge
 
 volumes:
   postgres-translation-ai-data:

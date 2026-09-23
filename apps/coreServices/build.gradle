@@ -39,6 +39,32 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+// The .proto contract is owned by apps/ai-translation (the gRPC server).
+// Compile it straight from there so client and server can't drift apart.
+sourceSets {
+	main {
+		proto {
+			srcDir "${rootDir}/../ai-translation/proto"
+		}
+	}
+}
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:${dependencyManagement.importedProperties['protobuf-java.version']}"
+	}
+	plugins {
+		grpc {
+			artifact = "io.grpc:protoc-gen-grpc-java:${dependencyManagement.importedProperties['grpc.version']}"
+		}
+	}
+	generateProtoTasks {
+		all()*.plugins {
+			grpc {}
+		}
+	}
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }

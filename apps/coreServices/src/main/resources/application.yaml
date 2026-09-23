@@ -1,3 +1,15 @@
 spring:
   application:
     name: coreServices
+  grpc:
+    client:
+      channel:
+        # Channel name referenced by @ImportGrpcClients(target = "ai-translation").
+        ai-translation:
+          target: static://${AI_TRANSLATION_GRPC_HOST:localhost}:${AI_TRANSLATION_GRPC_PORT:50051}
+          ssl:
+            # The Python server only opens an insecure port (bootstrap/server.py).
+            enabled: false
+          default:
+            # First call after server start also loads the model, so keep this generous.
+            deadline: ${AI_TRANSLATION_GRPC_DEADLINE:120s}
