@@ -80,6 +80,7 @@ async def translate_document(
 
         translations = {}
         for key, texts in extracted_text.items():
+            translated_sentences = []
             for text in texts:
                 if text:
                     params = TranslationParams(
@@ -90,7 +91,8 @@ async def translate_document(
                         voice_tags=[get_voice_name(tag) for tag in voice_tags_list],
                     )
                     translated = get_translator().translate(translation_params=params)
-                    translations[key] = translated
+                    translated_sentences.append(translated)
+            translations[key] = " ".join(translated_sentences) if translated_sentences else ""
 
         translated_content = await handler.create_translated_document(
             file_content,
