@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, DateTime, Text, func, Index
+from sqlalchemy import String, DateTime, Text, func, Index, LargeBinary
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -62,4 +62,40 @@ class TranslationJob(Base):
     __table_args__ = (
         Index("idx_job_status", "status"),
         Index("idx_job_created_at", "created_at"),
+    )
+
+
+class TranslatedDocument(Base):
+    """Model for storing translated documents."""
+
+    __tablename__ = "translated_documents"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    document_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    original_file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    original_file_size: Mapped[int] = mapped_column(nullable=False)
+    document_type: Mapped[str] = mapped_column(String(10), nullable=False)
+    source_language: Mapped[str] = mapped_column(String(10), nullable=False)
+    target_language: Mapped[str] = mapped_column(String(10), nullable=False)
+    translated_document: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="completed")
+    emotion_tags: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    voice_tags: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    model_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
+    )
+
+    __table_args__ = (
+        Index("idx_doc_id", "document_id"),
+        Index("idx_source_target_lang_doc", "source_language", "target_language"),
+        Index("idx_created_at_doc", "created_at"),
     )

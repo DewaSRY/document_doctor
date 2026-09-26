@@ -73,3 +73,37 @@ class TranslationJobResponse(BaseModel):
     completed_at: datetime | None = None
 
     model_config = {"from_attributes": True}
+
+
+class TranslatedDocumentCreate(BaseModel):
+    """Schema for creating a translated document record."""
+
+    document_id: str = Field(..., max_length=50, description="Unique document identifier")
+    original_file_name: str = Field(..., max_length=255, description="Original file name")
+    original_file_size: int = Field(..., gt=0, description="Original file size in bytes")
+    document_type: str = Field(..., max_length=10, description="Document type (pdf or docx)")
+    source_language: str = Field(..., min_length=2, max_length=10, description="Source language code")
+    target_language: str = Field(..., min_length=2, max_length=10, description="Target language code")
+    emotion_tags: str | None = Field(default=None, max_length=255, description="Comma-separated emotion tags")
+    voice_tags: str | None = Field(default=None, max_length=255, description="Comma-separated voice tags")
+    model_name: str = Field(..., max_length=255, description="Model name used")
+
+
+class TranslatedDocumentResponse(BaseModel):
+    """Schema for returning a translated document record (without binary content)."""
+
+    id: int
+    document_id: str
+    original_file_name: str
+    original_file_size: int
+    document_type: str
+    source_language: str
+    target_language: str
+    status: str
+    emotion_tags: str | None = None
+    voice_tags: str | None = None
+    model_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
