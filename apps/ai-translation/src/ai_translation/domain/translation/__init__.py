@@ -1,4 +1,5 @@
 from .qwen_translator import QwenTranslatorModel
+from .nllb_translator import NllbTranslatorModel
 
 from .dto import TranslationParams
 from .utils import (
@@ -7,11 +8,11 @@ from .utils import (
     get_voice_name,
 )
 
-_translator: QwenTranslatorModel | None = None
+_translator: NllbTranslatorModel | None = None
 
 
-def get_translator() -> QwenTranslatorModel:
+def get_translator() -> NllbTranslatorModel:
     global _translator
     if _translator is None:
-        _translator = QwenTranslatorModel()
+        _translator = NllbTranslatorModel()
     return _translator

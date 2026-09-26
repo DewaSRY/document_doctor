@@ -35,8 +35,8 @@ router = APIRouter(prefix="/v1", tags=["documents"])
 async def translate_document(
     request: Request,
     file: UploadFile = File(...),
-    source_language: str = "zh",
-    target_language: str = "id",
+    source_language: str = "id",
+    target_language: str = "zh",
     emotion_tags: str | None = Query(None),
     voice_tags: str | None = Query(None),
     session: AsyncSession = Depends(get_db_session),
