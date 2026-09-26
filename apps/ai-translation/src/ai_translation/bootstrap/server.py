@@ -1,8 +1,9 @@
 import os
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 import uvicorn
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_translation.domain.translation import (
     get_translator,
@@ -15,6 +16,24 @@ from ai_translation.infrastructure.rest.schemas import (
     TranslateRequest,
     TranslateResponse,
 )
+from ai_translation.infrastructure.database import (
+    init_db,
+    close_db,
+    get_db_session,
+)
+from ai_translation.infrastructure.database.schemas import (
+    TranslationRecordCreate,
+    TranslationRecordResponse,
+)
+from ai_translation.infrastructure.database.repositories import TranslationRecordRepository
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifecycle (startup and shutdown)."""
+    await init_db()
+    yield
+    await close_db()
 
 
 def create_app() -> FastAPI:
@@ -22,10 +41,14 @@ def create_app() -> FastAPI:
         title="AI Translation Service",
         description="Translation service powered by Qwen",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     @app.post("/v1/translate", response_model=TranslateResponse)
-    async def translate(request: TranslateRequest) -> TranslateResponse:
+    async def translate(
+        request: TranslateRequest,
+        session: AsyncSession = Depends(get_db_session),
+    ) -> TranslateResponse:
         try:
             params = TranslationParams(
                 text=request.text,
@@ -36,13 +59,49 @@ def create_app() -> FastAPI:
             )
 
             translated_text = get_translator().translate(translation_params=params)
+            model_name = get_translator().model.name_or_path
 
-            return TranslateResponse(
+            response = TranslateResponse(
                 translated_text=translated_text,
                 source_language=request.source_language,
                 target_language=request.target_language,
-                model=get_translator().model.name_or_path,
+                model=model_name,
             )
+
+            record_create = TranslationRecordCreate(
+                source_text=request.text,
+                translated_text=translated_text,
+                source_language=request.source_language,
+                target_language=request.target_language,
+                emotion_tags=",".join(request.emotion_tags or []),
+                voice_tags=",".join(request.voice_tags or []),
+                model_name=model_name,
+            )
+
+            repo = TranslationRecordRepository(session)
+            await repo.create(record_create)
+            await session.commit()
+
+            return response
+        except Exception as exc:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    @app.get("/v1/translations/{record_id}", response_model=TranslationRecordResponse)
+    async def get_translation(
+        record_id: int,
+        session: AsyncSession = Depends(get_db_session),
+    ) -> TranslationRecordResponse:
+        try:
+            repo = TranslationRecordRepository(session)
+            record = await repo.get_by_id(record_id)
+
+            if record is None:
+                raise HTTPException(status_code=404, detail="Translation record not found")
+
+            return TranslationRecordResponse.model_validate(record)
+        except HTTPException:
+            raise
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
