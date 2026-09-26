@@ -1,0 +1,786 @@
+{
+  "meta": {
+    "title": "Simple Bank — Studi Kasus Arsitektur",
+    "description": "Domain perbankan yang berjalan sebagai demonstrasi arsitektur bersih, perpindahan uang yang aman, dan perangkat lunak yang andal dengan biaya komputasi yang terukur."
+  },
+  "nav": {
+    "explore": "Jelajahi arsitekturnya",
+    "exploreDescription": "Lihat bagaimana aplikasi ini memisahkan tanggung jawab, melindungi transaksi, dan tetap terjangkau untuk dijalankan.",
+    "links": {
+      "overview": "Tentang proyek",
+      "architecture": "Desain sistem",
+      "backend": "Batas backend",
+      "database": "Model data",
+      "security": "Keamanan",
+      "deployment": "Deployment"
+    },
+    "tryDemo": "Jalankan demo",
+    "getStarted": "Coba aplikasinya",
+    "viewSource": "Baca kode sumber",
+    "menuToggle": "Menu"
+  },
+  "hero": {
+    "eyebrow": "Studi kasus arsitektur yang bisa dijalankan",
+    "titleBefore": "Aplikasi Simple Bank ",
+    "titleBrand": "Biaya server murah, applikasi aman dan codebase yang bagus",
+    "description": "Dokumentasi cara terbaik untuk bikin system applikasi aman, murah dan kuat.",
+    "pipeline": [
+      "Jelajahi domain",
+      "Telusuri request",
+      "Periksa batas modul",
+      "Pahami trade-off"
+    ],
+    "ctaPrimary": "Jelajahi arsitektur",
+    "ctaSecondary": "Jalankan demo",
+    "note": "Referensi terbaik buat bikin aplikasi besar yang aman, murah, dan terstruktur dengan baik",
+    "scrollHint": "Gulir untuk menjelajah",
+    "social": {
+      "github": "Periksa kode di GitHub",
+      "linkedin": "Terhubung dengan pembuatnya"
+    }
+  },
+  "overview": {
+    "eyebrow": "Tentang proyek",
+
+    "title": "Arsitektur Aplikasi Dunia Nyata",
+
+    "what": {
+      "title": "Apa itu Simple Bank?",
+      "body": "Simple Bank adalah aplikasi perbankan kecil yang dirancang untuk mendemonstrasikan bagaimana aplikasi dunia nyata dapat dibangun dengan arsitektur yang aman, kuat, mudah dirawat, dan tetap hemat biaya. Sistem ini mencakup pengguna, account, deposit, transfer, dan riwayat transaksi yang dapat dijalankan dan dipelajari secara langsung."
+    },
+
+    "why": {
+      "title": "Kenapa kami membuatnya",
+      "body": "Proyek ini dibuat sebagai dokumentasi dan referensi praktis untuk membangun aplikasi yang mampu menangani business logic dengan benar tanpa membutuhkan infrastruktur yang mahal. Fokusnya adalah menemukan keseimbangan antara security, reliability, maintainability, dan operational cost melalui arsitektur yang sederhana namun memiliki fondasi yang kuat."
+    },
+
+    "demonstrates": {
+      "title": "Apa yang didemonstrasikan",
+      "items": [
+        "Merancang ownership dan batas antar account",
+        "Memisahkan business logic dari infrastructure dan delivery layer",
+        "Memproses deposit dan transfer secara atomic dan konsisten",
+        "Menjaga integritas dan presisi data transaksi keuangan",
+        "Mencatat perubahan saldo sebagai audit trail yang immutable",
+        "Memvalidasi request di application boundary",
+        "Melindungi resource dengan authentication dan authorization",
+        "Memisahkan state frontend dari business rules backend",
+        "Membangun service yang mudah diuji dan dikembangkan",
+        "Menjalankan aplikasi dengan infrastructure footprint yang hemat biaya"
+      ]
+    }
+  },
+
+  "journey": {
+    "eyebrow": "Peta sistem",
+    "title": "Telusuri satu request melalui arsitekturnya.",
+    "subtitle": "Mulai dari portal dan ikuti bagaimana request melewati typed client, HTTP handler, business logic, dan database.",
+    "steps": [
+      {
+        "title": "Batas domain",
+        "summary": "Scope yang kecil dan jelas",
+        "detail": "Proyek ini menjaga domain tetap fokus: user, account, deposit, transfer, dan riwayat ledger. Dengan begitu correctness lebih mudah dipahami dan batas modul lebih mudah diperiksa."
+      },
+      {
+        "title": "Lapisan portal",
+        "summary": "Presentation tetap fokus",
+        "detail": "Portal Next.js menangani layar, form, translation, dan client state. Portal tidak memiliki akses database atau aturan yang menentukan apakah uang boleh berpindah."
+      },
+      {
+        "title": "Batas service",
+        "summary": "Satu kontrak yang eksplisit",
+        "detail": "Feature client memanggil HTTP API Go yang berversi. Kontrak transport terlihat jelas, typed, dan tidak bergantung pada implementasi UI."
+      },
+      {
+        "title": "Validasi di boundary",
+        "summary": "Input invalid ditolak lebih awal",
+        "detail": "Handler menerjemahkan input HTTP menjadi pemanggilan aplikasi dan mengembalikan success atau error envelope yang konsisten. Data invalid ditolak sebelum business logic berjalan."
+      },
+      {
+        "title": "Aturan di service layer",
+        "summary": "Business logic punya satu tempat",
+        "detail": "Ownership, currency, balance, locking, dan aturan transaksi ditegakkan di store layer backend, bukan diduplikasi di banyak layar."
+      },
+      {
+        "title": "Persistence dan migration",
+        "summary": "Database memiliki kontrak",
+        "detail": "PostgreSQL menyimpan account dan ledger entry, migration menjelaskan perubahan schema, dan sqlc menjaga akses query tetap type-safe."
+      },
+      {
+        "title": "Operasional yang hemat biaya",
+        "summary": "Berguna tanpa infrastruktur berlebihan",
+        "detail": "Docker, Nginx, dan footprint deployment yang sengaja dibuat kecil menjaga sistem tetap praktis dijalankan sambil mempertahankan perhatian pada kebutuhan production."
+      },
+      {
+        "title": "Perubahan dengan pengaman",
+        "summary": "Test dan migration membuat perubahan terlihat",
+        "detail": "Unit test, integration test, generated code, dan migration yang dapat dibatalkan membuat perubahan lebih mudah direview dan mengurangi risiko regression pada data atau behavior."
+      }
+    ]
+  },
+  "frontend": {
+    "eyebrow": "Frontend engineering",
+    "title": "UI yang tipis di atas alur data yang terarah.",
+    "subtitle": "Portal ini mendemonstrasikan bagaimana feature module, query cache, validation, dan server rendering dapat bekerja bersama tanpa mengambil alih tanggung jawab backend.",
+    "steps": [
+      {
+        "title": "Anda mengisi sebuah formulir",
+        "summary": "Cepat dan sederhana",
+        "detail": "Baik saat menambah saldo atau mengirim transfer, formulirnya singkat dan hanya menanyakan apa yang benar-benar dibutuhkan."
+      },
+      {
+        "title": "Kami langsung memeriksanya",
+        "summary": "Sebelum apa pun terkirim",
+        "detail": "Jika ada yang tidak sesuai — kolom yang kosong, jumlah yang tidak valid — kami langsung memberi tahu Anda, dengan bahasa yang jelas, bukan setelah Anda menunggu lama."
+      },
+      {
+        "title": "Informasi Anda dimuat seketika",
+        "summary": "Tanpa menunggu",
+        "detail": "Aplikasi mengingat apa yang sudah Anda lihat, jadi berpindah antar layar terasa instan, bukan memuat ulang semuanya setiap kali."
+      },
+      {
+        "title": "Satu jalur yang aman untuk setiap permintaan",
+        "summary": "Konsisten dan bisa diandalkan",
+        "detail": "Setiap tindakan di aplikasi, besar atau kecil, melewati proses yang sama persis dan penuh perhatian, jadi tidak ada yang diperlakukan istimewa atau dilewatkan."
+      },
+      {
+        "title": "Setiap permintaan dilindungi",
+        "summary": "Selalu dalam keadaan masuk",
+        "detail": "Aplikasi diam-diam memastikan itu benar-benar Anda sebelum mengirim permintaan apa pun, dan menyimpan catatan kejadiannya jika suatu saat perlu ditelusuri."
+      },
+      {
+        "title": "Pekerjaan sesungguhnya terjadi dengan aman",
+        "summary": "Aturan uang Anda ada di satu tempat",
+        "detail": "Saldo, transfer, dan kepemilikan semuanya diputuskan di satu tempat yang terpercaya, jadi aturannya tidak pernah berbeda-beda atau tidak sinkron."
+      }
+    ],
+    "prefetch": {
+      "label": "Dimuat seketika",
+      "description": "Halaman menampilkan informasi Anda yang sebenarnya begitu terbuka — tanpa ikon loading, tanpa menunggu data menyusul."
+    },
+    "notes": [
+      "Setiap layar menampilkan informasi yang nyata dan akurat. Jika ada perubahan di sisi kami, Anda tidak akan pernah secara tidak sengaja ditampilkan angka yang sudah usang.",
+      "Bagian aplikasi yang Anda gunakan dan bagian yang mengingat informasi Anda dijaga tetap terpisah, jadi gangguan pada satu bagian tidak pernah memengaruhi yang lain."
+    ]
+  },
+  "backend": {
+    "eyebrow": "Backend engineering",
+    "title": "Jalur request dengan ownership yang jelas.",
+    "subtitle": "Ikuti perjalanan dari HTTP translation ke business rules, persistence, structured error, dan behavior yang dapat diamati.",
+    "steps": [
+      {
+        "title": "Permintaan Anda tiba",
+        "summary": "Dengan aman, setiap saat",
+        "detail": "Apa pun yang Anda lakukan di aplikasi — setoran, transfer — tiba di sistem kami sebagai permintaan yang jelas dan lengkap."
+      },
+      {
+        "title": "Diberi nomor pelacakan",
+        "summary": "Agar tidak ada yang hilang",
+        "detail": "Setiap permintaan mendapat referensinya sendiri, jadi jika suatu saat perlu ditelusuri, kami bisa melacak persis apa yang terjadi, langkah demi langkah."
+      },
+      {
+        "title": "Dicatat",
+        "summary": "Untuk pertanggungjawaban",
+        "detail": "Kami menyimpan catatan yang teliti tentang apa yang terjadi dan kapan, dengan hal-hal sensitif, seperti kata sandi, otomatis disembunyikan dari catatan tersebut."
+      },
+      {
+        "title": "Hanya sumber tepercaya yang diizinkan",
+        "summary": "Tidak ada pengunjung tak dikenal",
+        "detail": "Permintaan hanya diterima dari aplikasi Simple Bank yang asli, bukan dari situs lain yang berpura-pura menjadi kami."
+      },
+      {
+        "title": "Kesalahan ditangkap dengan aman",
+        "summary": "Sebelum menjadi masalah",
+        "detail": "Jika terjadi sesuatu yang tak terduga, kami langsung menangkapnya dan memastikan Anda mendapat jawaban yang jelas, bukan aplikasi yang tiba-tiba rusak."
+      },
+      {
+        "title": "Tidak ada yang macet diam-diam",
+        "summary": "Kami selalu merespons",
+        "detail": "Bahkan jika ada yang salah di sisi kami, Anda akan selalu mendapat respons yang layak, bukan layar yang membeku atau permintaan yang hilang begitu saja."
+      },
+      {
+        "title": "Kami memastikan itu Anda",
+        "summary": "Setiap saat, tanpa terkecuali",
+        "detail": "Sebelum kami menyentuh rekening Anda, kami memastikan lagi bahwa permintaan itu benar-benar berasal dari Anda, yang sudah masuk dan terverifikasi."
+      },
+      {
+        "title": "Kami memeriksa ulang detailnya",
+        "summary": "Tidak ada yang lolos tanpa pemeriksaan",
+        "detail": "Jumlah, nomor rekening, dan setiap detail lainnya diverifikasi sesuai aturan yang jelas sebelum diterima."
+      },
+      {
+        "title": "Prosesnya benar-benar terjadi",
+        "summary": "Dengan hati-hati, dan hanya sekali",
+        "detail": "Di sinilah saldo Anda benar-benar berubah, selalu di dalam pengaman yang memastikan prosesnya berjalan penuh atau tidak sama sekali."
+      },
+      {
+        "title": "Anda mendapat jawabannya",
+        "summary": "Jelas, apa pun hasilnya",
+        "detail": "Anda mendapat konfirmasi yang jelas saat berhasil, dan penjelasan yang jelas serta jujur saat tidak berhasil."
+      }
+    ]
+  },
+  "banking": {
+    "eyebrow": "Correctness domain",
+    "title": "Gunakan perpindahan uang untuk membuat correctness terlihat.",
+    "subtitle": "Domain ledger memperlihatkan masalah engineering yang penting: precision, atomicity, ownership, concurrency, dan riwayat yang mudah diaudit.",
+    "lockCallout": {
+      "title": "Keputusan concurrency yang dapat diperiksa",
+      "body": "Jika dua transfer antara dua rekening yang sama terjadi di saat yang persis bersamaan, kami memastikan keduanya diproses satu per satu, dengan urutan yang konsisten dan bisa diprediksi — tidak pernah acak. Dengan begitu, dua hal yang terjadi bersamaan tidak akan pernah saling mengganggu atau membuat saldo Anda salah."
+    },
+    "steps": [
+      {
+        "title": "Kami memeriksa hal-hal dasar",
+        "summary": "Sebelum uang bergerak",
+        "detail": "Kami memastikan Anda tidak mengirim uang ke diri sendiri dan jumlahnya masuk akal — tidak ada yang terjadi sebelum ini dipastikan."
+      },
+      {
+        "title": "Kami mengunci sementara",
+        "summary": "Agar tidak ada yang tumpang tindih",
+        "detail": "Selama transfer Anda berlangsung, kedua rekening yang terlibat untuk sementara dilindungi dari perubahan lain, jadi tidak ada yang bisa mengganggunya."
+      },
+      {
+        "title": "Kami memastikan Anda mampu",
+        "summary": "Mata uang sama, dana cukup",
+        "detail": "Jika dananya tidak cukup, atau kedua rekening memakai mata uang berbeda, transfer berhenti di sini, sebelum apa pun tersentuh."
+      },
+      {
+        "title": "Kami mencatat transfernya",
+        "summary": "Satu catatan yang jelas",
+        "detail": "Sebuah catatan dibuat, menyebutkan persis rekening mana saja yang terlibat, dan berapa jumlah yang berpindah."
+      },
+      {
+        "title": "Uang keluar dari pengirim",
+        "summary": "Tercatat, bukan sekadar dikurangi",
+        "detail": "Kami mencatat persis apa yang keluar dari rekening pengirim — sebuah catatan permanen, bukan sekadar angka yang diam-diam berubah."
+      },
+      {
+        "title": "Uang masuk ke penerima",
+        "summary": "Tercatat, bukan sekadar ditambahkan",
+        "detail": "Kami mencatat persis apa yang masuk ke rekening penerima, dicocokkan dengan transfer yang sama."
+      },
+      {
+        "title": "Semuanya final",
+        "summary": "Semua terjadi, atau tidak sama sekali",
+        "detail": "Jika salah satu bagian ini gagal, tidak satu pun yang terjadi. Anda tidak akan pernah mengalami uang yang keluar dari satu rekening tapi tidak pernah sampai ke rekening lain."
+      }
+    ],
+    "notes": [
+      "Uang Anda tidak pernah diperlakukan sebagai perkiraan kasar. Setiap jumlah ditangani dengan presisi penuh, sampai ke satuan sen, tidak pernah dibulatkan, tidak pernah diperkirakan.",
+      "Menutup rekening yang masih memiliki saldo tidak membuat uangnya hilang. Saldo tersebut otomatis dipindahkan ke rekening utama Anda terlebih dahulu, dengan aman dan tercatat.",
+      "Setiap nasabah baru otomatis mendapat satu rekening utama begitu mendaftar — dijamin, bukan sekadar sesuatu yang kami coba ingat untuk dilakukan."
+    ]
+  },
+  "database": {
+    "eyebrow": "Arsitektur data",
+    "title": "Model relasional yang membuat invariant terlihat.",
+    "subtitle": "Account, transfer, dan entry dimodelkan terpisah agar perubahan saldo dapat dijelaskan, di-query, dan diuji, bukan sekadar ditimpa.",
+    "entities": [
+      {
+        "name": "Nasabah",
+        "description": "Satu catatan untuk setiap orang yang mendaftar.",
+        "columns": [
+          "Nama pengguna Anda",
+          "Alamat email Anda",
+          "Kata sandi yang dilindungi dengan aman",
+          "Kapan Anda bergabung",
+          "Kapan info Anda terakhir berubah"
+        ]
+      },
+      {
+        "name": "Rekening",
+        "description": "Setiap rekening yang Anda miliki, dan isinya.",
+        "columns": [
+          "Rekening mana yang milik Anda",
+          "Nomor rekening yang unik",
+          "Nama yang Anda pilih",
+          "Saldo Anda saat ini",
+          "Mata uang",
+          "Apakah ini rekening utama Anda",
+          "Apakah sudah ditutup"
+        ]
+      },
+      {
+        "name": "Transfer",
+        "description": "Catatan perpindahan uang antara dua rekening.",
+        "columns": [
+          "Rekening pengirim",
+          "Rekening penerima",
+          "Jumlah yang dikirim",
+          "Catatan, jika Anda menambahkannya",
+          "Kapan terjadinya"
+        ]
+      },
+      {
+        "name": "Riwayat transaksi",
+        "description": "Jejak lengkap dan permanen di balik setiap saldo, tidak pernah diubah setelah tercatat.",
+        "columns": [
+          "Rekening mana",
+          "Transfer terkait, jika ada",
+          "Jenis",
+          "Jumlah",
+          "Catatan, jika Anda menambahkannya",
+          "Kapan terjadinya"
+        ]
+      }
+    ],
+    "relationshipsLabel": "Bagaimana semuanya saling terhubung",
+    "constraintsLabel": "Yang kami jamin",
+    "relationships": [
+      "Anda bisa memiliki beberapa rekening, dan selalu ada tepat satu yang menjadi rekening utama Anda.",
+      "Setiap rekening membangun riwayat transaksi yang lengkap. Saldo Anda hanyalah total dari semua yang pernah terjadi padanya.",
+      "Sebuah transfer selalu membuat dua catatan yang saling terkait: uang keluar dari satu rekening dan uang masuk ke rekening lain, terhubung satu sama lain.",
+      "Menambah saldo membuat satu catatan pada satu rekening saja, tanpa melibatkan yang lain."
+    ],
+    "constraints": [
+      "Saldo Anda tidak akan pernah bisa turun di bawah nol. Ini ditegakkan di lapisan paling dasar sistem, bukan sesuatu yang bisa lolos.",
+      "Sebuah transfer tidak akan pernah bisa bernilai nol atau negatif. Itu tidak bisa tercatat sama sekali.",
+      "Anda akan selalu memiliki tepat satu rekening utama, tidak pernah nol, dan tidak pernah lebih dari satu.",
+      "Menutup rekening tidak pernah menghapusnya. Rekening dan seluruh riwayatnya tetap tersimpan dengan aman."
+    ]
+  },
+  "api": {
+    "eyebrow": "Desain API",
+    "title": "Kontrak kecil antara portal dan service.",
+    "subtitle": "API menggunakan response envelope yang konsisten, authentication boundary yang eksplisit, pagination, dan structured error agar client tidak perlu menebak.",
+    "successLabel": "Saat berhasil",
+    "errorLabel": "Saat ada yang salah",
+    "publicLabel": "tidak perlu masuk",
+    "successExample": "{\n  \"data\": {\n    \"id\": 42,\n    \"number\": \"ACT/20260118/000042\",\n    \"name\": \"Travel\",\n    \"balance\": \"120.00\",\n    \"currency\": \"USD\"\n  },\n  \"meta\": { \"page\": 1, \"limit\": 10, \"total\": 3 }\n}",
+    "errorExample": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Periksa kembali detailnya dan coba lagi.\",\n    \"details\": [\n      { \"field\": \"amount\", \"message\": \"Jumlah harus lebih besar dari 0\" }\n    ]\n  }\n}",
+    "endpointGroups": [
+      {
+        "name": "Daftar & masuk",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/auth/register",
+            "auth": false,
+            "description": "Buat rekening Anda dan langsung mulai."
+          },
+          {
+            "method": "POST",
+            "path": "/auth/login",
+            "auth": false,
+            "description": "Masuk ke rekening Anda."
+          },
+          {
+            "method": "GET",
+            "path": "/auth/profile",
+            "auth": true,
+            "description": "Lihat detail rekening Anda sendiri."
+          }
+        ]
+      },
+      {
+        "name": "Rekening",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/accounts",
+            "auth": true,
+            "description": "Buka account baru."
+          },
+          {
+            "method": "GET",
+            "path": "/accounts/me",
+            "auth": true,
+            "description": "Lihat semua account Anda."
+          },
+          {
+            "method": "GET",
+            "path": "/accounts/search-by-number",
+            "auth": true,
+            "description": "Cari account lewat nomornya, agar Anda bisa mengirim uang ke sana."
+          },
+          {
+            "method": "GET",
+            "path": "/accounts/:id",
+            "auth": true,
+            "description": "Lihat salah satu account Anda."
+          },
+          {
+            "method": "PUT",
+            "path": "/accounts/:id",
+            "auth": true,
+            "description": "Ubah nama atau perbarui sebuah account."
+          },
+          {
+            "method": "DELETE",
+            "path": "/accounts/:id",
+            "auth": true,
+            "description": "Tutup sebuah account. Sisa saldonya dipindahkan ke account utama Anda terlebih dahulu."
+          },
+          {
+            "method": "POST",
+            "path": "/accounts/:id/deposit",
+            "auth": true,
+            "description": "Tambah saldo ke sebuah account."
+          },
+          {
+            "method": "GET",
+            "path": "/accounts/:id/entries",
+            "auth": true,
+            "description": "Lihat setiap perubahan pada saldo sebuah account."
+          },
+          {
+            "method": "GET",
+            "path": "/accounts/:id/transactions",
+            "auth": true,
+            "description": "Lihat riwayat transaksi account Anda, diberi label dan mudah dibaca."
+          },
+          {
+            "method": "GET",
+            "path": "/accounts/:id/recent-destinations",
+            "auth": true,
+            "description": "Lihat siapa saja yang baru-baru ini Anda kirimi uang dari account Anda."
+          }
+        ]
+      },
+      {
+        "name": "Mengirim uang",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/transactions/transfer",
+            "auth": true,
+            "description": "Kirim uang dari rekening Anda ke rekening lain."
+          }
+        ]
+      }
+    ]
+  },
+  "security": {
+    "eyebrow": "Security boundary",
+    "title": "Security adalah bagian dari desain, bukan tambahan belakangan.",
+    "subtitle": "Pelajari control yang benar-benar diimplementasikan, trust boundary yang dilindunginya, dan kompromi yang masih ada di roadmap.",
+    "cards": [
+      {
+        "title": "Authentication berbasis JWT",
+        "body": "Service menerbitkan access token yang memiliki masa berlaku dan memeriksanya pada protected request. Demo ini memakai akses berbasis email, bukan identity system production yang lengkap."
+      },
+      {
+        "title": "Validasi di beberapa boundary",
+        "body": "Portal memvalidasi form agar feedback cepat, sementara service Go memvalidasi request lagi sebelum business rules diterapkan."
+      },
+      {
+        "title": "Akses cross-origin yang terkontrol",
+        "body": "CORS dan reverse-proxy boundary membatasi cara browser client mengakses API, sehingga public surface tetap eksplisit dan tidak terbuka untuk semua origin."
+      },
+      {
+        "title": "Failure path yang dapat diamati",
+        "body": "Request ID, structured logging, normalized error, dan rate limiting membuat failure lebih mudah dipahami dan mengurangi risiko masalah hilang tanpa konteks."
+      },
+      {
+        "title": "Perpindahan uang yang atomic",
+        "body": "Deposit dan transfer berjalan di dalam database transaction sehingga perubahan balance dan ledger yang terkait commit atau rollback bersama-sama."
+      },
+      {
+        "title": "Keterbatasan yang eksplisit",
+        "body": "Proyek ini mendokumentasikan gap yang diketahui, seperti authentication flow yang disederhanakan dan fitur identity production yang belum ada, bukan menyajikan demo ini sebagai bank sungguhan."
+      }
+    ]
+  },
+  "infrastructure": {
+    "eyebrow": "Operasional yang hemat biaya",
+    "title": "Infrastruktur yang berguna tanpa biaya berlebihan.",
+    "subtitle": "Cerita deployment ini menunjukkan cara package, test, dan menjalankan aplikasi dengan beberapa komponen pada footprint yang sengaja dibuat kecil.",
+    "steps": [
+      {
+        "title": "Semuanya dimulai dari satu rencana yang jelas",
+        "summary": "Tertata sejak awal",
+        "detail": "Aplikasi yang Anda pakai dan sistem di baliknya dibangun serta dilacak bersama, tapi tetap independen, jadi perubahan pada satu bagian tidak pernah tanpa sengaja merusak yang lain."
+      },
+      {
+        "title": "Setiap perubahan diuji lebih dulu",
+        "summary": "Tidak ada yang dirilis tanpa diuji",
+        "detail": "Sebelum sebuah pembaruan aktif, ia otomatis diperiksa terhadap salinan sistem yang benar-benar berjalan, sama seperti yang akan dilakukan tim rekayasa bank sungguhan."
+      },
+      {
+        "title": "Dikemas secara konsisten",
+        "summary": "Selalu sama, setiap saat",
+        "detail": "Sistem dikemas dengan cara yang persis sama setiap kali dibangun, jadi yang diuji adalah persis apa yang benar-benar berjalan, tanpa kejutan di antaranya."
+      },
+      {
+        "title": "Berjalan sama di mana saja",
+        "summary": "Tidak ada kejutan antara uji coba dan pemakaian nyata",
+        "detail": "Bagian-bagian yang membentuk Simple Bank disiapkan agar berjalan bersama secara konsisten, baik saat sedang dibangun maupun saat sudah aktif untuk Anda gunakan."
+      },
+      {
+        "title": "Perubahan pada data Anda selalu tercatat",
+        "summary": "Tidak ada yang berubah tanpa sengaja",
+        "detail": "Setiap perubahan pada cara informasi Anda disimpan direncanakan, dicatat, dan bisa dibatalkan — tidak pernah berupa perubahan diam-diam yang tak terdokumentasi."
+      },
+      {
+        "title": "Disiapkan dengan teliti, bukan asal-asalan",
+        "summary": "Konsisten dan bisa diulang",
+        "detail": "Server yang menjalankan Simple Bank disiapkan dengan cara yang terkontrol dan bisa diulang, jadi tidak ada bagian dari pengaturannya yang dibiarkan sekadar tebakan."
+      },
+      {
+        "title": "Dijaga terpisah demi keamanan Anda",
+        "summary": "Independen sejak dirancang",
+        "detail": "Aplikasi yang Anda pakai dan sistem yang menyimpan data Anda di-deploy secara terpisah, dan hanya saling berkomunikasi lewat satu koneksi yang jelas dan terkunci."
+      }
+    ],
+    "notes": [
+      "Kami menyimpan catatan yang jelas tentang apa yang terjadi pada sistem kami, dengan referensi yang bisa dilacak untuk setiap permintaan, jadi jika suatu saat perlu diselidiki, kami bisa menelusurinya dengan benar.",
+      "Bagaimana pun Simple Bank berjalan, baik di laptop saat sedang kami bangun maupun saat aktif untuk Anda gunakan, perilakunya selalu sama persis, jadi Anda tidak pernah mendapat pengalaman yang berbeda dari yang sudah kami uji."
+    ]
+  },
+  "decisions": {
+    "eyebrow": "Engineering judgment",
+    "title": "Trade-off adalah bagian dari dokumentasi.",
+    "subtitle": "Hal yang penting bukan mengklaim semuanya sempurna, tetapi menjelaskan constraint yang membentuk desain dan apa yang akan berubah pada skala yang lebih besar.",
+    "labels": {
+      "problem": "Situasinya",
+      "constraint": "Apa yang kami hadapi",
+      "decision": "Apa yang kami pilih",
+      "result": "Artinya bagi Anda"
+    },
+    "items": [
+      {
+        "problem": "Jika dua transfer yang melibatkan dua rekening yang sama terjadi di saat yang persis bersamaan, keduanya bisa saling mengganggu.",
+        "constraint": "Kedua rekening yang terlibat dalam sebuah transfer perlu dilindungi dari perubahan lain selama prosesnya berlangsung.",
+        "decision": "Kami selalu memproses kedua rekening tersebut dengan urutan yang konsisten, apa pun arah perpindahan uangnya.",
+        "result": "Dua transfer yang terjadi bersamaan tidak akan pernah macet atau bentrok. Uang Anda selalu berpindah dengan lancar, bahkan saat aplikasi sedang ramai digunakan."
+      },
+      {
+        "problem": "Komputer terkadang bisa salah membulatkan angka uang, dan itu tidak pernah bisa diterima saat menyangkut saldo Anda yang sebenarnya.",
+        "constraint": "Setiap jumlah uang harus tetap presisi di setiap langkah, berapa kali pun disimpan, dikirim, atau dihitung.",
+        "decision": "Kami memperlakukan setiap jumlah sebagai nilai yang persis dari awal sampai akhir, tidak pernah sebagai perkiraan.",
+        "result": "Saldo Anda selalu tepat, sampai ke satuan sen, tanpa kesalahan pembulatan, tidak pernah."
+      },
+      {
+        "problem": "Menutup rekening yang masih memiliki saldo seharusnya tidak membuat uangnya hilang, tapi juga seharusnya tidak menghalangi Anda menutup rekening itu.",
+        "constraint": "Uang bisa berpindah antar rekening, tapi tidak boleh menghilang begitu saja.",
+        "decision": "Saat Anda menutup rekening, sisa saldonya otomatis dan aman dipindahkan ke rekening utama Anda terlebih dahulu, sebagai transfer sungguhan yang tercatat.",
+        "result": "Anda bisa menutup rekening kapan saja, dan setiap sen di dalamnya tetap tercatat dan terjaga."
+      },
+      {
+        "problem": "Aplikasi perlu membuktikan itu benar-benar Anda sebelum bertindak atas nama Anda, bahkan saat Anda menggunakannya lewat browser.",
+        "constraint": "Demo ini belum memiliki pengaturan yang lebih canggih yang bisa menyembunyikan bukti tersebut sepenuhnya dari browser.",
+        "decision": "Untuk saat ini, demo ini memakai cara yang lebih sederhana untuk menjaga Anda tetap masuk.",
+        "result": "Cara ini sederhana dan bekerja baik untuk sebuah demo. Kami terbuka bahwa versi yang lebih ketat dari ini adalah perbaikan yang sudah direncanakan, bukan sesuatu yang kami abaikan."
+      }
+    ]
+  },
+  "requestFlow": {
+    "eyebrow": "Telusuri request",
+    "title": "Apa yang terjadi saat transfer melewati sistem.",
+    "subtitle": "Gunakan satu transfer sebagai contoh konkret untuk melihat validation, authentication, locking, database transaction, dan cache invalidation.",
+    "steps": [
+      {
+        "title": "Anda mengisi detailnya",
+        "summary": "Kepada siapa, dan berapa",
+        "detail": "Anda memilih rekening, jumlah, dan tujuannya, dan kami memeriksanya sebelum Anda bahkan sempat menekan kirim."
+      },
+      {
+        "title": "Anda menekan kirim",
+        "summary": "Satu ketukan",
+        "detail": "Permintaan Anda langsung dikemas dan dikirim dengan aman, saat itu juga."
+      },
+      {
+        "title": "Permintaan tiba di sistem kami",
+        "summary": "Dengan aman, setiap saat",
+        "detail": "Permintaan transfer Anda tiba di sistem yang mengelola setiap rekening, siap untuk diperiksa dan diproses."
+      },
+      {
+        "title": "Melewati semua pemeriksaan",
+        "summary": "Tidak ada yang dilewatkan",
+        "detail": "Sebelum transfer Anda menyentuh uang apa pun, kami memastikan itu benar-benar Anda, dan semuanya dalam permintaan ini aman dan sah."
+      },
+      {
+        "title": "Kami memeriksa ulang detailnya",
+        "summary": "Sekali lagi memastikan",
+        "detail": "Kami memastikan Anda memang pemilik rekening yang Anda pakai untuk mengirim, jumlahnya masuk akal, dan Anda tidak mengirim uang ke diri sendiri."
+      },
+      {
+        "title": "Transfer berlangsung",
+        "summary": "Dengan aman dan berurutan",
+        "detail": "Kedua rekening dilindungi sejenak selagi kami memastikan saldo Anda cukup dan mata uangnya cocok."
+      },
+      {
+        "title": "Tercatat secara permanen",
+        "summary": "Uang keluar, uang masuk",
+        "detail": "Kami mencatat persis apa yang keluar dari satu rekening dan apa yang masuk ke rekening lain, lalu memperbarui kedua saldo bersamaan, secara utuh, atau tidak sama sekali."
+      },
+      {
+        "title": "Anda mendapat konfirmasi",
+        "summary": "Jelas dan langsung",
+        "detail": "Anda mendapat jawaban yang jelas begitu prosesnya selesai, memberi tahu bahwa transfer Anda berhasil."
+      },
+      {
+        "title": "Angka Anda diperbarui",
+        "summary": "Secara otomatis",
+        "detail": "Aplikasi diam-diam tahu saldo Anda baru saja berubah, jadi ia mengambil angka terbarunya."
+      },
+      {
+        "title": "Anda melihatnya berubah",
+        "summary": "Tanpa perlu memuat ulang",
+        "detail": "Saldo dan riwayat transaksi Anda diperbarui tepat di depan mata, tanpa Anda perlu melakukan apa pun."
+      }
+    ]
+  },
+  "capabilities": {
+    "eyebrow": "Hal yang bisa dipelajari",
+    "title": "Kemampuan engineering yang ditampilkan proyek ini.",
+    "groups": [
+      {
+        "name": "Struktur aplikasi",
+        "items": [
+          {
+            "title": "Layar yang cepat dan fokus",
+            "body": "Aplikasi hanya menampilkan apa yang Anda butuhkan, dan merespons seketika, tanpa waktu tunggu yang tidak perlu."
+          },
+          {
+            "title": "Informasi yang akurat dan real-time",
+            "body": "Apa yang Anda lihat di layar selalu sesuai dengan yang sebenarnya ada di rekening Anda."
+          },
+          {
+            "title": "Formulir yang jelas dan membantu",
+            "body": "Jika ada yang salah dengan yang Anda masukkan, Anda akan langsung tahu, dengan bahasa yang jelas."
+          }
+        ]
+      },
+      {
+        "name": "Security dan resilience",
+        "items": [
+          {
+            "title": "Pemeriksaan yang teliti dan berlapis",
+            "body": "Setiap permintaan melewati proses tepercaya yang sama, tanpa jalan pintas dan tanpa yang dilewatkan."
+          },
+          {
+            "title": "Masuk dengan aman",
+            "body": "Anda diverifikasi pada setiap permintaan, jadi rekening Anda tidak bisa disentuh oleh siapa pun selain Anda."
+          },
+          {
+            "title": "Jawaban yang jelas, bahkan saat ada yang salah",
+            "body": "Anda tidak akan pernah dibiarkan menebak-nebak. Kesalahan ditangani secara konsisten dan dijelaskan dengan jelas."
+          }
+        ]
+      },
+      {
+        "name": "Correctness data",
+        "items": [
+          {
+            "title": "Catatan yang selalu tepat",
+            "body": "Data Anda ditangani dengan ketelitian penuh, tidak ada yang dibiarkan sekadar tebakan atau dibulatkan."
+          },
+          {
+            "title": "Riwayat yang lengkap dan permanen",
+            "body": "Saldo Anda bukan sekadar angka. Ia adalah jumlah dari riwayat lengkap yang tidak bisa diubah, yang selalu bisa Anda lihat kembali."
+          },
+          {
+            "title": "Setiap perubahan tercatat",
+            "body": "Setiap pembaruan pada cara data disimpan didokumentasikan dan bisa dibatalkan, jadi tidak ada yang berubah pada data Anda secara mengejutkan."
+          }
+        ]
+      },
+      {
+        "name": "Operasional hemat biaya",
+        "items": [
+          {
+            "title": "Dikemas agar konsisten",
+            "body": "Sistem berjalan dengan cara yang sama setiap saat, jadi tidak ada perbedaan perilaku antara uji coba dan pemakaian nyata."
+          },
+          {
+            "title": "Disiapkan dengan teliti, bukan asal-asalan",
+            "body": "Server di balik Simple Bank dikonfigurasi dengan cara yang terkontrol dan bisa diulang, bukan disusun sembarangan."
+          },
+          {
+            "title": "Koneksi yang independen dan terkunci",
+            "body": "Aplikasi yang Anda pakai dan sistem yang menyimpan data Anda dijaga terpisah, hanya terhubung lewat satu jalur yang jelas dan terkontrol."
+          }
+        ]
+      },
+      {
+        "name": "Disiplin engineering",
+        "items": [
+          {
+            "title": "Diuji sebelum dirilis",
+            "body": "Setiap perubahan diperiksa terhadap kondisi nyata sebelum sampai kepada Anda."
+          },
+          {
+            "title": "Diperiksa pada setiap pembaruan",
+            "body": "Setiap perubahan otomatis diuji terhadap sistem yang benar-benar berjalan sebelum dianggap selesai."
+          },
+          {
+            "title": "Jujur sejak awal",
+            "body": "Kami memberi tahu Anda dengan jelas saat sesuatu adalah kompromi yang disengaja, bukan berpura-pura semuanya sempurna."
+          }
+        ]
+      }
+    ]
+  },
+  "techStack": {
+    "eyebrow": "Dibangun dengan teliti",
+    "title": "Perangkat modern dan teruji yang bisa Anda andalkan.",
+    "groups": [
+      {
+        "name": "Frontend",
+        "items": [
+          "Next.js 16",
+          "React 19",
+          "TypeScript",
+          "TanStack Query v5",
+          "Zustand",
+          "Axios",
+          "React Hook Form",
+          "Zod",
+          "Tailwind v4",
+          "shadcn/ui di atas Base UI",
+          "react-i18next"
+        ]
+      },
+      {
+        "name": "Backend",
+        "items": [
+          "Go",
+          "Gin",
+          "golang-jwt",
+          "go-playground/validator",
+          "shopspring/decimal",
+          "log/slog"
+        ]
+      },
+      {
+        "name": "Database",
+        "items": ["PostgreSQL 16", "sqlc", "golang-migrate", "lib/pq"]
+      },
+      {
+        "name": "Testing",
+        "items": [
+          "Go testing + testify",
+          "go.uber.org/mock (gomock)",
+          "Integration test Postgres"
+        ]
+      },
+      {
+        "name": "Infrastruktur & deployment",
+        "items": [
+          "Docker",
+          "Docker Compose",
+          "Terraform",
+          "AWS EC2",
+          "GitHub Actions",
+          "Vercel"
+        ]
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Pelajari sistemnya dengan menjalankannya.",
+    "description": "Telusuri workflow perbankan nyata, periksa kode sumbernya, dan evaluasi keputusan di balik aplikasi yang aman, mudah dirawat, serta dirancang untuk biaya komputasi yang terukur.",
+    "ctaExplore": "Jelajahi arsitektur",
+    "ctaDemo": "Jalankan demo",
+    "ctaSource": "Baca kode sumber"
+  },
+  "footer": {
+    "tagline": "Perbankan yang sederhana dan aman, dibangun dari nol.",
+    "builtBy": "Dirancang dan dibangun oleh Dewa Surya Ariesta.",
+    "rights": "Hak cipta dilindungi.",
+    "author": {
+      "heading": "Hubungi {{name}}"
+    }
+  }
+}

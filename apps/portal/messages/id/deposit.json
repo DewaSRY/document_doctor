@@ -1,0 +1,20 @@
+{
+  "depositFundsTitle": "Setor dana",
+  "selectAccountDescription": "Pilih rekening yang ingin Anda setor.",
+  "enterDetailsDescription": "Masukkan jumlah dan deskripsi untuk setoran ini.",
+  "reviewDepositTitle": "Tinjau setoran",
+  "reviewDepositDescription": "Konfirmasi detail sebelum mengirimkan setoran Anda.",
+  "depositAction": "Setor",
+  "depositTooltip": "Setor dana",
+  "account": "Rekening",
+  "amount": "Jumlah",
+  "amountPlaceholder": "0.00",
+  "description": "Deskripsi",
+  "descriptionPlaceholder": "Untuk apa setoran ini?",
+  "depositError": "Gagal melakukan setoran. Silakan coba lagi.",
+  "confirmDeposit": "Konfirmasi setoran",
+  "depositing": "Menyetor...",
+  "amountRequired": "Jumlah wajib diisi",
+  "amountInvalid": "Masukkan jumlah yang valid",
+  "descriptionRequired": "Deskripsi wajib diisi"
+}

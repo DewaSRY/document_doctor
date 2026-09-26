@@ -1,0 +1,20 @@
+{
+  "depositFundsTitle": "Deposit funds",
+  "selectAccountDescription": "Select the account you want to deposit into.",
+  "enterDetailsDescription": "Enter the amount and a description for this deposit.",
+  "reviewDepositTitle": "Review deposit",
+  "reviewDepositDescription": "Confirm the details before submitting your deposit.",
+  "depositAction": "Deposit",
+  "depositTooltip": "Deposit funds",
+  "account": "Account",
+  "amount": "Amount",
+  "amountPlaceholder": "0.00",
+  "description": "Description",
+  "descriptionPlaceholder": "What's this deposit for?",
+  "depositError": "Failed to deposit. Please try again.",
+  "confirmDeposit": "Confirm deposit",
+  "depositing": "Depositing...",
+  "amountRequired": "Amount is required",
+  "amountInvalid": "Enter a valid amount",
+  "descriptionRequired": "Description is required"
+}

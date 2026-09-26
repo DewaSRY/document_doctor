@@ -1,0 +1,206 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Brand identity — wallet-icon green (#12AE52), consistent across themes */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-100: var(--brand-100);
+  --color-brand-300: var(--brand-300);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-900: var(--brand-900);
+
+  /* Semantic status colors */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(100% 0.00011 271.152);
+  --foreground: oklch(22.213% 0.00003 271.152);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.6578 0.1771 150);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.965 0.006 104);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.965 0.006 104);
+  --muted-foreground: oklch(35.331% 0.00137 15.607);
+  --accent: oklch(0.97 0.045 150);
+  --accent-foreground: oklch(0.28 0.05 150);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0.004 104);
+  --input: oklch(0.922 0.004 104);
+  --ring: oklch(0.6578 0.1771 150);
+  --chart-1: oklch(0.6578 0.1771 150);
+  --chart-2: oklch(0.28 0.05 150);
+  --chart-3: oklch(0.77 0.15 75);
+  --chart-4: oklch(0.6 0.15 155);
+  --chart-5: oklch(0.5 0.01 104);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0.004 104);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.6578 0.1771 150);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0.045 150);
+  --sidebar-accent-foreground: oklch(0.28 0.05 150);
+  --sidebar-border: oklch(0.922 0.004 104);
+  --sidebar-ring: oklch(0.6578 0.1771 150);
+
+  /* Green scale anchored on #12AE52 (sampled from the wallet icon), built
+     as Tailwind-style oklch tints/shades along the same hue (150);
+     --brand-500 is the fixed identity color — the exact #12AE52 hex — and
+     is intentionally identical in .dark below.
+     Unlike the old yellow scale, brand-500/600/700/900 are dark enough
+     that white foreground text works directly on them; brand-100/300 are
+     still light tints, so brand-foreground (used on brand-soft) stays a
+     dark shade (brand-900) for contrast there. */
+  --brand-100: oklch(0.94 0.06 150);
+  --brand-300: oklch(0.8 0.14 150);
+  --brand-500: oklch(0.6578 0.1771 150);
+  --brand-600: oklch(0.52 0.15 150);
+  --brand-700: oklch(0.43 0.13 150);
+  --brand-900: oklch(0.3 0.09 150);
+  --brand: var(--brand-500);
+  --brand-hover: var(--brand-600);
+  --brand-active: var(--brand-700);
+  --brand-soft: var(--brand-100);
+  --brand-foreground: var(--brand-900);
+
+  --success: oklch(0.6 0.15 155);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.77 0.15 75);
+  --warning-foreground: oklch(0.28 0.06 70);
+}
+
+.dark {
+  --background: oklch(0.19 0.014 104);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.24 0.016 104);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.26 0.016 104);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.6578 0.1771 150);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.28 0.016 104);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.28 0.016 104);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.3 0.05 150);
+  --accent-foreground: oklch(0.95 0.05 150);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6578 0.1771 150);
+  --chart-1: oklch(0.6578 0.1771 150);
+  --chart-2: oklch(0.95 0.05 150);
+  --chart-3: oklch(0.8 0.16 80);
+  --chart-4: oklch(0.72 0.17 155);
+  --chart-5: oklch(0.708 0 0);
+  --sidebar: oklch(0.2 0.014 104);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.6578 0.1771 150);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.3 0.05 150);
+  --sidebar-accent-foreground: oklch(0.95 0.05 150);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.6578 0.1771 150);
+
+  /* --brand-500 matches :root exactly — the one fixed identity color.
+     100/300 darken into muted dark-mode tints, 600/700 stay slightly
+     deeper than 500 for hover/active, and 900 flips light so it still
+     reads as foreground text on the (now dark) brand-soft background. */
+  --brand-100: oklch(0.32 0.05 150);
+  --brand-300: oklch(0.48 0.12 150);
+  --brand-500: oklch(0.6578 0.1771 150);
+  --brand-600: oklch(0.58 0.15 150);
+  --brand-700: oklch(0.5 0.13 150);
+  --brand-900: oklch(0.88 0.1 150);
+  --brand: var(--brand-500);
+  --brand-hover: var(--brand-600);
+  --brand-active: var(--brand-700);
+  --brand-soft: var(--brand-100);
+  --brand-foreground: var(--brand-900);
+
+  --success: oklch(0.72 0.17 155);
+  --success-foreground: oklch(0.15 0.03 155);
+  --warning: oklch(0.8 0.16 80);
+  --warning-foreground: oklch(0.2 0.05 70);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth !important;
+  }
+}
+
+@keyframes logout-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
