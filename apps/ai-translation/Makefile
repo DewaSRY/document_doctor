@@ -21,9 +21,17 @@ deactivate: ## Print how to deactivate the virtual environment (must be sourced,
 	@echo "Run this in your shell (Makefiles cannot deactivate a venv for you):"
 	@echo "  deactivate"
 
-.PHONY: run
-run: ## Run the application
-	uv run ai-translation
+.PHONY: translate
+translate: ## Run the translation CLI (test translation)
+	uv run ai-translation translate
+
+.PHONY: serve
+serve: ## Run the REST API server
+	uv run ai-translation server
+
+.PHONY: serve-dev
+serve-dev: ## Run the REST API server in development mode (with auto-reload)
+	uv run uvicorn ai_translation.bootstrap.server:create_app --host 0.0.0.0 --port 8000 --reload
 
 .PHONY: test
 test: ## Run the test suite
@@ -48,30 +56,6 @@ clean: ## Remove caches and build artifacts
 clean-venv: ## Remove the virtual environment entirely
 	rm -rf $(VENV)
 
-## PROTOBUF / gRPC
-
-PROTO_DIR := ./proto
-PROTO_FILE := $(PROTO_DIR)/translation/v1/translation.proto
-GRPC_OUT := ./src/ai_translation/infrastructure/grpc
-
-.PHONY: gen-proto
-gen-proto: ## Generate gRPC code from proto files
-	$(PYTHON) -m grpc_tools.protoc \
-		-I$(PROTO_DIR) \
-		--python_out=$(GRPC_OUT) \
-		--grpc_python_out=$(GRPC_OUT) \
-		$(PROTO_FILE)
-	touch $(GRPC_OUT)/translation/__init__.py $(GRPC_OUT)/translation/v1/__init__.py
-	sed -i '' 's/from translation.v1 import/from . import/' $(GRPC_OUT)/translation/v1/translation_pb2_grpc.py
-
-.PHONY: clean-proto
-clean-proto: ## Remove generated gRPC code
-	rm -rf $(GRPC_OUT)/translation
-
-
-.PHONY: serve
-serve: ## Run the gRPC server
-	uv run ai-translation-serve
 
 ## DOCKER
 

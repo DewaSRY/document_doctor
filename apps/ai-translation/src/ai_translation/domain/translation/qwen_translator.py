@@ -40,7 +40,7 @@ class QwenTranslatorModel:
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
-            torch_dtype=self.dtype,
+            dtype=self.dtype,
         )
 
         self.model.to(self.device)
