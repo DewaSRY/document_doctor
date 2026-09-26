@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_translation.domain.translation import (
@@ -8,9 +8,11 @@ from ai_translation.domain.translation import (
     get_emotion_name,
     get_voice_name,
 )
-from ai_translation.infrastructure.rest.schemas import (
-    TranslateRequest,
-    TranslateResponse,
+from ai_translation.infrastructure.rest.schemas import TranslateRequest
+from ai_translation.infrastructure.rest.response_normalizer import normalize_success_response
+from ai_translation.infrastructure.rest.exceptions import (
+    TranslationError,
+    NotFoundError,
 )
 from ai_translation.infrastructure.database import get_db_session
 from ai_translation.infrastructure.database.schemas import TranslationRecordCreate
@@ -20,11 +22,20 @@ from ai_translation.infrastructure.database.schemas import TranslationRecordResp
 router = APIRouter(prefix="/v1", tags=["translation"])
 
 
-@router.post("/translate", response_model=TranslateResponse)
+@router.post("/translate")
 async def translate(
     request: TranslateRequest,
     session: AsyncSession = Depends(get_db_session),
-) -> TranslateResponse:
+) -> dict:
+    """
+    Translate text from source language to target language.
+
+    - **text**: Text to be translated
+    - **source_language**: Source language code (e.g., 'zh', 'id')
+    - **target_language**: Target language code
+    - **emotion_tags**: Optional emotion tags (e.g., 'formal', 'casual')
+    - **voice_tags**: Optional voice tags (e.g., 'professional', 'friendly')
+    """
     try:
         params = TranslationParams(
             text=request.text,
@@ -37,12 +48,12 @@ async def translate(
         translated_text = get_translator().translate(translation_params=params)
         model_name = get_translator().model.name_or_path
 
-        response = TranslateResponse(
-            translated_text=translated_text,
-            source_language=request.source_language,
-            target_language=request.target_language,
-            model=model_name,
-        )
+        response_data = {
+            "translated_text": translated_text,
+            "source_language": request.source_language,
+            "target_language": request.target_language,
+            "model": model_name,
+        }
 
         record_create = TranslationRecordCreate(
             source_text=request.text,
@@ -58,26 +69,39 @@ async def translate(
         await repo.create(record_create)
         await session.commit()
 
-        return response
+        return normalize_success_response(
+            data=response_data,
+            message="Text translated successfully",
+            code=200,
+        )
     except Exception as exc:
         await session.rollback()
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise TranslationError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
 
 
-@router.get("/translations/{record_id}", response_model=TranslationRecordResponse)
+@router.get("/translations/{record_id}")
 async def get_translation(
     record_id: int,
     session: AsyncSession = Depends(get_db_session),
-) -> TranslationRecordResponse:
+) -> dict:
+    """Get a specific translation record by ID."""
     try:
         repo = TranslationRecordRepository(session)
         record = await repo.get_by_id(record_id)
 
         if record is None:
-            raise HTTPException(status_code=404, detail="Translation record not found")
+            raise NotFoundError("Translation record", record_id)
 
-        return TranslationRecordResponse.model_validate(record)
-    except HTTPException:
-        raise
+        return normalize_success_response(
+            data=TranslationRecordResponse.model_validate(record).model_dump(),
+            message="Translation record retrieved successfully",
+            code=200,
+        )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise TranslationError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )

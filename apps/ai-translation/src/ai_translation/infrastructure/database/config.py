@@ -6,11 +6,11 @@ from pydantic_settings import BaseSettings
 class DatabaseConfig(BaseSettings):
     """Database configuration from environment variables."""
 
-    db_host: str = "localhost"
-    db_port: int = 5432
-    db_user: str = "postgres"
-    db_password: str = "postgres"
-    db_name: str = "ai_translation"
+    db_host: str = os.environ.get("DB_HOST", "localhost")
+    db_port: int = int(os.environ.get("DB_PORT", "5432"))
+    db_user: str = os.environ.get("DB_USER", os.environ.get("POSTGRES_USER", "postgres"))
+    db_password: str = os.environ.get("DB_PASSWORD", os.environ.get("POSTGRES_PASSWORD", "postgres"))
+    db_name: str = os.environ.get("DB_NAME", os.environ.get("POSTGRES_DB", "ai_translation"))
     db_pool_size: int = 20
     db_max_overflow: int = 0
     db_echo: bool = False

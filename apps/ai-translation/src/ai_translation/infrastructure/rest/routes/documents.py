@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,8 +11,12 @@ from ai_translation.domain.translation import (
     get_voice_name,
 )
 from ai_translation.domain.document import PDFHandler, DOCXHandler
-from ai_translation.infrastructure.rest.schemas import (
-    TranslateDocumentResponse,
+from ai_translation.infrastructure.rest.response_normalizer import normalize_success_response
+from ai_translation.infrastructure.rest.exceptions import (
+    FileTooLargeError,
+    UnsupportedFileTypeError,
+    NotFoundError,
+    DocumentProcessingError,
 )
 from ai_translation.infrastructure.database import get_db_session
 from ai_translation.infrastructure.database.repositories import (
@@ -24,7 +28,7 @@ from ai_translation.infrastructure.database.models import TranslatedDocument
 router = APIRouter(prefix="/v1", tags=["documents"])
 
 
-@router.post("/translate-document", response_model=TranslateDocumentResponse)
+@router.post("/translate-document")
 async def translate_document(
     file: UploadFile = File(...),
     source_language: str = "zh",
@@ -32,7 +36,16 @@ async def translate_document(
     emotion_tags: str | None = None,
     voice_tags: str | None = None,
     session: AsyncSession = Depends(get_db_session),
-) -> TranslateDocumentResponse:
+) -> dict:
+    """
+    Translate a document (PDF or DOCX) from source language to target language.
+
+    - **file**: PDF or DOCX document to translate (max 5MB)
+    - **source_language**: Source language code (default: 'zh')
+    - **target_language**: Target language code (default: 'id')
+    - **emotion_tags**: Optional comma-separated emotion tags
+    - **voice_tags**: Optional comma-separated voice tags
+    """
     try:
         max_size = 5 * 1024 * 1024
         file_size = 0
@@ -44,17 +57,14 @@ async def translate_document(
                 break
             file_size += len(chunk)
             if file_size > max_size:
-                raise HTTPException(
-                    status_code=413,
-                    detail=f"File size exceeds 5MB limit",
-                )
+                raise FileTooLargeError(max_size_mb=5)
             file_content += chunk
 
         file_ext = file.filename.split(".")[-1].lower()
         if file_ext not in ["pdf", "docx"]:
-            raise HTTPException(
-                status_code=400,
-                detail="Only PDF and DOCX files are supported",
+            raise UnsupportedFileTypeError(
+                file_type=file_ext,
+                supported_types=["pdf", "docx"],
             )
 
         handler = PDFHandler() if file_ext == "pdf" else DOCXHandler()
@@ -105,23 +115,29 @@ async def translate_document(
         await session.commit()
         await session.refresh(doc_record)
 
-        return TranslateDocumentResponse(
-            document_id=document_id,
-            file_name=file.filename,
-            file_size=file_size,
-            source_language=source_language,
-            target_language=target_language,
-            document_type=file_ext,
-            status="completed",
-            model=model_name,
-            created_at=doc_record.created_at.isoformat(),
+        response_data = {
+            "document_id": document_id,
+            "file_name": file.filename,
+            "file_size": file_size,
+            "source_language": source_language,
+            "target_language": target_language,
+            "document_type": file_ext,
+            "status": "completed",
+            "model": model_name,
+            "created_at": doc_record.created_at.isoformat(),
+        }
+
+        return normalize_success_response(
+            data=response_data,
+            message="Document translated successfully",
+            code=200,
         )
-    except HTTPException:
-        await session.rollback()
-        raise
     except Exception as exc:
         await session.rollback()
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
 
 
 @router.get("/translated-document/{document_id}")
@@ -129,15 +145,13 @@ async def download_translated_document(
     document_id: str,
     session: AsyncSession = Depends(get_db_session),
 ):
+    """Download the translated document by document ID."""
     try:
         repo = TranslatedDocumentRepository(session)
         document = await repo.get_by_document_id(document_id)
 
         if not document:
-            raise HTTPException(
-                status_code=404,
-                detail="Document not found",
-            )
+            raise NotFoundError("Document", document_id)
 
         media_type = "application/pdf" if document.document_type == "pdf" else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         filename = f"translated_{document.original_file_name}"
@@ -147,29 +161,33 @@ async def download_translated_document(
             media_type=media_type,
             filename=filename,
         )
-    except HTTPException:
-        raise
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
 
 
-@router.get("/translated-document/{document_id}/info", response_model=TranslatedDocumentResponse)
+@router.get("/translated-document/{document_id}/info")
 async def get_document_info(
     document_id: str,
     session: AsyncSession = Depends(get_db_session),
-) -> TranslatedDocumentResponse:
+) -> dict:
+    """Get metadata and information about a translated document."""
     try:
         repo = TranslatedDocumentRepository(session)
         document = await repo.get_by_document_id(document_id)
 
         if not document:
-            raise HTTPException(
-                status_code=404,
-                detail="Document not found",
-            )
+            raise NotFoundError("Document", document_id)
 
-        return TranslatedDocumentResponse.model_validate(document)
-    except HTTPException:
-        raise
+        return normalize_success_response(
+            data=TranslatedDocumentResponse.model_validate(document).model_dump(),
+            message="Document information retrieved successfully",
+            code=200,
+        )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
