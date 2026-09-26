@@ -57,8 +57,6 @@ class PDFHandler(DocumentHandler):
                 page_num, translations, page_text
             )
 
-            # PDF text replacement is complex; for now, add metadata
-            page.add_transformation(lambda x: x)
             pdf_writer.add_page(page)
 
         pdf_writer.add_metadata({

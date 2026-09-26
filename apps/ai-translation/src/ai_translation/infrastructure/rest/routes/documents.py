@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, UploadFile, File, Request
+from fastapi import APIRouter, Depends, UploadFile, File, Request, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,8 +37,8 @@ async def translate_document(
     file: UploadFile = File(...),
     source_language: str = "zh",
     target_language: str = "id",
-    emotion_tags: str | None = None,
-    voice_tags: str | None = None,
+    emotion_tags: str | None = Query(None),
+    voice_tags: str | None = Query(None),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict:
     """
