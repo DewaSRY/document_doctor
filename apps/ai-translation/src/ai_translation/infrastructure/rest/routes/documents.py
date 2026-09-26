@@ -1,6 +1,6 @@
 import uuid
 from fastapi import APIRouter, Depends, UploadFile, File, Request, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_translation.infrastructure.middleware import limiter
@@ -160,10 +160,10 @@ async def download_translated_document(
         media_type = "application/pdf" if document.document_type == "pdf" else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         filename = f"translated_{document.original_file_name}"
 
-        return FileResponse(
+        return Response(
             content=document.translated_document,
             media_type=media_type,
-            filename=filename,
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
     except Exception as exc:
         raise DocumentProcessingError(
