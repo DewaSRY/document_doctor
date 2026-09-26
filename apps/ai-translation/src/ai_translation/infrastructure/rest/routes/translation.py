@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_translation.domain.translation import (
@@ -18,14 +18,17 @@ from ai_translation.infrastructure.database import get_db_session
 from ai_translation.infrastructure.database.schemas import TranslationRecordCreate
 from ai_translation.infrastructure.database.repositories import TranslationRecordRepository
 from ai_translation.infrastructure.database.schemas import TranslationRecordResponse
+from ai_translation.infrastructure.middleware import limiter
 
 router = APIRouter(prefix="/v1", tags=["translation"])
 
 
 @router.post("/translate")
+@limiter.limit("30/minute")
 async def translate(
     request: TranslateRequest,
     session: AsyncSession = Depends(get_db_session),
+    http_request: Request = Depends(),
 ) -> dict:
     """
     Translate text from source language to target language.

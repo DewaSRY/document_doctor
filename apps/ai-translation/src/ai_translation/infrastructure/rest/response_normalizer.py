@@ -13,18 +13,7 @@ def normalize_success_response(
     code: int = 200,
     pagination: Optional[dict] = None,
 ) -> dict:
-    """
-    Normalize a success response to the standard format.
 
-    Args:
-        data: Response payload (single object or list)
-        message: Human-readable success message
-        code: HTTP status code
-        pagination: Optional dict with keys: page, limit, total_count, total_page
-
-    Returns:
-        Normalized response dict
-    """
     meta = None
     if pagination:
         meta = PaginationMeta(**pagination).model_dump()
@@ -44,17 +33,6 @@ def normalize_error_response(
     code: int = 500,
     errors: Optional[list[dict]] = None,
 ) -> dict:
-    """
-    Normalize an error response to the standard format.
-
-    Args:
-        message: Human-readable error message
-        code: HTTP status code
-        errors: List of dicts with 'field' and 'message' keys
-
-    Returns:
-        Normalized error response dict
-    """
     error_items = None
     if errors:
         error_items = [ErrorItem(**err).model_dump() for err in errors]

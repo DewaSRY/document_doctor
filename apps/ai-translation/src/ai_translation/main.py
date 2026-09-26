@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import uvicorn
 from fastapi import FastAPI
 
+from ai_translation.config import settings
 from ai_translation.infrastructure.database import (
     init_db,
     close_db,
@@ -14,6 +15,12 @@ from ai_translation.infrastructure.rest.routes import (
     documents_router,
 )
 from ai_translation.infrastructure.rest.error_handlers import register_exception_handlers
+from ai_translation.infrastructure.middleware import (
+    setup_cors,
+    setup_rate_limiter,
+    setup_logging,
+    setup_request_logging_middleware,
+)
 
 
 @asynccontextmanager
@@ -29,12 +36,20 @@ def create_app() -> FastAPI:
         description="Translation service powered by Qwen",
         version="0.1.0",
         lifespan=lifespan,
+        debug=settings.debug,
     )
 
+    # Setup middleware
+    setup_cors(app, dev_mode=settings.dev_mode)
+    setup_rate_limiter(app)
+    setup_request_logging_middleware(app)
+
+    # Include routers
     app.include_router(health_router)
     app.include_router(translation_router)
     app.include_router(documents_router)
 
+    # Register exception handlers
     register_exception_handlers(app)
 
     return app
@@ -42,11 +57,17 @@ def create_app() -> FastAPI:
 
 def main() -> None:
     load_dotenv()
-    host = os.environ.get("REST_HOST", "0.0.0.0")
-    port = int(os.environ.get("REST_PORT", "8000"))
+
+    # Setup logging
+    setup_logging(dev_mode=settings.dev_mode)
 
     app = create_app()
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(
+        app,
+        host=settings.rest_host,
+        port=settings.rest_port,
+        log_level="debug" if settings.dev_mode else "info",
+    )
 
 
 if __name__ == "__main__":
