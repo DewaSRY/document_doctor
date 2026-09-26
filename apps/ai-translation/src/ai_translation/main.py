@@ -55,13 +55,15 @@ def create_app() -> FastAPI:
     return app
 
 
+app = create_app()
+
+
 def main() -> None:
     load_dotenv()
 
     # Setup logging
     setup_logging(dev_mode=settings.dev_mode)
 
-    app = create_app()
     uvicorn.run(
         app,
         host=settings.rest_host,

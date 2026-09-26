@@ -33,13 +33,13 @@ router = APIRouter(prefix="/v1", tags=["documents"])
 @router.post("/translate-document")
 @limiter.limit("20/minute")
 async def translate_document(
+    request: Request,
     file: UploadFile = File(...),
     source_language: str = "zh",
     target_language: str = "id",
     emotion_tags: str | None = None,
     voice_tags: str | None = None,
     session: AsyncSession = Depends(get_db_session),
-    request: Request = Depends(),
 ) -> dict:
     """
     Translate a document (PDF or DOCX) from source language to target language.

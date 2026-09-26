@@ -27,8 +27,8 @@ router = APIRouter(prefix="/v1", tags=["translation"])
 @limiter.limit("30/minute")
 async def translate(
     request: TranslateRequest,
+    http_request: Request,
     session: AsyncSession = Depends(get_db_session),
-    http_request: Request = Depends(),
 ) -> dict:
     """
     Translate text from source language to target language.

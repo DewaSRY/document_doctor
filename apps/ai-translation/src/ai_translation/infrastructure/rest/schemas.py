@@ -1,7 +1,5 @@
-from typing import Any, Generic, TypeVar
+from typing import Any
 from pydantic import BaseModel, Field
-
-T = TypeVar("T")
 
 
 class PaginationMeta(BaseModel):
@@ -11,7 +9,7 @@ class PaginationMeta(BaseModel):
     total_page: int = Field(..., description="Total number of pages")
 
 
-class SuccessResponse(BaseModel, Generic[T]):
+class SuccessResponse(BaseModel):
     data: Any = Field(..., description="Response payload - single object or list of objects")
     meta: PaginationMeta | None = Field(default=None, description="Pagination info (only for list endpoints)")
     error: None = Field(default=None, description="Always None on success")
