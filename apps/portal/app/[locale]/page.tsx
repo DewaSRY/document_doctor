@@ -139,8 +139,20 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       </a>
       <LandingNav />
       <main id="main" className="flex w-full flex-1 flex-col">
-        <HeroSection t={t} />
-        <ToolsSection t={t} />
+        <div>
+          {/* Faint grid + a soft red wash at the top — texture, not decoration. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)] bg-size-[48px_48px] opacity-60"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-x-0 -top-40 -z-10 mx-auto h-96 max-w-3xl rounded-full bg-brand/15 blur-3xl"
+          />
+          <HeroSection t={t} />
+          <ToolsSection t={t} />
+        </div>
+
         <HowItWorksSection t={t} />
         <ReviewEditSection t={t} />
         <FeaturesSection t={t} />

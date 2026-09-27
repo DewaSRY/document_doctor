@@ -25,7 +25,13 @@ export function BrandMark({ className }: { className?: string }) {
       <circle cx="17.4" cy="22.2" r="0.5" fill="#1f1b18" />
       {/* Red hat, tipped slightly */}
       <g transform="rotate(-10 16 11)">
-        <ellipse cx="16" cy="11.6" rx="8.2" ry="1.7" className="fill-brand-700" />
+        <ellipse
+          cx="16"
+          cy="11.6"
+          rx="8.2"
+          ry="1.7"
+          className="fill-brand-700"
+        />
         <path
           d="M11.2 11.4V5.6a1.6 1.6 0 0 1 1.6-1.6h6.4a1.6 1.6 0 0 1 1.6 1.6v5.8Z"
           className="fill-brand"

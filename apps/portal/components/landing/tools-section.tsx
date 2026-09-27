@@ -48,15 +48,8 @@ export function ToolsSection({ t }: { t: LandingT }) {
     <section
       id={SECTION_IDS.tools}
       aria-labelledby="tools-title"
-      className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 sm:py-28"
+      className="mx-auto w-full max-w-7xl mb-4  "
     >
-      <SectionHeading
-        id="tools-title"
-        eyebrow={t("tools.eyebrow")}
-        title={t("tools.title")}
-        description={t("tools.description")}
-      />
-
       <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tools.map((tool) => {
           const Icon = ICONS[tool.icon] ?? FileText;
@@ -89,7 +82,9 @@ export function ToolsSection({ t }: { t: LandingT }) {
                       : "bg-muted text-muted-foreground",
                   )}
                 >
-                  {tool.available ? t("tools.available") : t("tools.comingSoon")}
+                  {tool.available
+                    ? t("tools.available")
+                    : t("tools.comingSoon")}
                 </span>
               </div>
 
@@ -119,7 +114,10 @@ export function ToolsSection({ t }: { t: LandingT }) {
                 <div className="mt-5 flex flex-wrap gap-2">
                   <a
                     href={START_HREF}
-                    className={cn(buttonVariants(), "group h-9 rounded-lg px-4")}
+                    className={cn(
+                      buttonVariants(),
+                      "group h-9 rounded-lg px-4",
+                    )}
                   >
                     {t("tools.useTool")}
                     <ArrowRight
