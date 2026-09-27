@@ -1,4 +1,6 @@
 import uuid
+from urllib.parse import quote
+
 from fastapi import APIRouter, Depends, UploadFile, File, Request, Query
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,9 +14,12 @@ from ai_translation.domain.translation import (
     get_emotion_name,
     get_voice_name,
 )
-from ai_translation.domain.document import PDFHandler, DOCXHandler
+from ai_translation.domain.document import DocumentHandler, PDFHandler, DOCXHandler
 from ai_translation.infrastructure.rest.response_normalizer import normalize_success_response
+from ai_translation.infrastructure.rest.schemas import UpdateSegmentsRequest
 from ai_translation.infrastructure.rest.exceptions import (
+    APIException,
+    ValidationError,
     FileTooLargeError,
     UnsupportedFileTypeError,
     NotFoundError,
@@ -23,11 +28,23 @@ from ai_translation.infrastructure.rest.exceptions import (
 from ai_translation.infrastructure.database import get_db_session
 from ai_translation.infrastructure.database.repositories import (
     TranslatedDocumentRepository,
+    DocumentSegmentsRepository,
 )
 from ai_translation.infrastructure.database.schemas import TranslatedDocumentResponse
-from ai_translation.infrastructure.database.models import TranslatedDocument
+from ai_translation.infrastructure.database.models import TranslatedDocument, DocumentSegments
 
 router = APIRouter(prefix="/v1", tags=["documents"])
+
+
+def _get_handler(document_type: str) -> DocumentHandler:
+    return PDFHandler() if document_type == "pdf" else DOCXHandler()
+
+
+def _content_disposition(filename: str) -> str:
+    """Attachment header that survives non-ASCII file names (RFC 6266)."""
+    ascii_name = filename.encode("ascii", "ignore").decode() or "document"
+    ascii_name = ascii_name.replace('"', "")
+    return f'attachment; filename="{ascii_name}"; filename*=UTF-8\'\'{quote(filename)}'
 
 
 @router.post("/translate-document")
@@ -71,7 +88,7 @@ async def translate_document(
                 supported_types=["pdf", "docx"],
             )
 
-        handler = PDFHandler() if file_ext == "pdf" else DOCXHandler()
+        handler = _get_handler(file_ext)
 
         extracted_text = await handler.extract_text(file_content)
 
@@ -79,6 +96,7 @@ async def translate_document(
         voice_tags_list = [tag.strip() for tag in (voice_tags.split(",") if voice_tags else [])]
 
         translations = {}
+        segments = []
         for key, texts in extracted_text.items():
             translated_sentences = []
             for text in texts:
@@ -93,6 +111,13 @@ async def translate_document(
                     translated = get_translator().translate(translation_params=params)
                     translated_sentences.append(translated)
             translations[key] = " ".join(translated_sentences) if translated_sentences else ""
+            segments.append(
+                {
+                    "key": key,
+                    "source_text": " ".join(texts),
+                    "translated_text": translations[key],
+                }
+            )
 
         translated_content = await handler.create_translated_document(
             file_content,
@@ -118,6 +143,13 @@ async def translate_document(
             model_name=model_name,
         )
         session.add(doc_record)
+        session.add(
+            DocumentSegments(
+                document_id=document_id,
+                original_document=file_content,
+                segments=segments,
+            )
+        )
         await session.commit()
         await session.refresh(doc_record)
 
@@ -138,6 +170,9 @@ async def translate_document(
             message="Document translated successfully",
             code=200,
         )
+    except APIException:
+        await session.rollback()
+        raise
     except Exception as exc:
         await session.rollback()
         raise DocumentProcessingError(
@@ -165,8 +200,10 @@ async def download_translated_document(
         return Response(
             content=document.translated_document,
             media_type=media_type,
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
+            headers={"Content-Disposition": _content_disposition(filename)},
         )
+    except APIException:
+        raise
     except Exception as exc:
         raise DocumentProcessingError(
             message=str(exc),
@@ -192,7 +229,112 @@ async def get_document_info(
             message="Document information retrieved successfully",
             code=200,
         )
+    except APIException:
+        raise
     except Exception as exc:
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
+
+
+def _segments_response(document: TranslatedDocument, stored: DocumentSegments) -> dict:
+    return {
+        "document_id": document.document_id,
+        "file_name": document.original_file_name,
+        "document_type": document.document_type,
+        "source_language": document.source_language,
+        "target_language": document.target_language,
+        "segments": stored.segments,
+        "updated_at": stored.updated_at.isoformat(),
+    }
+
+
+async def _get_document_with_segments(
+    session: AsyncSession, document_id: str
+) -> tuple[TranslatedDocument, DocumentSegments]:
+    document = await TranslatedDocumentRepository(session).get_by_document_id(document_id)
+    stored = await DocumentSegmentsRepository(session).get_by_document_id(document_id)
+    # Documents translated before segments were stored cannot be edited.
+    if not document or not stored:
+        raise NotFoundError("Document segments", document_id)
+    return document, stored
+
+
+@router.get("/translated-document/{document_id}/segments")
+async def get_document_segments(
+    document_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Get the source and translated text of every segment, in document order."""
+    try:
+        document, stored = await _get_document_with_segments(session, document_id)
+        return normalize_success_response(
+            data=_segments_response(document, stored),
+            message="Document segments retrieved successfully",
+            code=200,
+        )
+    except APIException:
+        raise
+    except Exception as exc:
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
+
+
+@router.put("/translated-document/{document_id}/segments")
+@limiter.limit("30/minute")
+async def update_document_segments(
+    request: Request,
+    document_id: str,
+    body: UpdateSegmentsRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    Replace the translation of the given segments and rebuild the translated
+    document from the original upload, so its layout is kept.
+
+    Segments that are not sent keep their current translation. A segment sent
+    with empty text keeps the original (untranslated) text in the document.
+    """
+    try:
+        document, stored = await _get_document_with_segments(session, document_id)
+
+        edits = {segment.key: segment.translated_text for segment in body.segments}
+        known_keys = {segment["key"] for segment in stored.segments}
+        unknown_keys = sorted(edits.keys() - known_keys)
+        if unknown_keys:
+            raise ValidationError(
+                message=f"Unknown segment keys: {', '.join(unknown_keys)}",
+                details={"unknown_keys": unknown_keys},
+            )
+
+        # Reassign rather than mutate so SQLAlchemy sees the JSON change.
+        stored.segments = [
+            {**segment, "translated_text": edits.get(segment["key"], segment["translated_text"])}
+            for segment in stored.segments
+        ]
+
+        document.translated_document = await _get_handler(document.document_type).create_translated_document(
+            stored.original_document,
+            {segment["key"]: segment["translated_text"] for segment in stored.segments},
+            document.source_language,
+            document.target_language,
+        )
+        await session.commit()
+        await session.refresh(stored)
+
+        return normalize_success_response(
+            data=_segments_response(document, stored),
+            message="Document segments updated successfully",
+            code=200,
+        )
+    except APIException:
+        await session.rollback()
+        raise
+    except Exception as exc:
+        await session.rollback()
         raise DocumentProcessingError(
             message=str(exc),
             details={"exception_type": type(exc).__name__},

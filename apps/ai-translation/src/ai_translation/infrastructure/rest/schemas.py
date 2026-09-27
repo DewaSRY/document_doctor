@@ -61,6 +61,15 @@ class TranslateDocumentResponse(BaseModel):
     created_at: str = Field(..., description="Timestamp when translation was created")
 
 
+class SegmentEdit(BaseModel):
+    key: str = Field(..., description="Segment key as returned by the segments endpoint (e.g. 'para_3')")
+    translated_text: str = Field(..., description="New translated text for the segment")
+
+
+class UpdateSegmentsRequest(BaseModel):
+    segments: list[SegmentEdit] = Field(..., description="Segments to update")
+
+
 class ErrorResponse(BaseModel):
     error: str = Field(..., description="Error message")
     detail: str | None = Field(default=None, description="Additional error details")

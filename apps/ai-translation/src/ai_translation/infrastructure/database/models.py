@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, DateTime, Text, func, Index, LargeBinary
+from sqlalchemy import String, DateTime, Text, func, Index, LargeBinary, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -98,4 +98,31 @@ class TranslatedDocument(Base):
         Index("idx_doc_id", "document_id"),
         Index("idx_source_target_lang_doc", "source_language", "target_language"),
         Index("idx_created_at_doc", "created_at"),
+    )
+
+
+class DocumentSegments(Base):
+    """
+    The original upload and its translated segments, kept so a translated
+    document can be edited and rebuilt. A separate table so existing
+    databases pick it up through create_all without a migration.
+    """
+
+    __tablename__ = "document_segments"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    document_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    original_document: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    # [{"key": "para_0", "source_text": "...", "translated_text": "..."}, ...] in document order.
+    segments: Mapped[list[dict]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
     )
