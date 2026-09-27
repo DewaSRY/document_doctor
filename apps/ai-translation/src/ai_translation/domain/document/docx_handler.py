@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 from io import BytesIO
 
 from docx import Document as DocxDocument
@@ -76,22 +77,63 @@ class DOCXHandler(DocumentHandler):
             result[f"para_{len(result)}"] = paragraph
         return result
 
-    @staticmethod
-    def _write_paragraph(paragraph: Paragraph, translated_text: str) -> None:
-        """Put the translation in the first text run so its style is kept; empty the rest."""
-        runs: list[Run] = []
-        for item in paragraph.iter_inner_content():
-            runs.extend(item.runs if isinstance(item, Hyperlink) else [item])
+    @classmethod
+    def _write_paragraph(cls, paragraph: Paragraph, translated_text: str) -> None:
+        """
+        Write the translation back, keeping the formatting of the first text run.
 
-        # Only touch runs with text, so images and other inline objects survive.
-        text_runs = [run for run in runs if run.text]
-        if not text_runs:
-            paragraph.add_run(translated_text)
-            return
+        Hyperlinks whose text still appears in the translation (URLs, e-mail
+        addresses) are left untouched, so the link keeps working; the translated
+        text around them goes into the plain runs before and after each link.
+        """
+        items = list(paragraph.iter_inner_content())
 
-        text_runs[0].text = translated_text
-        for run in text_runs[1:]:
-            run.text = ""
+        kept_links: list[tuple[int, Hyperlink]] = []
+        pieces: list[str] = []
+        cursor = 0
+        for index, item in enumerate(items):
+            if not isinstance(item, Hyperlink) or not item.text.strip():
+                continue
+            position = translated_text.find(item.text, cursor)
+            if position < 0:
+                continue
+            kept_links.append((index, item))
+            pieces.append(translated_text[cursor:position])
+            cursor = position + len(item.text)
+        pieces.append(translated_text[cursor:])
+
+        template = next(
+            (item for item in items if isinstance(item, Run) and item.text),
+            None,
+        )
+        bounds = [-1] + [index for index, _ in kept_links] + [len(items)]
+
+        for group, piece in enumerate(pieces):
+            group_items = items[bounds[group] + 1:bounds[group + 1]]
+            runs: list[Run] = []
+            for item in group_items:
+                runs.extend(item.runs if isinstance(item, Hyperlink) else [item])
+
+            # Only touch runs with text, so images and other inline objects survive.
+            text_runs = [run for run in runs if run.text]
+            if text_runs:
+                text_runs[0].text = piece
+                for run in text_runs[1:]:
+                    run.text = ""
+                continue
+
+            if not piece.strip():
+                continue
+
+            new_run = Run(
+                deepcopy(template._r) if template else paragraph._p.add_r(),
+                paragraph,
+            )
+            new_run.text = piece
+            if group > 0:
+                kept_links[group - 1][1]._hyperlink.addnext(new_run._r)
+            elif kept_links:
+                kept_links[0][1]._hyperlink.addprevious(new_run._r)
 
     def _segment_text(self, text: str) -> list[str]:
         """Segment text into sentences."""

@@ -6,6 +6,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from .dto import TranslationParams
+from .url_protection import translate_protecting_urls
 
 class QwenTranslatorModel:
     """
@@ -109,6 +110,7 @@ class QwenTranslatorModel:
             f"{translation_params.target_language}. "
             f"{style_instruction} "
             "Preserve the original meaning and context. "
+            "Keep placeholders such as [1] exactly as they are. "
             "Do not explain the translation. "
             "Output ONLY the translated text."
         )
@@ -155,9 +157,27 @@ class QwenTranslatorModel:
         """
         Translate many texts with batched generation.
 
-        Texts are sorted by length so each batch carries little padding;
-        results are returned in the input order.
+        URLs are kept verbatim. Texts are sorted by length so each batch
+        carries little padding; results are returned in the input order.
         """
+        return translate_protecting_urls(
+            params_list,
+            lambda protected: self._translate_sorted(
+                protected,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=do_sample,
+            ),
+        )
+
+    def _translate_sorted(
+        self,
+        params_list: list[TranslationParams],
+        *,
+        max_new_tokens: int,
+        temperature: float,
+        do_sample: bool,
+    ) -> list[str]:
         order = sorted(
             range(len(params_list)),
             key=lambda index: len(params_list[index].text),

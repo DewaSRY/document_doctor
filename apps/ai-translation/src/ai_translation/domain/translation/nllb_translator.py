@@ -7,6 +7,7 @@ import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 from .dto import TranslationParams
+from .url_protection import translate_protecting_urls
 
 
 class NllbTranslatorModel:
@@ -114,8 +115,14 @@ class NllbTranslatorModel:
         Translate many texts with batched generation.
 
         All params must share the same source and target language.
-        Results are returned in the input order.
+        URLs are kept verbatim. Results are returned in the input order.
         """
+        return translate_protecting_urls(params_list, self._translate_sorted)
+
+    def _translate_sorted(
+        self,
+        params_list: list[TranslationParams],
+    ) -> list[str]:
         if not params_list:
             return []
 

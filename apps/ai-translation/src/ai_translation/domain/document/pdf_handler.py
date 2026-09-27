@@ -64,6 +64,9 @@ class PDFHandler(DocumentHandler):
                 if not page_segments:
                     continue
 
+                # Redaction deletes link annotations over the text; restore them afterwards.
+                links = page.get_links()
+
                 # Remove the original text only; keep images and table lines.
                 for segment in page_segments:
                     for rect in segment.rects:
@@ -76,6 +79,8 @@ class PDFHandler(DocumentHandler):
 
                 for segment in page_segments:
                     self._write_segment(page, segment, translations[segment.key])
+
+                self._restore_links(page, links)
 
             pdf_document.set_metadata(
                 {
@@ -151,6 +156,26 @@ class PDFHandler(DocumentHandler):
             and 0 <= y0 - prev_y1 < height * 0.6
             and prev_x1 >= block_right - height * 3
         )
+
+    @staticmethod
+    def _restore_links(page: pymupdf.Page, links: list[dict]) -> None:
+        """Re-add links, moved onto their URL text if the translation shifted it."""
+        existing = {(link.get("uri"), tuple(link["from"])) for link in page.get_links()}
+        for link in links:
+            if (link.get("uri"), tuple(link["from"])) in existing:
+                continue
+            uri = link.get("uri") or ""
+            display = uri.removeprefix("mailto:")
+            hits = page.search_for(display) if display else []
+            if hits:
+                # Prefer the occurrence closest to where the link used to be.
+                link["from"] = min(
+                    hits,
+                    key=lambda rect: abs(rect.y0 - link["from"].y0) + abs(rect.x0 - link["from"].x0),
+                )
+            link.pop("xref", None)
+            link.pop("id", None)
+            page.insert_link(link)
 
     @staticmethod
     def _write_segment(page: pymupdf.Page, segment: _Segment, translated_text: str) -> None:
