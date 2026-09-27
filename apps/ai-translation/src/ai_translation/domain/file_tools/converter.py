@@ -2,6 +2,7 @@ import html
 import json
 import logging
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -17,6 +18,7 @@ from docx import Document as DocxDocument
 from docx.document import Document
 from docx.enum.section import WD_SECTION
 from docx.enum.text import WD_COLOR_INDEX
+from docx.oxml.ns import qn
 from docx.shared import Pt
 from docx.table import Table
 from docx.text.hyperlink import Hyperlink
@@ -24,6 +26,7 @@ from docx.text.paragraph import Paragraph
 from docx.text.run import Run
 from pdf2docx import Converter
 
+from .pdf_links import PdfLinks
 from .pdf_tools import PdfToolError
 
 logger = logging.getLogger(__name__)
@@ -39,21 +42,32 @@ _FALLBACK_PAGE_DPI = 200
 def pdf_to_docx(file_content: bytes) -> bytes:
     """
     Rebuild a PDF as an editable Word document: text with its fonts and colors,
-    tables, images and page geometry. A page whose layout cannot be rebuilt is
-    kept as a picture of the page instead of being dropped.
+    links, tables, images and page geometry. A page whose layout cannot be
+    rebuilt is kept as a picture of the page instead of being dropped.
     """
     converter = Converter(stream=file_content)
     try:
         settings = converter.default_settings | {"ignore_page_error": True}
         converter.parse(**settings)
 
-        doc = DocxDocument()
+        links = PdfLinks(converter.fitz_doc)
         for page in converter.pages:
-            if page.finalized and _make_page(doc, page):
-                continue
-            logger.warning("Keeping PDF page %d as an image, its layout could not be rebuilt", page.id + 1)
-            _add_page_image(doc, converter.fitz_doc[page.id])
+            if page.finalized:
+                links.apply(page)
+        links.place_bookmarks(converter.pages)
 
+        doc = DocxDocument()
+        page_starts: dict[int, Paragraph] = {}
+        for page in converter.pages:
+            before = list(doc.element.body)
+            if not (page.finalized and _make_page(doc, page)):
+                logger.warning("Keeping PDF page %d as an image, its layout could not be rebuilt", page.id + 1)
+                _add_page_image(doc, converter.fitz_doc[page.id])
+            if (start := _first_new_paragraph(doc, before)) is not None:
+                page_starts[page.id] = start
+
+        links.finish(doc, page_starts)
+        _make_strictly_valid(doc)
         output = BytesIO()
         doc.save(output)
         return output.getvalue()
@@ -61,17 +75,81 @@ def pdf_to_docx(file_content: bytes) -> bytes:
         converter.close()
 
 
+_NUMBER = re.compile(r"-?\d+\.\d*")
+_CELL_MARGINS = {qn("w:tcMar"), qn("w:tblCellMar")}
+_LOGICAL_SIDES = {qn("w:start"): qn("w:left"), qn("w:end"): qn("w:right")}
+
+
+def _make_strictly_valid(doc: Document) -> None:
+    """
+    Fix the markup pdf2docx writes that Word accepts but stricter readers such
+    as Google Docs reject: decimals in whole-number attributes (sizes, widths)
+    and start/end cell margins, which older readers only know as left/right.
+    """
+    _unicode_bullets(doc)
+    for root in (doc.element, doc.styles.element):
+        for element in root.iter():
+            for name, value in element.attrib.items():
+                if _NUMBER.fullmatch(value):
+                    element.set(name, str(round(float(value))))
+            parent = element.getparent()
+            if element.tag in _LOGICAL_SIDES and parent is not None and parent.tag in _CELL_MARGINS:
+                element.tag = _LOGICAL_SIDES[element.tag]
+
+
+# Word's bullets are private-use characters of the Symbol and Wingdings fonts,
+# which show as empty boxes wherever those fonts are missing.
+_SYMBOL_BULLETS = str.maketrans(
+    {
+        "": "•",
+        "": "▪",
+        "": "➢",
+        "": "❖",
+        "": "✓",
+        "": "■",
+        "": "◆",
+    }
+)
+
+
+def _unicode_bullets(doc: Document) -> None:
+    for text in doc.element.body.iter(qn("w:t")):
+        if text.text and (converted := text.text.translate(_SYMBOL_BULLETS)) != text.text:
+            text.text = converted
+            # Let the bullet take the document font, which has these characters.
+            fonts = text.getparent().find(f"{qn('w:rPr')}/{qn('w:rFonts')}")
+            if fonts is not None:
+                fonts.getparent().remove(fonts)
+
+
+def _first_new_paragraph(doc: Document, before: list) -> Paragraph | None:
+    """
+    The first paragraph a page added. Starting a page ends the previous one's
+    section with a paragraph holding its settings, which is skipped.
+    """
+    existing = set(map(id, before))
+    for element in doc.element.body:
+        if id(element) in existing:
+            continue
+        for p in element.iter(qn("w:p")):
+            if p.pPr is None or p.pPr.sectPr is None:
+                return Paragraph(p, doc._body)
+    return None
+
+
 def _make_page(doc: Document, page) -> bool:
     """Add a parsed pdf2docx page; on failure, undo whatever it half-wrote."""
     body = doc.element.body
-    before = set(map(id, body))
+    # Hold the children: lxml reuses the id of an element nothing refers to.
+    before = list(body)
     try:
         page.make_docx(doc)
         return True
     except Exception:
         logger.exception("Failed to rebuild PDF page %d", page.id + 1)
+        existing = set(map(id, before))
         for child in list(body):
-            if id(child) not in before and child is not body.sectPr:
+            if id(child) not in existing and child is not body.sectPr:
                 body.remove(child)
         return False
 

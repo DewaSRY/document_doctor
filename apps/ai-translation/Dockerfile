@@ -58,10 +58,15 @@ ENV PYTHONUNBUFFERED=1 \
 # metric-compatible with Word's (Calibri, Cambria, Arial, Times
 # New Roman, Courier New) so text flows and breaks as in Word,
 # and Noto covers the scripts documents are translated into.
+# LibreOffice comes from backports: bookworm's 7.4 drops every
+# hyperlink when exporting to PDF.
 # ------------------------------------------------------------
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+RUN echo "deb http://deb.debian.org/debian bookworm-backports main" \
+        > /etc/apt/sources.list.d/backports.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends -t bookworm-backports \
         libreoffice-writer-nogui \
+    && apt-get install -y --no-install-recommends \
         fontconfig \
         fonts-liberation2 \
         fonts-crosextra-carlito \
