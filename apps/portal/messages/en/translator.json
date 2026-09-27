@@ -30,7 +30,8 @@
     "hint": "PDF or DOCX, up to {{size}} MB",
     "invalidType": "This file type isn't supported. Choose a PDF or DOCX file.",
     "tooLarge": "This file is larger than {{size}} MB. Choose a smaller file.",
-    "empty": "This file is empty. Choose another file."
+    "empty": "This file is empty. Choose another file.",
+    "required": "Choose a document first."
   },
   "languageStep": {
     "title": "Choose the languages",

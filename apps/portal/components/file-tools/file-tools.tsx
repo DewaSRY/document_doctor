@@ -21,31 +21,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { z } from "zod";
 
-import { getFileExtension } from "@/feature/tools/constants";
+import { cn } from "@/lib/utils";
 
 import { formatFileSize, getServiceErrorMessage, saveBlob } from "./utils";
 
-/** Checks a picked file against a tool's rules; returns an error text or null. */
-export function useFileValidator({
-  extensions,
-  maxSize,
-  typeError,
-}: {
-  extensions: readonly string[];
-  maxSize: number;
-  typeError: string;
-}) {
-  const { t } = useTranslation("tools");
+/** Checks a picked file against a tool's file schema (see fileSchema) before
+ *  it goes into the form; returns the translated error text or null. */
+export function useFileValidator(schema: z.ZodType<File>, namespace = "tools") {
+  const { t } = useTranslation(namespace);
 
   return (file: File): string | null => {
-    if (!extensions.includes(getFileExtension(file.name))) return typeError;
-    if (file.size > maxSize) {
-      return t("common.tooLarge", { name: file.name, size: maxSize / 1024 / 1024 });
-    }
-    if (file.size === 0) return t("common.empty", { name: file.name });
-    return null;
+    const result = schema.safeParse(file);
+    if (result.success) return null;
+    const [issue] = result.error.issues;
+    return t(issue.message, issue.code === z.ZodIssueCode.custom ? issue.params : undefined);
   };
 }
 
@@ -248,13 +239,12 @@ export function FileResult({
   );
 }
 
+/** Submits the tool's form; the form's handleSubmit runs the request. */
 export function SubmitButton({
-  onClick,
   disabled,
   retry,
   children,
 }: {
-  onClick: () => void;
   disabled?: boolean;
   retry?: boolean;
   children: ReactNode;
@@ -263,10 +253,10 @@ export function SubmitButton({
 
   return (
     <Button
+      type="submit"
       size="lg"
       className="h-11 rounded-lg text-base sm:self-start"
       disabled={disabled}
-      onClick={onClick}
     >
       {retry && <RotateCcw aria-hidden />}
       {retry ? t("common.retry") : children}
@@ -368,6 +358,7 @@ export function NumberField({
   max,
   suffix,
   placeholder,
+  invalid,
 }: {
   label: string;
   value: string;
@@ -376,6 +367,7 @@ export function NumberField({
   max?: number;
   suffix?: string;
   placeholder?: string;
+  invalid?: boolean;
 }) {
   const id = useId();
 
@@ -393,6 +385,7 @@ export function NumberField({
           max={max}
           value={value}
           placeholder={placeholder}
+          aria-invalid={invalid || undefined}
           onChange={(event) => onChange(event.target.value)}
           className="h-full w-full min-w-0 bg-transparent px-3 text-sm outline-none"
         />

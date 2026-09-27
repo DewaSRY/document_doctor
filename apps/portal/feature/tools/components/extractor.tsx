@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Check, Copy, Download, FileSearch, RotateCcw } from "lucide-react";
 
@@ -16,14 +17,16 @@ import {
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
+import { zodResolverTranslate } from "@/lib/form";
 
-import {
-  DOCUMENT_ACCEPT,
-  DOCUMENT_AI_MAX_SIZE,
-  DOCUMENT_EXTENSIONS,
-  EXTRACTION_FIELDS,
-} from "../constants";
+import { DOCUMENT_ACCEPT, DOCUMENT_AI_MAX_SIZE, EXTRACTION_FIELDS } from "../constants";
 import { useExtractDocument } from "../hooks/query";
+import {
+  aiDocumentFileSchema,
+  extractorSchema,
+  type ExtractorOutput,
+  type ExtractorValues,
+} from "../schema";
 import type { DocumentExtraction } from "../type";
 import { fileStem } from "../utils";
 
@@ -36,26 +39,29 @@ function csvCell(value: string): string {
 export function Extractor() {
   const { t } = useTranslation("tools");
   const extract = useExtractDocument();
-  const validate = useFileValidator({
-    extensions: DOCUMENT_EXTENSIONS,
-    maxSize: DOCUMENT_AI_MAX_SIZE,
-    typeError: t("common.documentType"),
+  const validate = useFileValidator(aiDocumentFileSchema);
+  const form = useForm<ExtractorValues, unknown, ExtractorOutput>({
+    resolver: zodResolverTranslate(extractorSchema, t),
+    defaultValues: { file: null },
   });
-
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
+  const file = useWatch({ control: form.control, name: "file" });
+  const fileError = form.formState.errors.file?.message;
 
   function selectFile([selected]: File[]) {
     if (!selected) return;
     const error = validate(selected);
-    setFileError(error);
-    if (!error) setFile(selected);
+    if (error) return form.setError("file", { message: error });
+    form.clearErrors("file");
+    form.setValue("file", selected);
   }
 
   function startOver() {
     extract.reset();
-    setFile(null);
-    setFileError(null);
+    form.reset();
+  }
+
+  function submit({ file }: ExtractorOutput) {
+    extract.mutate(file);
   }
 
   return (
@@ -79,7 +85,7 @@ export function Extractor() {
       )}
 
       {file && !extract.isPending && !extract.isSuccess && (
-        <section className="flex flex-col gap-6">
+        <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-6">
           <FileChip file={file} preview>
             <Button variant="ghost" size="sm" onClick={startOver}>
               {t("common.changeFile")}
@@ -102,10 +108,8 @@ export function Extractor() {
 
           {extract.isError && <ErrorAlert title={t("extractor.errorTitle")} error={extract.error} />}
 
-          <SubmitButton retry={extract.isError} onClick={() => extract.mutate(file)}>
-            {t("extractor.submit")}
-          </SubmitButton>
-        </section>
+          <SubmitButton retry={extract.isError}>{t("extractor.submit")}</SubmitButton>
+        </form>
       )}
 
       {file && extract.isPending && (

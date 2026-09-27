@@ -77,6 +77,9 @@ export type ImageFormat = (typeof IMAGE_FORMATS)[number];
 export const FIT_MODES = ["cover", "contain", "stretch"] as const;
 export type FitMode = (typeof FIT_MODES)[number];
 
+export const SPLIT_MODES = ["ranges", "every"] as const;
+export type SplitMode = (typeof SPLIT_MODES)[number];
+
 export const RESIZE_PRESETS = [
   { id: "og", width: 1200, height: 630 },
   { id: "square", width: 1080, height: 1080 },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Repeat2 } from "lucide-react";
 
@@ -16,14 +16,16 @@ import {
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
+import { zodResolverTranslate } from "@/lib/form";
 
-import {
-  DOCUMENT_ACCEPT,
-  DOCUMENT_EXTENSIONS,
-  FILE_TOOL_MAX_SIZE,
-  getFileExtension,
-} from "../constants";
+import { DOCUMENT_ACCEPT, FILE_TOOL_MAX_SIZE, getFileExtension } from "../constants";
 import { useFileTool } from "../hooks/query";
+import {
+  converterSchema,
+  documentFileSchema,
+  type ConverterOutput,
+  type ConverterValues,
+} from "../schema";
 import { fileStem } from "../utils";
 
 const MAX_SIZE_MB = FILE_TOOL_MAX_SIZE / 1024 / 1024;
@@ -31,14 +33,13 @@ const MAX_SIZE_MB = FILE_TOOL_MAX_SIZE / 1024 / 1024;
 export function Converter() {
   const { t } = useTranslation("tools");
   const convert = useFileTool("convert");
-  const validate = useFileValidator({
-    extensions: DOCUMENT_EXTENSIONS,
-    maxSize: FILE_TOOL_MAX_SIZE,
-    typeError: t("common.documentType"),
+  const validate = useFileValidator(documentFileSchema);
+  const form = useForm<ConverterValues, unknown, ConverterOutput>({
+    resolver: zodResolverTranslate(converterSchema, t),
+    defaultValues: { file: null },
   });
-
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
+  const file = useWatch({ control: form.control, name: "file" });
+  const fileError = form.formState.errors.file?.message;
 
   const source = file && getFileExtension(file.name) === "pdf" ? "pdf" : "docx";
   const target = source === "pdf" ? "docx" : "pdf";
@@ -46,18 +47,17 @@ export function Converter() {
   function selectFile([selected]: File[]) {
     if (!selected) return;
     const error = validate(selected);
-    setFileError(error);
-    if (!error) setFile(selected);
+    if (error) return form.setError("file", { message: error });
+    form.clearErrors("file");
+    form.setValue("file", selected);
   }
 
   function startOver() {
     convert.reset();
-    setFile(null);
-    setFileError(null);
+    form.reset();
   }
 
-  function submit() {
-    if (!file) return;
+  function submit({ file }: ConverterOutput) {
     const body = new FormData();
     body.append("file", file);
     convert.mutate({ body, fallbackName: `${fileStem(file.name)}.${target}` });
@@ -84,7 +84,7 @@ export function Converter() {
       )}
 
       {file && !convert.isPending && !convert.isSuccess && (
-        <section className="flex flex-col gap-6">
+        <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-6">
           <FileChip file={file} preview defaultPreviewOpen>
             <Button variant="ghost" size="sm" onClick={startOver}>
               {t("common.changeFile")}
@@ -100,10 +100,8 @@ export function Converter() {
 
           {convert.isError && <ErrorAlert title={t("converter.errorTitle")} error={convert.error} />}
 
-          <SubmitButton retry={convert.isError} onClick={submit}>
-            {t(`converter.submit.${target}`)}
-          </SubmitButton>
-        </section>
+          <SubmitButton retry={convert.isError}>{t(`converter.submit.${target}`)}</SubmitButton>
+        </form>
       )}
 
       {file && convert.isPending && (

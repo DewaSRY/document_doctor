@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Check, Copy, Download, FileText, RotateCcw } from "lucide-react";
 
@@ -18,23 +19,21 @@ import {
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
-import {
-  LANGUAGE_CODES,
-  type LanguageCode,
-} from "@/feature/translator/constants";
+import { LANGUAGE_CODES } from "@/feature/translator/constants";
+import { zodResolverTranslate } from "@/lib/form";
 
-import {
-  DOCUMENT_ACCEPT,
-  DOCUMENT_AI_MAX_SIZE,
-  DOCUMENT_EXTENSIONS,
-  SUMMARY_LENGTHS,
-  type SummaryLength,
-} from "../constants";
+import { DOCUMENT_ACCEPT, DOCUMENT_AI_MAX_SIZE, SUMMARY_LENGTHS } from "../constants";
 import { useSummarizeDocument } from "../hooks/query";
+import {
+  aiDocumentFileSchema,
+  SAME_LANGUAGE,
+  summarizerSchema,
+  type SummarizerOutput,
+  type SummarizerValues,
+} from "../schema";
 import type { DocumentSummary } from "../type";
 import { fileStem } from "../utils";
 
-const SAME_LANGUAGE = "same";
 const MAX_SIZE_MB = DOCUMENT_AI_MAX_SIZE / 1024 / 1024;
 
 function summaryText(summary: DocumentSummary): string {
@@ -48,30 +47,30 @@ function summaryText(summary: DocumentSummary): string {
 export function Summarizer() {
   const { t } = useTranslation("tools");
   const summarize = useSummarizeDocument();
-  const validate = useFileValidator({
-    extensions: DOCUMENT_EXTENSIONS,
-    maxSize: DOCUMENT_AI_MAX_SIZE,
-    typeError: t("common.documentType"),
+  const validate = useFileValidator(aiDocumentFileSchema);
+  const form = useForm<SummarizerValues, unknown, SummarizerOutput>({
+    resolver: zodResolverTranslate(summarizerSchema, t),
+    defaultValues: { file: null, length: "medium", language: SAME_LANGUAGE },
   });
-
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [length, setLength] = useState<SummaryLength>("medium");
-  const [language, setLanguage] = useState<LanguageCode | typeof SAME_LANGUAGE>(
-    SAME_LANGUAGE,
-  );
+  const file = useWatch({ control: form.control, name: "file" });
+  const fileError = form.formState.errors.file?.message;
 
   function selectFile([selected]: File[]) {
     if (!selected) return;
     const error = validate(selected);
-    setFileError(error);
-    if (!error) setFile(selected);
+    if (error) return form.setError("file", { message: error });
+    form.clearErrors("file");
+    form.setValue("file", selected);
   }
 
   function startOver() {
     summarize.reset();
-    setFile(null);
-    setFileError(null);
+    // Keep the chosen length and language for the next document.
+    form.reset({ ...form.getValues(), file: null });
+  }
+
+  function submit(values: SummarizerOutput) {
+    summarize.mutate(values);
   }
 
   return (
@@ -95,35 +94,47 @@ export function Summarizer() {
       )}
 
       {file && !summarize.isPending && !summarize.isSuccess && (
-        <section className="flex flex-col gap-6">
+        <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-6">
           <FileChip file={file} preview>
             <Button variant="ghost" size="sm" onClick={startOver}>
               {t("common.changeFile")}
             </Button>
           </FileChip>
 
-          <Segmented
-            label={t("summarizer.length")}
-            value={length}
-            onChange={setLength}
-            options={SUMMARY_LENGTHS.map((value) => ({
-              value,
-              label: t(`summarizer.lengths.${value}`),
-              description: t(`summarizer.lengthDescriptions.${value}`),
-            }))}
+          <Controller
+            control={form.control}
+            name="length"
+            render={({ field }) => (
+              <Segmented
+                label={t("summarizer.length")}
+                value={field.value}
+                onChange={field.onChange}
+                options={SUMMARY_LENGTHS.map((value) => ({
+                  value,
+                  label: t(`summarizer.lengths.${value}`),
+                  description: t(`summarizer.lengthDescriptions.${value}`),
+                }))}
+              />
+            )}
           />
 
-          <SelectField
-            label={t("summarizer.language")}
-            value={language}
-            onChange={setLanguage}
-            options={[
-              { value: SAME_LANGUAGE, label: t("summarizer.sameLanguage") },
-              ...LANGUAGE_CODES.map((code) => ({
-                value: code,
-                label: t(`languages.${code}`),
-              })),
-            ]}
+          <Controller
+            control={form.control}
+            name="language"
+            render={({ field }) => (
+              <SelectField
+                label={t("summarizer.language")}
+                value={field.value}
+                onChange={field.onChange}
+                options={[
+                  { value: SAME_LANGUAGE, label: t("summarizer.sameLanguage") },
+                  ...LANGUAGE_CODES.map((code) => ({
+                    value: code,
+                    label: t(`languages.${code}`),
+                  })),
+                ]}
+              />
+            )}
           />
 
           {summarize.isError && (
@@ -133,19 +144,8 @@ export function Summarizer() {
             />
           )}
 
-          <SubmitButton
-            retry={summarize.isError}
-            onClick={() =>
-              summarize.mutate({
-                file,
-                length,
-                language: language === SAME_LANGUAGE ? null : language,
-              })
-            }
-          >
-            {t("summarizer.submit")}
-          </SubmitButton>
-        </section>
+          <SubmitButton retry={summarize.isError}>{t("summarizer.submit")}</SubmitButton>
+        </form>
       )}
 
       {file && summarize.isPending && (

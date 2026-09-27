@@ -30,7 +30,8 @@
     "hint": "PDF atau DOCX, maksimal {{size}} MB",
     "invalidType": "Jenis file ini tidak didukung. Pilih file PDF atau DOCX.",
     "tooLarge": "File ini lebih dari {{size}} MB. Pilih file yang lebih kecil.",
-    "empty": "File ini kosong. Pilih file lain."
+    "empty": "File ini kosong. Pilih file lain.",
+    "required": "Pilih dokumen terlebih dahulu."
   },
   "languageStep": {
     "title": "Pilih bahasa",

@@ -24,7 +24,8 @@
     "outputFormat": "Format hasil",
     "keepFormat": "Sama dengan aslinya",
     "previewAlt": "Pratinjau {{name}}",
-    "resultAlt": "Pratinjau hasil"
+    "resultAlt": "Pratinjau hasil",
+    "fileRequired": "Pilih file terlebih dahulu."
   },
   "categories": {
     "documentAi": "AI Dokumen",
@@ -160,7 +161,8 @@
       "doneTitle": "PDF Anda sudah dipisah",
       "doneZip": "Bagian-bagiannya dikemas dalam satu file ZIP.",
       "donePdf": "Halaman terpilih ada dalam satu PDF.",
-      "another": "Pisah PDF lain"
+      "another": "Pisah PDF lain",
+      "rangesRequired": "Isi halaman untuk setiap bagian."
     }
   },
   "resizer": {

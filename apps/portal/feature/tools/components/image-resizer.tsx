@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Image as ImageIcon, Link2, Link2Off } from "lucide-react";
 
@@ -19,107 +19,106 @@ import {
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
+import { zodResolverTranslate } from "@/lib/form";
 import { cn } from "@/lib/utils";
 
 import {
   FIT_MODES,
   IMAGE_ACCEPT,
-  IMAGE_EXTENSIONS,
   IMAGE_FORMATS,
   IMAGE_MAX_SIZE,
   MAX_IMAGE_DIMENSION,
   RESIZE_PRESETS,
-  type FitMode,
-  type ImageFormat,
 } from "../constants";
 import { useFileTool } from "../hooks/query";
 import { useImagePreview } from "../hooks/use-image-preview";
+import {
+  imageFileSchema,
+  isDimension,
+  KEEP_FORMAT,
+  resizerSchema,
+  type ResizerOutput,
+  type ResizerValues,
+} from "../schema";
 import { fileStem } from "../utils";
 
 const MAX_SIZE_MB = IMAGE_MAX_SIZE / 1024 / 1024;
-const KEEP_FORMAT = "original";
-
-function parseDimension(value: string): number | null {
-  const number = Number(value);
-  return Number.isInteger(number) && number >= 1 && number <= MAX_IMAGE_DIMENSION ? number : null;
-}
 
 export function ImageResizer() {
   const { t } = useTranslation("tools");
   const resize = useFileTool("image-resize");
-  const validate = useFileValidator({
-    extensions: IMAGE_EXTENSIONS,
-    maxSize: IMAGE_MAX_SIZE,
-    typeError: t("common.imageType"),
-  });
+  const validate = useFileValidator(imageFileSchema);
 
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [width, setWidth] = useState("");
-  const [height, setHeight] = useState("");
-  const [lockRatio, setLockRatio] = useState(true);
-  const [fit, setFit] = useState<FitMode>("cover");
-  const [format, setFormat] = useState<ImageFormat | typeof KEEP_FORMAT>(KEEP_FORMAT);
+  const form = useForm<ResizerValues, unknown, ResizerOutput>({
+    resolver: zodResolverTranslate(resizerSchema, t),
+    defaultValues: {
+      file: null,
+      width: "",
+      height: "",
+      lockRatio: true,
+      fit: "cover",
+      format: KEEP_FORMAT,
+    },
+    mode: "onChange",
+  });
+  const [file, width, height, lockRatio] = useWatch({
+    control: form.control,
+    name: ["file", "width", "height", "lockRatio"],
+  });
+  const { errors, isValid } = form.formState;
 
   const original = useImagePreview(file);
   const result = useImagePreview(resize.data?.blob);
   const ratio = original && original.height ? original.width / original.height : null;
 
-  const parsedWidth = parseDimension(width);
-  const parsedHeight = parseDimension(height);
-  const invalid =
-    (width !== "" && parsedWidth === null) ||
-    (height !== "" && parsedHeight === null) ||
-    (parsedWidth === null && parsedHeight === null);
-  // With the ratio locked, only one side is sent and the service keeps the ratio.
-  const bothSides = !lockRatio && parsedWidth !== null && parsedHeight !== null;
+  const bothSides = !lockRatio && isDimension(width) && isDimension(height);
+  const sizeError =
+    width !== "" || height !== "" ? (errors.width?.message ?? errors.height?.message) : undefined;
 
   function selectFile([selected]: File[]) {
     if (!selected) return;
     const error = validate(selected);
-    setFileError(error);
-    if (!error) setFile(selected);
+    if (error) return form.setError("file", { message: error });
+    form.clearErrors("file");
+    form.setValue("file", selected);
+  }
+
+  /** Width and height are checked together: one side's value can clear or
+   *  cause the other's error. */
+  function setSize(size: { width?: string; height?: string }) {
+    if (size.width !== undefined) form.setValue("width", size.width, { shouldDirty: true });
+    if (size.height !== undefined) form.setValue("height", size.height, { shouldDirty: true });
+    void form.trigger(["width", "height"]);
   }
 
   function changeWidth(value: string) {
-    setWidth(value);
-    const number = parseDimension(value);
-    if (lockRatio && ratio && number) setHeight(String(Math.max(1, Math.round(number / ratio))));
+    const linked = lockRatio && ratio && isDimension(value);
+    setSize(linked ? { width: value, height: String(Math.max(1, Math.round(Number(value) / ratio))) } : { width: value });
   }
 
   function changeHeight(value: string) {
-    setHeight(value);
-    const number = parseDimension(value);
-    if (lockRatio && ratio && number) setWidth(String(Math.max(1, Math.round(number * ratio))));
+    const linked = lockRatio && ratio && isDimension(value);
+    setSize(linked ? { width: String(Math.max(1, Math.round(Number(value) * ratio))), height: value } : { height: value });
   }
 
   function applyPreset(presetWidth: number, presetHeight: number) {
-    setLockRatio(false);
-    setWidth(String(presetWidth));
-    setHeight(String(presetHeight));
+    form.setValue("lockRatio", false);
+    setSize({ width: String(presetWidth), height: String(presetHeight) });
   }
 
   function startOver() {
     resize.reset();
-    setFile(null);
-    setFileError(null);
-    setWidth("");
-    setHeight("");
+    // Keep the ratio, fit and format choices for the next image.
+    form.reset({ ...form.getValues(), file: null, width: "", height: "" });
   }
 
-  function submit() {
-    if (!file || invalid) return;
+  function submit({ file, width, height, fit, format }: ResizerOutput) {
     const body = new FormData();
     body.append("file", file);
-    if (lockRatio) {
-      if (parsedWidth) body.append("width", String(parsedWidth));
-      else if (parsedHeight) body.append("height", String(parsedHeight));
-    } else {
-      if (parsedWidth) body.append("width", String(parsedWidth));
-      if (parsedHeight) body.append("height", String(parsedHeight));
-      body.append("fit", fit);
-    }
-    if (format !== KEEP_FORMAT) body.append("format", format);
+    if (width) body.append("width", String(width));
+    if (height) body.append("height", String(height));
+    if (fit) body.append("fit", fit);
+    if (format) body.append("format", format);
     resize.mutate({ body, fallbackName: `${fileStem(file.name)}_resized` });
   }
 
@@ -139,12 +138,12 @@ export function ImageResizer() {
             hint={t("common.imageHint", { size: MAX_SIZE_MB })}
             onFiles={selectFile}
           />
-          <FieldError>{fileError}</FieldError>
+          <FieldError>{errors.file?.message}</FieldError>
         </>
       )}
 
       {file && !resize.isPending && !resize.isSuccess && (
-        <section className="flex flex-col gap-6">
+        <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-6">
           <FileChip file={file} icon={ImageIcon}>
             {original && original.width > 0 && (
               <span className="text-xs text-muted-foreground tabular-nums">
@@ -175,7 +174,7 @@ export function ImageResizer() {
                   onClick={() => applyPreset(preset.width, preset.height)}
                   className={cn(
                     "rounded-lg border px-3 py-1.5 text-left text-xs transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                    !lockRatio && parsedWidth === preset.width && parsedHeight === preset.height
+                    !lockRatio && Number(width) === preset.width && Number(height) === preset.height
                       ? "border-brand bg-brand-soft/40"
                       : "bg-background hover:border-brand/40",
                   )}
@@ -194,6 +193,7 @@ export function ImageResizer() {
               label={t("resizer.width")}
               value={width}
               onChange={changeWidth}
+              invalid={!!errors.width && !!sizeError}
               min={1}
               max={MAX_IMAGE_DIMENSION}
               suffix="px"
@@ -205,7 +205,7 @@ export function ImageResizer() {
               className="rounded-lg"
               aria-pressed={lockRatio}
               aria-label={lockRatio ? t("resizer.unlockRatio") : t("resizer.lockRatio")}
-              onClick={() => setLockRatio((locked) => !locked)}
+              onClick={() => form.setValue("lockRatio", !lockRatio)}
             >
               {lockRatio ? <Link2 aria-hidden /> : <Link2Off aria-hidden />}
             </Button>
@@ -213,6 +213,7 @@ export function ImageResizer() {
               label={t("resizer.height")}
               value={height}
               onChange={changeHeight}
+              invalid={!!errors.height && !!sizeError}
               min={1}
               max={MAX_IMAGE_DIMENSION}
               suffix="px"
@@ -224,38 +225,48 @@ export function ImageResizer() {
           </p>
 
           {bothSides && (
-            <Segmented
-              label={t("resizer.fit")}
-              value={fit}
-              onChange={setFit}
-              options={FIT_MODES.map((mode) => ({
-                value: mode,
-                label: t(`resizer.fitModes.${mode}`),
-                description: t(`resizer.fitDescriptions.${mode}`),
-              }))}
+            <Controller
+              control={form.control}
+              name="fit"
+              render={({ field }) => (
+                <Segmented
+                  label={t("resizer.fit")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={FIT_MODES.map((mode) => ({
+                    value: mode,
+                    label: t(`resizer.fitModes.${mode}`),
+                    description: t(`resizer.fitDescriptions.${mode}`),
+                  }))}
+                />
+              )}
             />
           )}
 
-          <SelectField
-            label={t("common.outputFormat")}
-            value={format}
-            onChange={setFormat}
-            options={[
-              { value: KEEP_FORMAT, label: t("common.keepFormat") },
-              ...IMAGE_FORMATS.map((value) => ({ value, label: value.toUpperCase() })),
-            ]}
+          <Controller
+            control={form.control}
+            name="format"
+            render={({ field }) => (
+              <SelectField
+                label={t("common.outputFormat")}
+                value={field.value}
+                onChange={field.onChange}
+                options={[
+                  { value: KEEP_FORMAT, label: t("common.keepFormat") },
+                  ...IMAGE_FORMATS.map((value) => ({ value, label: value.toUpperCase() })),
+                ]}
+              />
+            )}
           />
 
-          {(width !== "" || height !== "") && invalid && (
-            <FieldError>{t("resizer.invalidSize", { max: MAX_IMAGE_DIMENSION })}</FieldError>
-          )}
+          <FieldError>{sizeError}</FieldError>
 
           {resize.isError && <ErrorAlert title={t("resizer.errorTitle")} error={resize.error} />}
 
-          <SubmitButton retry={resize.isError} disabled={invalid} onClick={submit}>
+          <SubmitButton retry={resize.isError} disabled={!isValid}>
             {t("resizer.submit")}
           </SubmitButton>
-        </section>
+        </form>
       )}
 
       {file && resize.isPending && (

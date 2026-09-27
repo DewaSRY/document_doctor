@@ -24,7 +24,8 @@
     "outputFormat": "Output format",
     "keepFormat": "Same as the original",
     "previewAlt": "Preview of {{name}}",
-    "resultAlt": "Preview of the result"
+    "resultAlt": "Preview of the result",
+    "fileRequired": "Choose a file first."
   },
   "categories": {
     "documentAi": "Document AI",
@@ -161,7 +162,8 @@
       "doneTitle": "Your PDF is split",
       "doneZip": "The parts are packed in one ZIP file.",
       "donePdf": "The selected pages are in one PDF.",
-      "another": "Split another PDF"
+      "another": "Split another PDF",
+      "rangesRequired": "Enter the pages for each part."
     }
   },
   "resizer": {

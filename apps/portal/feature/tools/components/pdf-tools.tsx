@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, Combine, FileText, X } from "lucide-react";
 
@@ -18,14 +19,19 @@ import {
 import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { zodResolverTranslate } from "@/lib/form";
 
-import {
-  FILE_TOOL_MAX_SIZE,
-  MAX_MERGE_FILES,
-  PDF_ACCEPT,
-  PDF_EXTENSIONS,
-} from "../constants";
+import { FILE_TOOL_MAX_SIZE, MAX_MERGE_FILES, PDF_ACCEPT } from "../constants";
 import { useFileTool, usePdfInfo } from "../hooks/query";
+import {
+  mergeSchema,
+  pdfFileSchema,
+  splitSchema,
+  type MergeOutput,
+  type MergeValues,
+  type SplitOutput,
+  type SplitValues,
+} from "../schema";
 import { fileStem } from "../utils";
 
 const MAX_SIZE_MB = FILE_TOOL_MAX_SIZE / 1024 / 1024;
@@ -64,55 +70,41 @@ export function PdfTools({ defaultMode = "merge" }: { defaultMode?: PdfMode }) {
   );
 }
 
-type QueuedFile = { id: string; file: File };
-
 function MergePdfs() {
   const { t } = useTranslation("tools");
   const merge = useFileTool("pdf-merge");
-  const validate = useFileValidator({
-    extensions: PDF_EXTENSIONS,
-    maxSize: FILE_TOOL_MAX_SIZE,
-    typeError: t("common.pdfType"),
-  });
+  const validate = useFileValidator(pdfFileSchema);
 
-  const [files, setFiles] = useState<QueuedFile[]>([]);
-  const [fileError, setFileError] = useState<string | null>(null);
+  const form = useForm<MergeValues, unknown, MergeOutput>({
+    resolver: zodResolverTranslate(mergeSchema, t),
+    defaultValues: { files: [] },
+  });
+  // Each queued file gets a stable `id` from useFieldArray, for keys and reordering.
+  const { fields: files, append, move, remove } = useFieldArray({
+    control: form.control,
+    name: "files",
+  });
+  const fileError = form.formState.errors.files?.message;
 
   function addFiles(picked: File[]) {
     const errors = picked.map(validate).filter(Boolean);
     const valid = picked.filter((file) => !validate(file));
     const room = MAX_MERGE_FILES - files.length;
 
-    setFileError(
-      errors[0] ??
-        (valid.length > room
-          ? t("pdf.merge.tooMany", { count: MAX_MERGE_FILES })
-          : null),
-    );
-    setFiles((current) => [
-      ...current,
-      ...valid
-        .slice(0, room)
-        .map((file) => ({ id: crypto.randomUUID(), file })),
-    ]);
-  }
-
-  function move(index: number, offset: number) {
-    setFiles((current) => {
-      const next = [...current];
-      const [item] = next.splice(index, 1);
-      next.splice(index + offset, 0, item);
-      return next;
-    });
+    const error =
+      errors[0] ?? (valid.length > room ? t("pdf.merge.tooMany", { count: MAX_MERGE_FILES }) : null);
+    append(valid.slice(0, room).map((file) => ({ file })));
+    // After append, which would otherwise rewrite the field's errors.
+    if (error) form.setError("files", { message: error });
+    else form.clearErrors("files");
   }
 
   function startOver() {
     merge.reset();
-    setFiles([]);
-    setFileError(null);
+    form.reset();
   }
 
-  function submit() {
+  function submit({ files }: MergeOutput) {
     const body = new FormData();
     for (const { file } of files) body.append("files", file);
     merge.mutate({ body, fallbackName: "merged.pdf" });
@@ -141,7 +133,7 @@ function MergePdfs() {
   }
 
   return (
-    <section className="flex flex-col gap-6">
+    <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-6">
       <p className="text-muted-foreground">{t("pdf.merge.intro")}</p>
 
       {files.length > 0 && (
@@ -162,7 +154,7 @@ function MergePdfs() {
                   size="icon-sm"
                   aria-label={t("pdf.merge.moveUp", { name: file.name })}
                   disabled={index === 0}
-                  onClick={() => move(index, -1)}
+                  onClick={() => move(index, index - 1)}
                 >
                   <ArrowUp aria-hidden />
                 </Button>
@@ -171,7 +163,7 @@ function MergePdfs() {
                   size="icon-sm"
                   aria-label={t("pdf.merge.moveDown", { name: file.name })}
                   disabled={index === files.length - 1}
-                  onClick={() => move(index, 1)}
+                  onClick={() => move(index, index + 1)}
                 >
                   <ArrowDown aria-hidden />
                 </Button>
@@ -179,11 +171,7 @@ function MergePdfs() {
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t("pdf.merge.remove", { name: file.name })}
-                  onClick={() =>
-                    setFiles((current) =>
-                      current.filter((item) => item.id !== id),
-                    )
-                  }
+                  onClick={() => remove(index)}
                 >
                   <X aria-hidden />
                 </Button>
@@ -218,59 +206,49 @@ function MergePdfs() {
       )}
 
       {files.length > 0 && (
-        <SubmitButton
-          retry={merge.isError}
-          disabled={files.length < 2}
-          onClick={submit}
-        >
+        <SubmitButton retry={merge.isError} disabled={files.length < 2}>
           {t("pdf.merge.submit", { count: files.length })}
         </SubmitButton>
       )}
-    </section>
+    </form>
   );
 }
-
-type SplitMode = "every" | "ranges";
 
 function SplitPdf() {
   const { t } = useTranslation("tools");
   const split = useFileTool("pdf-split");
   const info = usePdfInfo();
-  const validate = useFileValidator({
-    extensions: PDF_EXTENSIONS,
-    maxSize: FILE_TOOL_MAX_SIZE,
-    typeError: t("common.pdfType"),
-  });
+  const validate = useFileValidator(pdfFileSchema);
   const rangesId = useId();
   const singleId = useId();
 
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [mode, setMode] = useState<SplitMode>("ranges");
-  const [ranges, setRanges] = useState("");
-  const [singleFile, setSingleFile] = useState(false);
+  const form = useForm<SplitValues, unknown, SplitOutput>({
+    resolver: zodResolverTranslate(splitSchema, t),
+    defaultValues: { file: null, mode: "ranges", ranges: "", singleFile: false },
+    mode: "onChange",
+  });
+  const [file, mode] = useWatch({ control: form.control, name: ["file", "mode"] });
+  const { errors, isValid } = form.formState;
 
   const pageCount = info.data?.page_count;
 
   function selectFile([selected]: File[]) {
     if (!selected) return;
     const error = validate(selected);
-    setFileError(error);
-    if (error) return;
-    setFile(selected);
+    if (error) return form.setError("file", { message: error });
+    form.clearErrors("file");
+    form.setValue("file", selected, { shouldValidate: true });
     info.mutate(selected);
   }
 
   function startOver() {
     split.reset();
     info.reset();
-    setFile(null);
-    setFileError(null);
-    setRanges("");
+    // Keep the split mode and single-file choice for the next PDF.
+    form.reset({ ...form.getValues(), file: null, ranges: "" });
   }
 
-  function submit() {
-    if (!file) return;
+  function submit({ file, mode, ranges, singleFile }: SplitOutput) {
     const body = new FormData();
     body.append("file", file);
     if (mode === "ranges") {
@@ -289,7 +267,7 @@ function SplitPdf() {
           hint={t("common.pdfHint", { size: MAX_SIZE_MB })}
           onFiles={selectFile}
         />
-        <FieldError>{fileError}</FieldError>
+        <FieldError>{errors.file?.message}</FieldError>
       </section>
     );
   }
@@ -318,7 +296,7 @@ function SplitPdf() {
   }
 
   return (
-    <section className="flex flex-col gap-6">
+    <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-6">
       <FileChip file={file} preview>
         {pageCount !== undefined && (
           <span className="text-xs text-muted-foreground">
@@ -336,22 +314,28 @@ function SplitPdf() {
 
       {!info.isError && (
         <>
-          <Segmented
-            label={t("pdf.split.how")}
-            value={mode}
-            onChange={setMode}
-            options={[
-              {
-                value: "ranges",
-                label: t("pdf.split.modes.ranges"),
-                description: t("pdf.split.modeDescriptions.ranges"),
-              },
-              {
-                value: "every",
-                label: t("pdf.split.modes.every"),
-                description: t("pdf.split.modeDescriptions.every"),
-              },
-            ]}
+          <Controller
+            control={form.control}
+            name="mode"
+            render={({ field }) => (
+              <Segmented
+                label={t("pdf.split.how")}
+                value={field.value}
+                onChange={field.onChange}
+                options={[
+                  {
+                    value: "ranges",
+                    label: t("pdf.split.modes.ranges"),
+                    description: t("pdf.split.modeDescriptions.ranges"),
+                  },
+                  {
+                    value: "every",
+                    label: t("pdf.split.modes.every"),
+                    description: t("pdf.split.modeDescriptions.every"),
+                  },
+                ]}
+              />
+            )}
           />
 
           {mode === "ranges" && (
@@ -362,8 +346,8 @@ function SplitPdf() {
                 </label>
                 <input
                   id={rangesId}
-                  value={ranges}
-                  onChange={(event) => setRanges(event.target.value)}
+                  {...form.register("ranges")}
+                  aria-invalid={!!errors.ranges || undefined}
                   placeholder={t("pdf.split.rangesPlaceholder")}
                   className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 />
@@ -380,8 +364,7 @@ function SplitPdf() {
                 <input
                   id={singleId}
                   type="checkbox"
-                  checked={singleFile}
-                  onChange={(event) => setSingleFile(event.target.checked)}
+                  {...form.register("singleFile")}
                   className="mt-0.5 size-4 accent-brand"
                 />
                 <span>
@@ -400,15 +383,11 @@ function SplitPdf() {
             <ErrorAlert title={t("pdf.split.errorTitle")} error={split.error} />
           )}
 
-          <SubmitButton
-            retry={split.isError}
-            disabled={mode === "ranges" && !ranges.trim()}
-            onClick={submit}
-          >
+          <SubmitButton retry={split.isError} disabled={!isValid}>
             {t("pdf.split.submit")}
           </SubmitButton>
         </>
       )}
-    </section>
+    </form>
   );
 }

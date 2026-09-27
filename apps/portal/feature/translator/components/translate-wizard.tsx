@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
@@ -15,20 +15,30 @@ import {
 
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { FieldError, FileDropzone, SelectField } from "@/components/file-tools";
+import {
+  FieldError,
+  FileDropzone,
+  SelectField,
+  useFileValidator,
+} from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
+import { zodResolverTranslate } from "@/lib/form";
 import { cn } from "@/lib/utils";
 
 import {
   ACCEPT_ATTRIBUTE,
-  ACCEPTED_EXTENSIONS,
   LANGUAGE_CODES,
   MAX_FILE_SIZE,
   getDownloadHref,
-  getFileExtension,
   type LanguageCode,
 } from "../constants";
 import { useTranslateDocument } from "../hooks/query";
+import {
+  translateFileSchema,
+  translateSchema,
+  type TranslateOutput,
+  type TranslateValues,
+} from "../schema";
 import { getTranslatorErrorMessage } from "../utils";
 
 type Step = "upload" | "languages" | "translating" | "done";
@@ -45,11 +55,18 @@ const MAX_FILE_SIZE_MB = MAX_FILE_SIZE / 1024 / 1024;
 export function TranslateWizard() {
   const { t } = useTranslation("translator");
   const translate = useTranslateDocument();
+  const validate = useFileValidator(translateFileSchema, "translator");
 
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [sourceLanguage, setSourceLanguage] = useState<LanguageCode>("id");
-  const [targetLanguage, setTargetLanguage] = useState<LanguageCode>("en");
+  const form = useForm<TranslateValues, unknown, TranslateOutput>({
+    resolver: zodResolverTranslate(translateSchema, t),
+    defaultValues: { file: null, sourceLanguage: "id", targetLanguage: "en" },
+    mode: "onChange",
+  });
+  const [file, sourceLanguage, targetLanguage] = useWatch({
+    control: form.control,
+    name: ["file", "sourceLanguage", "targetLanguage"],
+  });
+  const { errors } = form.formState;
 
   const step: Step = translate.isSuccess
     ? "done"
@@ -67,29 +84,27 @@ export function TranslateWizard() {
 
   function selectFile(selected: File | undefined) {
     if (!selected) return;
-    const extension = getFileExtension(selected.name);
+    const error = validate(selected);
+    if (error) return form.setError("file", { message: error });
+    form.clearErrors("file");
+    form.setValue("file", selected);
+  }
 
-    if (!(ACCEPTED_EXTENSIONS as readonly string[]).includes(extension)) {
-      setFileError(t("upload.invalidType"));
-    } else if (selected.size > MAX_FILE_SIZE) {
-      setFileError(t("upload.tooLarge", { size: MAX_FILE_SIZE_MB }));
-    } else if (selected.size === 0) {
-      setFileError(t("upload.empty"));
-    } else {
-      setFileError(null);
-      setFile(selected);
-    }
+  /** The languages are checked together: they must differ. */
+  function setLanguages(languages: { sourceLanguage?: LanguageCode; targetLanguage?: LanguageCode }) {
+    if (languages.sourceLanguage) form.setValue("sourceLanguage", languages.sourceLanguage);
+    if (languages.targetLanguage) form.setValue("targetLanguage", languages.targetLanguage);
+    void form.trigger(["sourceLanguage", "targetLanguage"]);
   }
 
   function startOver() {
     translate.reset();
-    setFile(null);
-    setFileError(null);
+    // Keep the chosen languages for the next document.
+    form.reset({ ...form.getValues(), file: null });
   }
 
-  function submit() {
-    if (!file || sourceLanguage === targetLanguage) return;
-    translate.mutate({ file, sourceLanguage, targetLanguage });
+  function submit(values: TranslateOutput) {
+    translate.mutate(values);
   }
 
   return (
@@ -97,11 +112,16 @@ export function TranslateWizard() {
       <StepIndicator current={step} />
 
       {step === "upload" && (
-        <UploadStep onSelect={selectFile} error={fileError} />
+        <UploadStep onSelect={selectFile} error={errors.file?.message} />
       )}
 
       {step === "languages" && file && (
-        <section aria-labelledby="languages-title" className="flex flex-col gap-6">
+        <form
+          noValidate
+          aria-labelledby="languages-title"
+          onSubmit={form.handleSubmit(submit)}
+          className="flex flex-col gap-6"
+        >
           <div>
             <h1 id="languages-title" className="text-2xl font-semibold tracking-tight">
               {t("languageStep.title")}
@@ -118,37 +138,44 @@ export function TranslateWizard() {
           </FileChip>
 
           <div className="grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
-            <SelectField
-              label={t("languageStep.source")}
-              value={sourceLanguage}
-              options={languageOptions}
-              onChange={setSourceLanguage}
+            <Controller
+              control={form.control}
+              name="sourceLanguage"
+              render={({ field }) => (
+                <SelectField
+                  label={t("languageStep.source")}
+                  value={field.value}
+                  options={languageOptions}
+                  onChange={(value) => setLanguages({ sourceLanguage: value })}
+                />
+              )}
             />
             <Button
               variant="outline"
               size="icon-lg"
               className="justify-self-center rounded-lg"
               aria-label={t("languageStep.swap")}
-              onClick={() => {
-                setSourceLanguage(targetLanguage);
-                setTargetLanguage(sourceLanguage);
-              }}
+              onClick={() =>
+                setLanguages({ sourceLanguage: targetLanguage, targetLanguage: sourceLanguage })
+              }
             >
               <ArrowLeftRight aria-hidden />
             </Button>
-            <SelectField
-              label={t("languageStep.target")}
-              value={targetLanguage}
-              options={languageOptions}
-              onChange={setTargetLanguage}
+            <Controller
+              control={form.control}
+              name="targetLanguage"
+              render={({ field }) => (
+                <SelectField
+                  label={t("languageStep.target")}
+                  value={field.value}
+                  options={languageOptions}
+                  onChange={(value) => setLanguages({ targetLanguage: value })}
+                />
+              )}
             />
           </div>
 
-          {sourceLanguage === targetLanguage && (
-            <p role="alert" className="text-sm text-destructive">
-              {t("languageStep.sameLanguage")}
-            </p>
-          )}
+          <FieldError>{errors.targetLanguage?.message}</FieldError>
 
           {translate.isError && (
             <div
@@ -166,15 +193,15 @@ export function TranslateWizard() {
           )}
 
           <Button
+            type="submit"
             size="lg"
             className="h-11 rounded-lg text-base sm:self-start"
-            disabled={sourceLanguage === targetLanguage}
-            onClick={submit}
+            disabled={!!errors.targetLanguage}
           >
             {translate.isError && <RotateCcw aria-hidden />}
             {translate.isError ? t("error.retry") : t("languageStep.submit")}
           </Button>
-        </section>
+        </form>
       )}
 
       {step === "translating" && file && (
@@ -286,7 +313,7 @@ function UploadStep({
   error,
 }: {
   onSelect: (file: File | undefined) => void;
-  error: string | null;
+  error?: string;
 }) {
   const { t } = useTranslation("translator");
 
