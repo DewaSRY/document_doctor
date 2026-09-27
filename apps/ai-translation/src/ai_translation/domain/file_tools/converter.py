@@ -27,6 +27,7 @@ from docx.text.run import Run
 from pdf2docx import Converter
 
 from .pdf_links import PdfLinks
+from .pdf_shapes import add_lines, page_lines
 from .pdf_tools import PdfToolError
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ _FALLBACK_PAGE_DPI = 200
 def pdf_to_docx(file_content: bytes) -> bytes:
     """
     Rebuild a PDF as an editable Word document: text with its fonts and colors,
-    links, tables, images and page geometry. A page whose layout cannot be
+    links, lines, tables, images and page geometry. A page whose layout cannot be
     rebuilt is kept as a picture of the page instead of being dropped.
     """
     converter = Converter(stream=file_content)
@@ -60,11 +61,16 @@ def pdf_to_docx(file_content: bytes) -> bytes:
         page_starts: dict[int, Paragraph] = {}
         for page in converter.pages:
             before = list(doc.element.body)
-            if not (page.finalized and _make_page(doc, page)):
+            rebuilt = page.finalized and _make_page(doc, page)
+            if not rebuilt:
                 logger.warning("Keeping PDF page %d as an image, its layout could not be rebuilt", page.id + 1)
                 _add_page_image(doc, converter.fitz_doc[page.id])
-            if (start := _first_new_paragraph(doc, before)) is not None:
-                page_starts[page.id] = start
+            if (start := _first_new_paragraph(doc, before)) is None:
+                continue
+            page_starts[page.id] = start
+            # pdf2docx writes no line it does not use as a border or text style.
+            if rebuilt:
+                add_lines(start, page_lines(page))
 
         links.finish(doc, page_starts)
         _make_strictly_valid(doc)
