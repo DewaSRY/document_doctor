@@ -1,18 +1,202 @@
 import html
+import json
+import logging
+import os
+import shutil
+import signal
+import subprocess
+import tempfile
+import threading
+import zipfile
+from functools import cache
 from io import BytesIO
+from pathlib import Path
 
 import pymupdf
 from docx import Document as DocxDocument
 from docx.document import Document
+from docx.enum.section import WD_SECTION
+from docx.enum.text import WD_COLOR_INDEX
+from docx.shared import Pt
 from docx.table import Table
 from docx.text.hyperlink import Hyperlink
 from docx.text.paragraph import Paragraph
 from docx.text.run import Run
 from pdf2docx import Converter
 
-_PAGE = pymupdf.paper_rect("a4")
-_MARGIN = 60
-_CONTENT = _PAGE + (_MARGIN, _MARGIN, -_MARGIN, -_MARGIN)
+from .pdf_tools import PdfToolError
+
+logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# PDF -> DOCX
+# ---------------------------------------------------------------------------
+
+# Resolution of pages kept as a picture when their layout cannot be rebuilt.
+_FALLBACK_PAGE_DPI = 200
+
+
+def pdf_to_docx(file_content: bytes) -> bytes:
+    """
+    Rebuild a PDF as an editable Word document: text with its fonts and colors,
+    tables, images and page geometry. A page whose layout cannot be rebuilt is
+    kept as a picture of the page instead of being dropped.
+    """
+    converter = Converter(stream=file_content)
+    try:
+        settings = converter.default_settings | {"ignore_page_error": True}
+        converter.parse(**settings)
+
+        doc = DocxDocument()
+        for page in converter.pages:
+            if page.finalized and _make_page(doc, page):
+                continue
+            logger.warning("Keeping PDF page %d as an image, its layout could not be rebuilt", page.id + 1)
+            _add_page_image(doc, converter.fitz_doc[page.id])
+
+        output = BytesIO()
+        doc.save(output)
+        return output.getvalue()
+    finally:
+        converter.close()
+
+
+def _make_page(doc: Document, page) -> bool:
+    """Add a parsed pdf2docx page; on failure, undo whatever it half-wrote."""
+    body = doc.element.body
+    before = set(map(id, body))
+    try:
+        page.make_docx(doc)
+        return True
+    except Exception:
+        logger.exception("Failed to rebuild PDF page %d", page.id + 1)
+        for child in list(body):
+            if id(child) not in before and child is not body.sectPr:
+                body.remove(child)
+        return False
+
+
+def _add_page_image(doc: Document, page: pymupdf.Page) -> None:
+    section = doc.add_section(WD_SECTION.NEW_PAGE) if doc.paragraphs else doc.sections[0]
+    section.page_width = Pt(page.rect.width)
+    section.page_height = Pt(page.rect.height)
+    section.left_margin = section.right_margin = Pt(0)
+    section.top_margin = section.bottom_margin = Pt(0)
+    section.header_distance = section.footer_distance = Pt(0)
+
+    image = BytesIO(page.get_pixmap(dpi=_FALLBACK_PAGE_DPI).tobytes("png"))
+    paragraph = doc.add_paragraph()
+    paragraph.paragraph_format.space_before = paragraph.paragraph_format.space_after = Pt(0)
+    paragraph.paragraph_format.line_spacing = 1.0
+    # A picture exactly as tall as the page pushes an empty page after it.
+    paragraph.add_run().add_picture(image, height=Pt(page.rect.height - 2))
+
+
+# ---------------------------------------------------------------------------
+# DOCX -> PDF
+# ---------------------------------------------------------------------------
+
+_SOFFICE_CANDIDATES = (
+    "soffice",
+    "libreoffice",
+    "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+    "/usr/lib/libreoffice/program/soffice",
+)
+_SOFFICE_TIMEOUT_SECONDS = 180
+# Every conversion starts its own LibreOffice process; cap how many run at once.
+_SOFFICE_SLOTS = threading.BoundedSemaphore(2)
+# Keep images at their original resolution and quality.
+_PDF_EXPORT_OPTIONS = json.dumps(
+    {
+        "ReduceImageResolution": {"type": "boolean", "value": "false"},
+        "UseLosslessCompression": {"type": "boolean", "value": "true"},
+        "ExportBookmarks": {"type": "boolean", "value": "true"},
+        "ExportFormFields": {"type": "boolean", "value": "false"},
+    }
+)
+
+
+@cache
+def _soffice() -> str | None:
+    configured = os.environ.get("SOFFICE_PATH")
+    for candidate in (configured, *_SOFFICE_CANDIDATES):
+        if candidate and (path := shutil.which(candidate)):
+            return path
+    return None
+
+
+def docx_to_pdf(file_content: bytes) -> bytes:
+    """
+    Lay out a Word document as a PDF.
+
+    LibreOffice renders the document with Word's own layout rules, so fonts,
+    colors, page setup, headers and footers, tables, shapes and floating images
+    carry over. Without LibreOffice a simplified HTML rendering is used.
+    """
+    if not _is_docx(file_content):
+        raise PdfToolError("The file is not a valid Word (.docx) document")
+
+    soffice = _soffice()
+    if soffice:
+        with _SOFFICE_SLOTS:
+            return _libreoffice_to_pdf(soffice, file_content)
+
+    logger.warning("LibreOffice is not installed; converting DOCX to PDF with the simplified renderer")
+    return _html_to_pdf(file_content)
+
+
+def _is_docx(file_content: bytes) -> bool:
+    try:
+        with zipfile.ZipFile(BytesIO(file_content)) as archive:
+            return "word/document.xml" in archive.namelist()
+    except zipfile.BadZipFile:
+        return False
+
+
+def _libreoffice_to_pdf(soffice: str, file_content: bytes) -> bytes:
+    with tempfile.TemporaryDirectory(prefix="docx-to-pdf-") as tmp:
+        work = Path(tmp)
+        source = work / "document.docx"
+        source.write_bytes(file_content)
+
+        command = [
+            soffice,
+            # A private profile lets conversions run side by side.
+            f"-env:UserInstallation={(work / 'profile').as_uri()}",
+            "--headless",
+            "--norestore",
+            "--nolockcheck",
+            "--nodefault",
+            "--convert-to",
+            f"pdf:writer_pdf_Export:{_PDF_EXPORT_OPTIONS}",
+            "--outdir",
+            str(work),
+            str(source),
+        ]
+        # A new session lets a timeout kill LibreOffice's child processes too.
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            start_new_session=True,
+            env={**os.environ, "HOME": tmp},
+        )
+        try:
+            _, stderr = process.communicate(timeout=_SOFFICE_TIMEOUT_SECONDS)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            process.communicate()
+            raise RuntimeError(f"Converting the document took longer than {_SOFFICE_TIMEOUT_SECONDS} seconds")
+
+        output = work / "document.pdf"
+        if process.returncode != 0 or not output.exists():
+            message = stderr.decode(errors="replace").strip() or f"exit code {process.returncode}"
+            raise RuntimeError(f"LibreOffice could not convert the document: {message}")
+        return output.read_bytes()
+
+
+# Simplified renderer, used only when LibreOffice is unavailable.
+
 _EMU_PER_POINT = 12700
 
 _CSS = """
@@ -29,23 +213,38 @@ td { border: 1px solid #999; padding: 3pt 5pt; vertical-align: top; }
 
 _ALIGNMENTS = {0: "left", 1: "center", 2: "right", 3: "justify"}
 
+_HIGHLIGHTS = {
+    WD_COLOR_INDEX.YELLOW: "#ffff00",
+    WD_COLOR_INDEX.BRIGHT_GREEN: "#00ff00",
+    WD_COLOR_INDEX.TURQUOISE: "#00ffff",
+    WD_COLOR_INDEX.PINK: "#ff00ff",
+    WD_COLOR_INDEX.BLUE: "#0000ff",
+    WD_COLOR_INDEX.RED: "#ff0000",
+    WD_COLOR_INDEX.DARK_BLUE: "#000080",
+    WD_COLOR_INDEX.TEAL: "#008080",
+    WD_COLOR_INDEX.GREEN: "#008000",
+    WD_COLOR_INDEX.VIOLET: "#800080",
+    WD_COLOR_INDEX.DARK_RED: "#800000",
+    WD_COLOR_INDEX.DARK_YELLOW: "#808000",
+    WD_COLOR_INDEX.GRAY_50: "#808080",
+    WD_COLOR_INDEX.GRAY_25: "#c0c0c0",
+    WD_COLOR_INDEX.BLACK: "#000000",
+}
 
-def pdf_to_docx(file_content: bytes) -> bytes:
-    """Rebuild a PDF as an editable Word document (text, tables and images)."""
-    converter = Converter(stream=file_content)
-    try:
-        output = BytesIO()
-        converter.convert(output)
-        return output.getvalue()
-    finally:
-        converter.close()
+
+def _shading(element) -> str | None:
+    """Background color of a paragraph, run or cell, from its w:shd."""
+    fills = element.xpath("./*/w:shd/@w:fill") if element is not None else []
+    fill = fills[0] if fills else None
+    return f"#{fill}" if fill and fill.lower() != "auto" else None
 
 
 class _DocxToHtml:
     """Renders the body of a Word document as the HTML subset MuPDF lays out."""
 
-    def __init__(self, doc: Document):
+    def __init__(self, doc: Document, content: pymupdf.Rect):
         self.doc = doc
+        self.content = content
         self.archive = pymupdf.Archive()
         self._image_count = 0
 
@@ -91,8 +290,15 @@ class _DocxToHtml:
             level = style.removeprefix("Heading ").strip()
             tag = f"h{min(int(level), 6)}" if level.isdigit() else "h2"
 
-        align = _ALIGNMENTS.get(paragraph.alignment) if paragraph.alignment is not None else None
-        attrs = f' style="text-align: {align}"' if align else ""
+        css: list[str] = []
+        if paragraph.alignment is not None and (align := _ALIGNMENTS.get(paragraph.alignment)):
+            css.append(f"text-align: {align}")
+        if background := _shading(paragraph._p):
+            css.append(f"background-color: {background}")
+        # Heading colors usually come from the style rather than the runs.
+        if paragraph.style is not None and (color := self._color(paragraph.style.font)):
+            css.append(f"color: {color}")
+        attrs = f' style="{"; ".join(css)}"' if css else ""
         content = self._inline(paragraph) or "&nbsp;"
         return f"<{tag}{attrs}>{content}</{tag}>"
 
@@ -107,6 +313,14 @@ class _DocxToHtml:
                 parts.append(self._run(item))
         return "".join(parts)
 
+    @staticmethod
+    def _color(font) -> str | None:
+        try:
+            rgb = font.color.rgb if font.color is not None and font.color.type is not None else None
+        except (AttributeError, ValueError):
+            return None
+        return f"#{rgb}" if rgb is not None else None
+
     def _run(self, run: Run) -> str:
         text = html.escape(run.text).replace("\n", "<br/>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
         if run.bold:
@@ -115,10 +329,27 @@ class _DocxToHtml:
             text = f"<i>{text}</i>"
         if run.underline:
             text = f"<u>{text}</u>"
+        if run.font.strike or run.font.double_strike:
+            text = f"<s>{text}</s>"
         if run.font.superscript:
             text = f"<sup>{text}</sup>"
         elif run.font.subscript:
             text = f"<sub>{text}</sub>"
+
+        css: list[str] = []
+        if color := self._color(run.font):
+            css.append(f"color: {color}")
+        highlight = run.font.highlight_color
+        if background := (_HIGHLIGHTS.get(highlight) if highlight else None) or _shading(run._r):
+            css.append(f"background-color: {background}")
+        if run.font.size:
+            css.append(f"font-size: {run.font.size.pt:g}pt")
+        if run.font.name:
+            css.append(f"font-family: '{html.escape(run.font.name, quote=True)}', sans-serif")
+        if run.font.all_caps:
+            css.append("text-transform: uppercase")
+        if css and text:
+            text = f'<span style="{"; ".join(css)}">{text}</span>'
         return text + "".join(self._images(run))
 
     def _images(self, run: Run) -> list[str]:
@@ -135,7 +366,7 @@ class _DocxToHtml:
                 width = int(extents[0].get("cx")) / _EMU_PER_POINT
                 height = int(extents[0].get("cy")) / _EMU_PER_POINT
                 # Shrink images that would not fit on the page.
-                scale = min(1.0, _CONTENT.width / width, (_CONTENT.height - 20) / height)
+                scale = min(1.0, self.content.width / width, (self.content.height - 20) / height)
                 width, height = width * scale, height * scale
 
             self._image_count += 1
@@ -156,18 +387,40 @@ class _DocxToHtml:
                     continue
                 previous = cell._tc
                 content = "<br/>".join(self._inline(p) for p in cell.paragraphs)
-                cells.append(f"<td>{content or '&nbsp;'}</td>")
+                background = _shading(cell._tc)
+                attrs = f' style="background-color: {background}"' if background else ""
+                cells.append(f"<td{attrs}>{content or '&nbsp;'}</td>")
             rows.append(f"<tr>{''.join(cells)}</tr>")
         return f"<table>{''.join(rows)}</table>"
 
 
-def docx_to_pdf(file_content: bytes) -> bytes:
-    """Lay out a Word document on A4 pages as a PDF."""
-    renderer = _DocxToHtml(DocxDocument(BytesIO(file_content)))
+def _page_geometry(doc: Document) -> tuple[pymupdf.Rect, pymupdf.Rect]:
+    """Page and content area of the document's first section, A4 if unset."""
+    page = pymupdf.paper_rect("a4")
+    section = doc.sections[0] if doc.sections else None
+    if section is not None and section.page_width and section.page_height:
+        page = pymupdf.Rect(0, 0, section.page_width.pt, section.page_height.pt)
+
+    def margin(value, default: float = 72) -> float:
+        return value.pt if value is not None else default
+
+    content = page + (
+        margin(section and section.left_margin),
+        margin(section and section.top_margin),
+        -margin(section and section.right_margin),
+        -margin(section and section.bottom_margin),
+    )
+    return page, content
+
+
+def _html_to_pdf(file_content: bytes) -> bytes:
+    doc = DocxDocument(BytesIO(file_content))
+    page, content = _page_geometry(doc)
+    renderer = _DocxToHtml(doc, content)
     body = renderer.render()
 
     story = pymupdf.Story(html=f"<body>{body}</body>", user_css=_CSS, archive=renderer.archive)
-    pdf = story.write_with_links(lambda rect_num, filled: (_PAGE, _CONTENT, None))
+    pdf = story.write_with_links(lambda rect_num, filled: (page, content, None))
     try:
         return pdf.tobytes(garbage=3, deflate=True)
     finally:

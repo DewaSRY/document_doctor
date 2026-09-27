@@ -54,6 +54,25 @@ ENV PYTHONUNBUFFERED=1 \
     QWEN_MODEL_NAME="Qwen/Qwen2.5-1.5B-Instruct"
 
 # ------------------------------------------------------------
+# LibreOffice lays out DOCX -> PDF conversions. The fonts are
+# metric-compatible with Word's (Calibri, Cambria, Arial, Times
+# New Roman, Courier New) so text flows and breaks as in Word,
+# and Noto covers the scripts documents are translated into.
+# ------------------------------------------------------------
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libreoffice-writer-nogui \
+        fontconfig \
+        fonts-liberation2 \
+        fonts-crosextra-carlito \
+        fonts-crosextra-caladea \
+        fonts-dejavu-core \
+        fonts-noto-core \
+        fonts-noto-cjk \
+    && fc-cache -f \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------
 # Create non-root user
 # ------------------------------------------------------------
 RUN groupadd --system app \
