@@ -38,8 +38,11 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
   const languages = tList<Language>(t, "languages.items");
 
   return (
-    <section aria-labelledby="review-title" className="border-y bg-muted/30">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1fr_1.15fr]">
+    <section
+      aria-labelledby="review-title"
+      className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6"
+    >
+      <div className="grid items-center gap-14 overflow-hidden rounded-2xl bg-card px-6 py-12 shadow-xs sm:px-10 lg:grid-cols-[1fr_1.15fr] lg:px-14 lg:py-16">
         <div>
           <SectionHeading
             id="review-title"
@@ -105,7 +108,7 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
         <figure
           role="img"
           aria-label={t("review.label")}
-          className="relative pb-36"
+          className="relative pb-36 lg:pr-6"
         >
           <div aria-hidden className="overflow-hidden rounded-xl border bg-card shadow-xl shadow-black/5">
             <div className="flex items-center justify-between gap-3 border-b px-4 py-3">

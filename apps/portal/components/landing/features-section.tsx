@@ -28,8 +28,9 @@ export function FeaturesSection({ t }: { t: LandingT }) {
     <section
       id={SECTION_IDS.features}
       aria-labelledby="features-title"
-      className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 sm:py-28"
+      className="mt-16 scroll-mt-20 border-y bg-card"
     >
+      <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
       <SectionHeading
         id="features-title"
         eyebrow={t("features.eyebrow")}
@@ -37,25 +38,28 @@ export function FeaturesSection({ t }: { t: LandingT }) {
         description={t("features.description")}
       />
 
-      <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => {
           const Icon = ICONS[item.icon] ?? LayoutGrid;
           return (
             <li
               key={item.title}
-              className="group rounded-xl border bg-card p-6 transition duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md motion-reduce:hover:translate-y-0"
+              className="flex gap-4"
             >
-              <span className="grid size-10 place-items-center rounded-lg bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-primary-foreground">
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
                 <Icon className="size-5" aria-hidden />
               </span>
-              <h3 className="mt-5 text-base font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {item.body}
-              </p>
+              <div>
+                <h3 className="text-base font-semibold">{item.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {item.body}
+                </p>
+              </div>
             </li>
           );
         })}
       </ul>
+      </div>
     </section>
   );
 }

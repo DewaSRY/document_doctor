@@ -27,9 +27,9 @@ export function UseCasesSection({ t }: { t: LandingT }) {
     <section
       id={SECTION_IDS.useCases}
       aria-labelledby="use-cases-title"
-      className="scroll-mt-20 border-y bg-muted/30"
+      className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+      <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
         <SectionHeading
           id="use-cases-title"
           eyebrow={t("useCases.eyebrow")}
@@ -41,7 +41,7 @@ export function UseCasesSection({ t }: { t: LandingT }) {
           {items.map((item) => (
             <li
               key={item.situation}
-              className="flex flex-col rounded-xl border bg-card p-6"
+              className="flex flex-col rounded-xl bg-card p-6 shadow-xs"
             >
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                 {item.role}

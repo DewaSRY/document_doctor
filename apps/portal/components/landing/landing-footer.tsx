@@ -4,6 +4,10 @@ import { TOOL_HREFS } from "@/feature/tools/constants";
 import type { ToolGroup } from "./tools-section";
 import { SECTION_IDS, START_HREF, tList, type LandingT } from "./types";
 
+const LINK_CLASS =
+  "text-sm text-background/65 transition-colors hover:text-background";
+
+/** Dark footer with one column per tool category, then the page sections. */
 export function LandingFooter({
   t,
   appName,
@@ -11,35 +15,38 @@ export function LandingFooter({
   t: LandingT;
   appName: string;
 }) {
+  const groups = tList<ToolGroup>(t, "tools.groups");
   const links = [
     { href: `#${SECTION_IDS.tools}`, label: t("nav.links.tools") },
     { href: `#${SECTION_IDS.useCases}`, label: t("nav.links.useCases") },
-    { href: `#${SECTION_IDS.howItWorks}`, label: t("nav.links.howItWorks") },
     { href: `#${SECTION_IDS.features}`, label: t("nav.links.features") },
     { href: `#${SECTION_IDS.faq}`, label: t("nav.links.faq") },
   ];
-  const tools = tList<ToolGroup>(t, "tools.groups").flatMap((g) => g.items);
 
   return (
-    <footer className="border-t">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-12 sm:flex-row sm:justify-between sm:px-6">
+    <footer className="bg-foreground text-background">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
         <div className="max-w-xs">
           <BrandLogo name={appName} />
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-background/65">
             {t("footer.tagline")}
           </p>
         </div>
-        <div className="flex gap-16">
-          <nav aria-labelledby="footer-tools">
-            <p id="footer-tools" className="text-sm font-semibold">
-              {t("footer.tools")}
+
+        {groups.map((group) => (
+          <nav key={group.id} aria-labelledby={`footer-${group.id}`}>
+            <p
+              id={`footer-${group.id}`}
+              className="text-xs font-semibold tracking-wide uppercase"
+            >
+              {group.title}
             </p>
-            <ul className="mt-3 flex flex-col gap-2">
-              {tools.map((tool) => (
+            <ul className="mt-4 flex flex-col gap-2.5">
+              {group.items.map((tool) => (
                 <li key={tool.icon}>
                   <Link
                     href={TOOL_HREFS[tool.icon] ?? START_HREF}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className={LINK_CLASS}
                   >
                     {tool.name}
                   </Link>
@@ -47,27 +54,28 @@ export function LandingFooter({
               ))}
             </ul>
           </nav>
-          <nav aria-labelledby="footer-product">
-            <p id="footer-product" className="text-sm font-semibold">
-              {t("footer.product")}
-            </p>
-            <ul className="mt-3 flex flex-col gap-2">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
+        ))}
+
+        <nav aria-labelledby="footer-product">
+          <p
+            id="footer-product"
+            className="text-xs font-semibold tracking-wide uppercase"
+          >
+            {t("footer.product")}
+          </p>
+          <ul className="mt-4 flex flex-col gap-2.5">
+            {links.map((link) => (
+              <li key={link.href}>
+                <a href={link.href} className={LINK_CLASS}>
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
-      <div className="border-t">
-        <p className="mx-auto w-full max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6">
+      <div className="border-t border-background/10">
+        <p className="mx-auto w-full max-w-7xl px-4 py-6 text-xs text-background/55 sm:px-6">
           © {new Date().getFullYear()} {appName}. {t("footer.rights")}
         </p>
       </div>

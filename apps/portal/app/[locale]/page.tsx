@@ -15,11 +15,9 @@ import {
   type ToolGroup,
 } from "@/components/landing/tools-section";
 import { UseCasesSection } from "@/components/landing/use-cases-section";
-import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { ReviewEditSection } from "@/components/landing/review-edit-section";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { FaqSection, type FaqItem } from "@/components/landing/faq-section";
-import { FinalCtaSection } from "@/components/landing/final-cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { tList } from "@/components/landing/types";
 
@@ -138,27 +136,14 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
         {t("nav.skipToContent")}
       </a>
       <LandingNav />
-      <main id="main" className="flex w-full flex-1 flex-col">
-        <div className="relative isolate">
-          {/* Faint grid + a soft red wash at the top — texture, not decoration. */}
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)] bg-size-[48px_48px] opacity-60"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-x-0 -top-40 -z-10 mx-auto h-96 max-w-3xl rounded-full bg-brand/15 blur-3xl"
-          />
-          <HeroSection t={t} />
-          <ToolsSection t={t} />
-        </div>
-
+      {/* Flat light-gray canvas so the white tool cards carry the page. */}
+      <main id="main" className="flex w-full flex-1 flex-col bg-muted">
+        <HeroSection t={t} />
+        <ToolsSection t={t} />
         <UseCasesSection t={t} />
-        <HowItWorksSection t={t} />
         <ReviewEditSection t={t} />
         <FeaturesSection t={t} />
         <FaqSection t={t} />
-        <FinalCtaSection t={t} />
       </main>
       <LandingFooter t={t} appName={tCommon("appName")} />
     </>

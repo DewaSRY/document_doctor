@@ -24,51 +24,31 @@
     "links": {
       "tools": "Alat",
       "useCases": "Contoh penggunaan",
-      "howItWorks": "Cara kerja",
       "features": "Kenapa Document Doctor",
       "faq": "FAQ"
     },
     "cta": "Lihat alat",
     "menuOpen": "Buka menu",
     "menuTitle": "Menu",
-    "menuDescription": "Buka bagian halaman, atau ubah bahasa."
+    "menuDescription": "Buka bagian halaman, atau ubah bahasa.",
+    "allTools": "Semua alat",
+    "quick": [
+      "translator",
+      "summarizer",
+      "converter",
+      "pdf"
+    ],
+    "quickLabels": {
+      "translator": "Terjemahkan",
+      "summarizer": "Ringkas",
+      "converter": "Konversi",
+      "pdf": "Gabung PDF"
+    }
   },
   "hero": {
-    "eyebrow": "7 alat · satu ruang kerja",
-    "title": "Semua urusan dokumen di hari kerja Anda, ",
-    "titleAccent": "beres di satu tempat.",
-    "description": "Terjemahkan kontrak, ringkas laporan panjang, ambil angka dari faktur, ubah PDF ke Word, gabungkan lampiran, atau sesuaikan ukuran gambar. Document Doctor menyatukan alat yang Anda butuhkan di kantor dalam satu tab browser.",
-    "tasksLabel": "Apa yang perlu Anda kerjakan?",
-    "tasks": [
-      {
-        "icon": "translator",
-        "label": "Terjemahkan"
-      },
-      {
-        "icon": "summarizer",
-        "label": "Ringkas"
-      },
-      {
-        "icon": "extractor",
-        "label": "Ekstrak data"
-      },
-      {
-        "icon": "converter",
-        "label": "PDF ⇄ Word"
-      },
-      {
-        "icon": "pdf",
-        "label": "Gabung & pisah PDF"
-      },
-      {
-        "icon": "resizer",
-        "label": "Ubah ukuran gambar"
-      },
-      {
-        "icon": "compressor",
-        "label": "Kompres gambar"
-      }
-    ],
+    "title": "Semua alat yang Anda butuhkan untuk bekerja dengan dokumen, ",
+    "titleAccent": "di satu tempat.",
+    "description": "Terjemahkan, ringkas, ekstrak, konversi, gabungkan, dan ubah ukuran — alat dokumen, file, dan gambar untuk pekerjaan Anda, langsung di browser.",
     "trust": [
       "Tanpa instalasi",
       "Tanpa daftar",
@@ -174,7 +154,10 @@
           }
         ]
       }
-    ]
+    ],
+    "filtersLabel": "Saring alat berdasarkan kategori",
+    "all": "Semua",
+    "aiBadge": "AI"
   },
   "useCases": {
     "eyebrow": "Contoh penggunaan",
@@ -232,25 +215,6 @@
           "translator",
           "summarizer"
         ]
-      }
-    ]
-  },
-  "howItWorks": {
-    "eyebrow": "Cara kerja",
-    "title": "Tiga langkah, alat apa pun yang Anda pakai",
-    "description": "Semua alat bekerja dengan cara yang sama, jadi setelah memakai satu, Anda paham semuanya.",
-    "steps": [
-      {
-        "title": "Pilih alat",
-        "body": "Pilih tugas yang perlu diselesaikan — terjemahkan, ringkas, konversi, ubah ukuran, dan lainnya."
-      },
-      {
-        "title": "Masukkan file",
-        "body": "Unggah PDF, file Word, atau gambar. Kami memeriksa jenis dan ukurannya sebelum diproses."
-      },
-      {
-        "title": "Tinjau & unduh",
-        "body": "Periksa hasilnya, edit bila melibatkan AI, lalu unduh file yang siap dipakai."
       }
     ]
   },
@@ -431,12 +395,6 @@
         "answer": "Belum untuk alat AI. Penerjemah, peringkas, dan ekstraktor membutuhkan PDF dengan teks yang bisa dipilih. PDF hasil pindaian tetap bisa digabung, dipisah, atau dikonversi — hasilnya berupa gambar di Word."
       }
     ]
-  },
-  "finalCta": {
-    "title": "Tugas Anda berikutnya sudah tersedia alatnya",
-    "description": "Tujuh alat untuk dokumen, file, dan gambar — siap di browser kapan pun pekerjaan membutuhkannya.",
-    "cta": "Lihat semua alat",
-    "ctaSecondary": "Terjemahkan dokumen"
   },
   "footer": {
     "tagline": "Semua alat dokumen dan file yang Anda butuhkan di tempat kerja, dalam satu tempat.",

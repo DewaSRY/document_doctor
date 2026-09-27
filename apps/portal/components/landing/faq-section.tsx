@@ -20,7 +20,7 @@ export function FaqSection({ t }: { t: LandingT }) {
         eyebrow={t("faq.eyebrow")}
         title={t("faq.title")}
       />
-      <div className="mt-12 divide-y rounded-xl border bg-card">
+      <div className="mt-12 divide-y rounded-xl bg-card shadow-xs">
         {items.map((item, index) => (
           <details key={item.question} className="group" open={index === 0}>
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-xl px-5 py-4 text-left font-medium focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none [&::-webkit-details-marker]:hidden">

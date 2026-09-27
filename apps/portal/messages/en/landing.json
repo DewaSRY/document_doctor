@@ -24,51 +24,31 @@
     "links": {
       "tools": "Tools",
       "useCases": "Use cases",
-      "howItWorks": "How it works",
       "features": "Why Document Doctor",
       "faq": "FAQ"
     },
     "cta": "Explore tools",
     "menuOpen": "Open menu",
     "menuTitle": "Menu",
-    "menuDescription": "Navigate to a section of the page, or change language."
+    "menuDescription": "Navigate to a section of the page, or change language.",
+    "allTools": "All tools",
+    "quick": [
+      "translator",
+      "summarizer",
+      "converter",
+      "pdf"
+    ],
+    "quickLabels": {
+      "translator": "Translate",
+      "summarizer": "Summarize",
+      "converter": "Convert",
+      "pdf": "Merge PDF"
+    }
   },
   "hero": {
-    "eyebrow": "7 tools · one workspace",
-    "title": "Every document task in your workday, ",
-    "titleAccent": "handled in one place.",
-    "description": "Translate a contract, summarize a long report, pull the numbers out of an invoice, turn a PDF into Word, merge attachments, or fit an image to size. Document Doctor puts the tools you reach for at work in one browser tab.",
-    "tasksLabel": "What do you need to do?",
-    "tasks": [
-      {
-        "icon": "translator",
-        "label": "Translate"
-      },
-      {
-        "icon": "summarizer",
-        "label": "Summarize"
-      },
-      {
-        "icon": "extractor",
-        "label": "Extract data"
-      },
-      {
-        "icon": "converter",
-        "label": "PDF ⇄ Word"
-      },
-      {
-        "icon": "pdf",
-        "label": "Merge & split PDF"
-      },
-      {
-        "icon": "resizer",
-        "label": "Resize image"
-      },
-      {
-        "icon": "compressor",
-        "label": "Compress image"
-      }
-    ],
+    "title": "Every tool you need to work with documents, ",
+    "titleAccent": "in one place.",
+    "description": "Translate, summarize, extract, convert, merge and resize — the document, file and image tools you use at work, right in your browser.",
     "trust": [
       "No install",
       "No sign-up",
@@ -174,7 +154,10 @@
           }
         ]
       }
-    ]
+    ],
+    "filtersLabel": "Filter tools by category",
+    "all": "All",
+    "aiBadge": "AI"
   },
   "useCases": {
     "eyebrow": "Use cases",
@@ -232,25 +215,6 @@
           "translator",
           "summarizer"
         ]
-      }
-    ]
-  },
-  "howItWorks": {
-    "eyebrow": "How it works",
-    "title": "Three steps, whichever tool you use",
-    "description": "Every tool works the same way, so once you've used one, you know them all.",
-    "steps": [
-      {
-        "title": "Pick a tool",
-        "body": "Choose the job you need done — translate, summarize, convert, resize, and more."
-      },
-      {
-        "title": "Drop in your file",
-        "body": "Upload a PDF, Word file or image. We check the type and size before anything runs."
-      },
-      {
-        "title": "Review & download",
-        "body": "Check the result, edit it where AI was involved, and download a file ready to use."
       }
     ]
   },
@@ -431,12 +395,6 @@
         "answer": "Not yet for the AI tools. The translator, summarizer and extractor need PDFs with selectable text. Scanned PDFs can still be merged, split, or converted — they come out as images in Word."
       }
     ]
-  },
-  "finalCta": {
-    "title": "Your next task is already covered",
-    "description": "Seven tools for documents, files and images — ready in your browser whenever work asks for them.",
-    "cta": "Explore all tools",
-    "ctaSecondary": "Translate a document"
   },
   "footer": {
     "tagline": "Every document and file tool you need at work, in one place.",

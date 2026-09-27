@@ -1,0 +1,97 @@
+"use client";
+
+import { useState } from "react";
+import { Link } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
+import { TOOL_HREFS } from "@/feature/tools/constants";
+import {
+  FALLBACK_TOOL_COLOR,
+  FALLBACK_TOOL_ICON,
+  TOOL_COLORS,
+  TOOL_ICONS,
+} from "./tool-icons";
+import type { ToolGroup } from "./tools-section";
+import { START_HREF } from "./types";
+
+const ALL = "all";
+
+export function ToolGrid({
+  groups,
+  labels,
+}: {
+  groups: ToolGroup[];
+  labels: { all: string; filters: string; formats: string; ai: string };
+}) {
+  const [active, setActive] = useState(ALL);
+  const filters = [{ id: ALL, title: labels.all }, ...groups];
+  const tools = groups
+    .filter((group) => active === ALL || group.id === active)
+    .flatMap((group) => group.items.map((tool) => ({ ...tool, group: group.id })));
+
+  return (
+    <>
+      <div
+        role="group"
+        aria-label={labels.filters}
+        className="flex flex-wrap justify-center gap-2"
+      >
+        {filters.map((filter) => (
+          <button
+            key={filter.id}
+            type="button"
+            aria-pressed={active === filter.id}
+            onClick={() => setActive(filter.id)}
+            className={cn(
+              "h-9 rounded-full border px-5 text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+              active === filter.id
+                ? "border-foreground bg-foreground text-background"
+                : "bg-card text-foreground hover:border-foreground/40",
+            )}
+          >
+            {filter.title}
+          </button>
+        ))}
+      </div>
+
+      <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {tools.map((tool) => {
+          const Icon = TOOL_ICONS[tool.icon] ?? FALLBACK_TOOL_ICON;
+          return (
+            <li key={tool.icon} className="flex">
+              <Link
+                href={TOOL_HREFS[tool.icon] ?? START_HREF}
+                className="group relative flex w-full flex-col rounded-xl border border-transparent bg-card p-5 sm:min-h-52 sm:p-6 shadow-xs transition duration-200 hover:border-border hover:shadow-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              >
+                {tool.group === "documentAi" && (
+                  <span className="absolute top-5 right-5 rounded-md bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-foreground">
+                    {labels.ai}
+                  </span>
+                )}
+                <span
+                  className={cn(
+                    "grid size-12 place-items-center rounded-lg text-white transition-transform duration-200 group-hover:scale-105 motion-reduce:group-hover:scale-100",
+                    TOOL_COLORS[tool.icon] ?? FALLBACK_TOOL_COLOR,
+                  )}
+                >
+                  <Icon className="size-6" aria-hidden />
+                </span>
+                <p className="mt-5 text-lg font-semibold">{tool.name}</p>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                  {tool.description}
+                </p>
+                <p className="mt-4 text-xs text-muted-foreground">
+                  <span className="sr-only">{labels.formats}: </span>
+                  <span className="font-mono font-medium">
+                    {tool.formats.join(" · ")}
+                  </span>
+                  {" — "}
+                  {tool.limit}
+                </p>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}

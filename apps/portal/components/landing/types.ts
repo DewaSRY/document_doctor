@@ -15,7 +15,6 @@ export const START_HREF = "/translate";
 export const SECTION_IDS = {
   tools: "tools",
   useCases: "use-cases",
-  howItWorks: "how-it-works",
   features: "features",
   faq: "faq",
 } as const;
