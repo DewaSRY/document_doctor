@@ -5,8 +5,10 @@ services:
     restart: unless-stopped
 
     ports:
-      - "50051:50051"
       - "8000:8000"
+
+    volumes:
+      - ai-translation-model-cache:/models/huggingface
 
     env_file:
       - apps/ai-translation/.env
@@ -58,3 +60,5 @@ networks:
 
 volumes:
   postgres-translation-ai-data:
+  ai-translation-model-cache:
+    name: ai-translation-model-cache
