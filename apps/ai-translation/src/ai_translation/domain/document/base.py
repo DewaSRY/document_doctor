@@ -1,4 +1,10 @@
+import re
 from abc import ABC, abstractmethod
+
+# A sentence ends at . ! ? followed by whitespace and a letter, or at a CJK full stop.
+_SENTENCE_END = re.compile(r"(?<=[.!?])\s+(?=[\"'“‘(\[]?[^\W\d_])|(?<=[。！？])")
+# A short capitalised word before the dot is an abbreviation ("Jl.", "Dr.", "No."), not a sentence end.
+_ABBREVIATION = re.compile(r"(?:^|\s)(?:[A-Z][a-z]{0,2}|[a-z]\.[a-z])\.$")
 
 
 class DocumentHandler(ABC):
@@ -7,7 +13,6 @@ class DocumentHandler(ABC):
     @abstractmethod
     async def extract_text(self, file_content: bytes) -> dict[str, list[str]]:
         """Extract text from document, preserving structure info."""
-        pass
 
     @abstractmethod
     async def create_translated_document(
@@ -18,4 +23,17 @@ class DocumentHandler(ABC):
         target_language: str,
     ) -> bytes:
         """Create translated document preserving original structure."""
-        pass
+
+    @staticmethod
+    def _segment_text(text: str) -> list[str]:
+        """Segment text into sentences."""
+        sentences: list[str] = []
+        for part in _SENTENCE_END.split(text.strip()):
+            part = part.strip()
+            if not part:
+                continue
+            if sentences and _ABBREVIATION.search(sentences[-1]):
+                sentences[-1] = f"{sentences[-1]} {part}"
+            else:
+                sentences.append(part)
+        return sentences
