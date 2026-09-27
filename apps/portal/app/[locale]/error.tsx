@@ -27,7 +27,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-background px-6 py-12">
+    <main id="main" className="flex min-h-screen flex-1 items-center justify-center bg-background px-6 py-12">
       <Card className="w-full max-w-md text-center">
         <CardHeader className="items-center">
           <AlertTriangle className="size-6 text-destructive" aria-hidden />

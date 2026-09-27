@@ -82,7 +82,7 @@ export function ToolGrid({
                 >
                   <Icon className="size-6" aria-hidden />
                 </span>
-                <p className="mt-5 text-lg font-semibold">{tool.name}</p>
+                <h3 className="mt-5 text-lg font-semibold">{tool.name}</h3>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-pretty text-muted-foreground">
                   {tool.description}
                 </p>

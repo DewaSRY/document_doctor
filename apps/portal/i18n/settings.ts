@@ -7,20 +7,23 @@ export function isAppLocale(value: string): value is AppLocale {
   return (locales as readonly string[]).includes(value);
 }
 
+/** Namespaces sent to the browser with every page. */
 export const namespaces = [
   "common",
   "auth",
-  "account",
-  "deposit",
-  "transfer",
-  "onboarding",
   "landing",
   "translator",
   "editor",
   "tools",
 ] as const;
 
-export type AppNamespace = (typeof namespaces)[number];
+/** Namespaces only Server Components read (page copy, metadata), so they
+ *  stay out of the client payload. */
+export const serverNamespaces = ["seo"] as const;
+
+export type AppNamespace =
+  | (typeof namespaces)[number]
+  | (typeof serverNamespaces)[number];
 export const defaultNamespace: AppNamespace = "common";
 
 export function getI18nOptions(

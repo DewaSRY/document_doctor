@@ -1,0 +1,503 @@
+{
+  "breadcrumb": {
+    "label": "Breadcrumb",
+    "home": "Home"
+  },
+  "specsTitle": "Supported files and limits",
+  "faqTitle": "Frequently asked questions",
+  "relatedTitle": "Related tools",
+  "tools": {
+    "translator": {
+      "meta": {
+        "title": "Translate PDF and Word Documents Online",
+        "description": "Translate PDF and Word (DOCX) documents between Indonesian, English, Chinese, Japanese, Korean, French, German and Spanish. The layout is kept, and you can edit the translation before you download."
+      },
+      "benefitsTitle": "A document translator that keeps your layout",
+      "benefits": [
+        {
+          "title": "Headings, tables and spacing stay in place",
+          "body": "Each translated passage goes where the original was, so the translated PDF or Word file looks like the document you uploaded."
+        },
+        {
+          "title": "Edit the translation in your browser",
+          "body": "Review the AI translation next to the original page, correct any sentence, and restore the AI version of a passage if you change your mind."
+        },
+        {
+          "title": "Download in the original format",
+          "body": "A PDF comes back as a PDF and a Word document as a DOCX, with your edits included."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File types",
+          "value": "PDF and Word (.docx)"
+        },
+        {
+          "label": "Maximum size",
+          "value": "5 MB per document"
+        },
+        {
+          "label": "Languages",
+          "value": "Indonesian, English, Chinese, Japanese, Korean, French, German, Spanish — any pair"
+        },
+        {
+          "label": "Result",
+          "value": "Translated file in the original format, editable before download"
+        }
+      ],
+      "stepsTitle": "How to translate a document",
+      "steps": [
+        {
+          "title": "Upload the document",
+          "body": "Choose or drop a PDF or DOCX file of up to 5 MB."
+        },
+        {
+          "title": "Choose the languages",
+          "body": "Pick the language the document is in and the language you need."
+        },
+        {
+          "title": "Download or edit",
+          "body": "Download the translation as it is, or open it in the editor to correct it first."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Can I translate a PDF from Indonesian to English?",
+          "answer": "Yes. Choose Indonesian as the document language and English as the target. Any pair of the eight supported languages works in both directions."
+        },
+        {
+          "question": "Does the translation keep the original formatting?",
+          "answer": "The translator reads headings, lists and tables and puts each translated passage where the original was, so pages and spacing stay in place."
+        },
+        {
+          "question": "Can I translate a scanned PDF?",
+          "answer": "Not yet. The translator needs a PDF with selectable text. A scanned PDF contains only images of the pages."
+        },
+        {
+          "question": "Is my translated document saved?",
+          "answer": "Yes. The translated document is saved so you can reopen it in the editor and download it again."
+        }
+      ],
+      "cta": "Translate a document"
+    },
+    "summarizer": {
+      "meta": {
+        "title": "AI Document Summarizer for PDF and Word",
+        "description": "Summarize a PDF or Word document with AI. Get a short overview and 3, 5 or 8 key points, in the document's language or another of the eight supported languages."
+      },
+      "benefitsTitle": "Get the point of a long document in a minute",
+      "benefits": [
+        {
+          "title": "An overview and the key points",
+          "body": "The summary starts with a short overview, followed by the points that matter most."
+        },
+        {
+          "title": "Choose how long it is",
+          "body": "Short gives 3 key points, medium 5 and detailed 8, so you can skim or go deeper."
+        },
+        {
+          "title": "Summaries in another language",
+          "body": "Keep the document's language, or get the summary in Indonesian, English, Chinese, Japanese, Korean, French, German or Spanish."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File types",
+          "value": "PDF and Word (.docx)"
+        },
+        {
+          "label": "Maximum size",
+          "value": "5 MB per document"
+        },
+        {
+          "label": "Summary length",
+          "value": "Short (3 key points), medium (5) or detailed (8)"
+        },
+        {
+          "label": "Result",
+          "value": "Overview and key points to copy or download as text"
+        }
+      ],
+      "stepsTitle": "How to summarize a document",
+      "steps": [
+        {
+          "title": "Upload the document",
+          "body": "Choose or drop a PDF or DOCX file of up to 5 MB."
+        },
+        {
+          "title": "Choose the length and language",
+          "body": "Pick short, medium or detailed, and the language of the summary."
+        },
+        {
+          "title": "Read, copy or download",
+          "body": "Read the overview and key points on screen, copy them, or download them as a text file."
+        }
+      ],
+      "faq": [
+        {
+          "question": "How long does summarizing take?",
+          "answer": "The AI reads the whole document, so it can take from a few seconds to a few minutes for long documents."
+        },
+        {
+          "question": "What happens with very long documents?",
+          "answer": "If a document is very long, only its first part is summarized, and the result tells you so."
+        },
+        {
+          "question": "Is my document kept after summarizing?",
+          "answer": "No. The summarizer returns the summary without keeping a copy of your file."
+        }
+      ],
+      "cta": "Summarize a document"
+    },
+    "extractor": {
+      "meta": {
+        "title": "Extract Data from PDF and Word Documents",
+        "description": "Pull names, organizations, dates, amounts, places, e-mail addresses, phone numbers and links out of a PDF or Word document with AI. Copy them or download CSV or JSON."
+      },
+      "benefitsTitle": "Find the details in a document without reading it all",
+      "benefits": [
+        {
+          "title": "Eight kinds of details",
+          "body": "People, organizations, dates, amounts, places, e-mail addresses, phone numbers and links are listed separately."
+        },
+        {
+          "title": "Ready for a spreadsheet",
+          "body": "Copy the results, or download them as CSV for a spreadsheet or JSON for another system."
+        },
+        {
+          "title": "Marked for checking",
+          "body": "Results are marked as found by AI, so you know which important details to check against the document."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File types",
+          "value": "PDF and Word (.docx)"
+        },
+        {
+          "label": "Maximum size",
+          "value": "5 MB per document"
+        },
+        {
+          "label": "Details found",
+          "value": "People, organizations, dates, amounts, places, e-mail addresses, phone numbers, links"
+        },
+        {
+          "label": "Result",
+          "value": "Copy, CSV or JSON"
+        }
+      ],
+      "stepsTitle": "How to extract information from a document",
+      "steps": [
+        {
+          "title": "Upload the document",
+          "body": "Choose or drop a PDF or DOCX file of up to 5 MB."
+        },
+        {
+          "title": "Let the AI read it",
+          "body": "The extractor looks for each kind of detail in the text."
+        },
+        {
+          "title": "Check and export",
+          "body": "Review what was found, then copy it or download CSV or JSON."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Can I extract data from an invoice or contract?",
+          "answer": "Yes, as long as it is a PDF with selectable text or a Word document. Dates, amounts, organizations and contact details are typical results."
+        },
+        {
+          "question": "How accurate is the extraction?",
+          "answer": "The AI finds most details, but it can miss or misread some. Check important ones, such as amounts and dates, against the document."
+        },
+        {
+          "question": "Is my document kept after extraction?",
+          "answer": "No. The extractor returns the results without keeping a copy of your file."
+        }
+      ],
+      "cta": "Extract information"
+    },
+    "converter": {
+      "meta": {
+        "title": "PDF to Word and Word to PDF Converter",
+        "description": "Convert a PDF into an editable Word (DOCX) document, or a Word document into a PDF. Text, tables and images are rebuilt, not flattened. Files up to 10 MB."
+      },
+      "benefitsTitle": "Convert PDF and Word in both directions",
+      "benefits": [
+        {
+          "title": "PDF to editable Word",
+          "body": "Text, tables and images are rebuilt as Word content you can edit in Word, Google Docs or LibreOffice."
+        },
+        {
+          "title": "Word to PDF",
+          "body": "Headings, text styles, lists, tables and images are laid out on A4 pages, ready to share or print."
+        },
+        {
+          "title": "No direction to choose",
+          "body": "Upload a PDF to get Word, or a Word file to get a PDF. The converter picks the direction from your file."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File types",
+          "value": "PDF and Word (.docx)"
+        },
+        {
+          "label": "Maximum size",
+          "value": "10 MB per file"
+        },
+        {
+          "label": "Result",
+          "value": "DOCX from a PDF, PDF from a DOCX"
+        },
+        {
+          "label": "Scanned PDFs",
+          "value": "Converted, with the pages as images in Word"
+        }
+      ],
+      "stepsTitle": "How to convert PDF to Word or Word to PDF",
+      "steps": [
+        {
+          "title": "Upload the file",
+          "body": "Choose or drop a PDF or DOCX file of up to 10 MB."
+        },
+        {
+          "title": "Convert",
+          "body": "Start the conversion. The direction follows the file type."
+        },
+        {
+          "title": "Download",
+          "body": "Download the Word document or PDF."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Can I edit the Word file after converting a PDF?",
+          "answer": "Yes. Text, tables and images come out as normal Word content, not as a picture of the page."
+        },
+        {
+          "question": "What happens to a scanned PDF?",
+          "answer": "A scanned PDF has no selectable text, so its pages come out as images in the Word document."
+        },
+        {
+          "question": "Is my file kept after converting?",
+          "answer": "No. The converter returns the result without keeping a copy of your file."
+        }
+      ],
+      "cta": "Convert a document"
+    },
+    "pdf": {
+      "meta": {
+        "title": "Merge PDF and Split PDF Online",
+        "description": "Combine up to 20 PDF files into one in the order you choose, or split a PDF by page range, into single pages, or pull out selected pages."
+      },
+      "benefitsTitle": "Merge and split PDFs in one place",
+      "benefits": [
+        {
+          "title": "Merge in the right order",
+          "body": "Add up to 20 PDFs, reorder them, and combine them into one file."
+        },
+        {
+          "title": "Split by page range",
+          "body": "Enter ranges like 1-3, 5, 8-10 and get one PDF per range, or one PDF for every page."
+        },
+        {
+          "title": "Pull out or remove pages",
+          "body": "Put only the pages you select into a single PDF, to extract some pages or drop others."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File type",
+          "value": "PDF"
+        },
+        {
+          "label": "Maximum size",
+          "value": "10 MB per file"
+        },
+        {
+          "label": "Merge",
+          "value": "Up to 20 files at once"
+        },
+        {
+          "label": "Result",
+          "value": "One merged PDF, or split parts packed in a ZIP file"
+        }
+      ],
+      "stepsTitle": "How to merge or split a PDF",
+      "steps": [
+        {
+          "title": "Choose merge or split",
+          "body": "Open the Merge PDFs or Split a PDF tab."
+        },
+        {
+          "title": "Add the files and options",
+          "body": "Add and order the PDFs to merge, or pick the pages to split."
+        },
+        {
+          "title": "Download",
+          "body": "Download the merged PDF, or the split parts."
+        }
+      ],
+      "faq": [
+        {
+          "question": "How many PDFs can I merge at once?",
+          "answer": "Up to 20 PDF files, each up to 10 MB."
+        },
+        {
+          "question": "How do I split a PDF into separate pages?",
+          "answer": "Choose Every page on the Split a PDF tab. Each page becomes its own PDF, packed in one ZIP file."
+        },
+        {
+          "question": "Can I merge scanned PDFs?",
+          "answer": "Yes. Merging and splitting work on any PDF, including scanned ones."
+        }
+      ],
+      "cta": "Merge or split a PDF"
+    },
+    "resizer": {
+      "meta": {
+        "title": "Resize Images Online — JPG, PNG, WEBP",
+        "description": "Resize JPG, PNG and WEBP images to exact pixel dimensions or presets such as 1200 × 630 for social sharing. Crop, fit inside or stretch, and pick the output format."
+      },
+      "benefitsTitle": "Resize an image to the exact size you need",
+      "benefits": [
+        {
+          "title": "Presets for common sizes",
+          "body": "Social share (1200 × 630), square post (1080 × 1080), story (1080 × 1920), Full HD (1920 × 1080) and thumbnail (400 × 300)."
+        },
+        {
+          "title": "You choose how it fits",
+          "body": "Crop to fill the exact size, fit the whole image inside, or stretch it. Or keep the aspect ratio and enter only one side."
+        },
+        {
+          "title": "Change the format too",
+          "body": "Keep the original format, or save the result as JPG, PNG or WEBP."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File types",
+          "value": "JPG, PNG and WEBP"
+        },
+        {
+          "label": "Maximum size",
+          "value": "10 MB per image"
+        },
+        {
+          "label": "Dimensions",
+          "value": "1 to 10,000 px per side"
+        },
+        {
+          "label": "Result",
+          "value": "Resized image in JPG, PNG or WEBP"
+        }
+      ],
+      "stepsTitle": "How to resize an image",
+      "steps": [
+        {
+          "title": "Upload the image",
+          "body": "Choose or drop a JPG, PNG or WEBP image of up to 10 MB."
+        },
+        {
+          "title": "Set the size",
+          "body": "Pick a preset or enter the width and height, and choose how the image fits."
+        },
+        {
+          "title": "Download",
+          "body": "Preview the resized image and download it."
+        }
+      ],
+      "faq": [
+        {
+          "question": "How do I resize an image to 1200 × 630 px?",
+          "answer": "Choose the Social share preset, or enter 1200 and 630. Crop fills the exact size by trimming the edges."
+        },
+        {
+          "question": "Can I resize without distorting the image?",
+          "answer": "Yes. Keep the aspect ratio and enter a width or a height, or use Crop or Fit inside when both sides are set."
+        },
+        {
+          "question": "Is my image kept after resizing?",
+          "answer": "No. The resizer returns the result without keeping a copy of your image."
+        }
+      ],
+      "cta": "Resize an image"
+    },
+    "compressor": {
+      "meta": {
+        "title": "Compress Images Online — JPG, PNG, WEBP",
+        "description": "Reduce the file size of JPG, PNG and WEBP images with a quality level you control. Optionally shrink the longest side. Location and camera data are removed."
+      },
+      "benefitsTitle": "Make images small enough to upload and send",
+      "benefits": [
+        {
+          "title": "You control the quality",
+          "body": "Slide between a smaller file and a sharper image, and see how much smaller the result is."
+        },
+        {
+          "title": "Shrink large photos",
+          "body": "Set a longest side, such as 1920 px, to save the most on photos from phones and cameras."
+        },
+        {
+          "title": "Private details removed",
+          "body": "Camera and location data are removed from the compressed image."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File types",
+          "value": "JPG, PNG and WEBP"
+        },
+        {
+          "label": "Maximum size",
+          "value": "10 MB per image"
+        },
+        {
+          "label": "Options",
+          "value": "Quality, longest side, output format"
+        },
+        {
+          "label": "Result",
+          "value": "Smaller image without camera or location data"
+        }
+      ],
+      "stepsTitle": "How to compress an image",
+      "steps": [
+        {
+          "title": "Upload the image",
+          "body": "Choose or drop a JPG, PNG or WEBP image of up to 10 MB."
+        },
+        {
+          "title": "Choose the quality",
+          "body": "Set the quality, and optionally the longest side and the output format."
+        },
+        {
+          "title": "Download",
+          "body": "See how much smaller the image is, then download it."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Will compression make my image look worse?",
+          "answer": "At the default quality, the difference is usually not visible. Lower the quality for a smaller file."
+        },
+        {
+          "question": "Why didn't my image get smaller?",
+          "answer": "Some images are already well compressed. Try a lower quality, the WEBP format, or a smaller longest side."
+        },
+        {
+          "question": "Is my image kept after compressing?",
+          "answer": "No. The compressor returns the result without keeping a copy of your image."
+        }
+      ],
+      "cta": "Compress an image"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "This page doesn't exist or has moved. Pick one of the tools below, or go back to the home page.",
+    "home": "Go to the home page"
+  }
+}

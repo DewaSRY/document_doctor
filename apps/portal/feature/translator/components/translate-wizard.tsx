@@ -93,7 +93,7 @@ export function TranslateWizard() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-10 sm:py-14">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pt-6 pb-12 sm:pt-8 sm:pb-16">
       <StepIndicator current={step} />
 
       {step === "upload" && (

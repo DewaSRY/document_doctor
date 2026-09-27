@@ -19,14 +19,18 @@ export type ToolGroup = {
 };
 
 /** The whole toolkit: category pills over one grid of tool cards. Sits
- *  right under the hero, so it carries its label for screen readers only. */
+ *  right under the hero, so its heading is for screen readers only — it
+ *  keeps the h1 → h2 → h3 outline intact for the tool cards. */
 export function ToolsSection({ t }: { t: LandingT }) {
   return (
     <section
       id={SECTION_IDS.tools}
-      aria-label={t("nav.links.tools")}
+      aria-labelledby="tools-title"
       className="mx-auto w-full max-w-7xl scroll-mt-20 px-4 pt-8 pb-4 sm:px-6"
     >
+      <h2 id="tools-title" className="sr-only">
+        {t("nav.links.tools")}
+      </h2>
       <ToolGrid
         groups={tList<ToolGroup>(t, "tools.groups")}
         labels={{

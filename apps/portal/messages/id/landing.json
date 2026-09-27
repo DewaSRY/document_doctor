@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Document Doctor — Terjemahkan, Ringkas, dan Konversi Dokumen Online",
-    "description": "Terjemahkan dokumen PDF dan Word tanpa merusak tata letak, ringkas laporan panjang, ambil detail penting, konversi PDF ⇄ Word, gabung atau pisah PDF, serta ubah ukuran dan kompres gambar — langsung di browser, tanpa instalasi dan tanpa daftar.",
+    "description": "Terjemahkan PDF dan Word tanpa merusak tata letak, ringkas laporan, konversi PDF ⇄ Word, gabung PDF, dan kompres gambar. Online, tanpa daftar.",
     "keywords": [
       "alat dokumen online",
       "alat dokumen AI",
@@ -20,7 +20,6 @@
   "nav": {
     "label": "Navigasi utama",
     "home": "Beranda Document Doctor",
-    "skipToContent": "Langsung ke konten",
     "links": {
       "tools": "Alat",
       "howItWorks": "Cara kerja",

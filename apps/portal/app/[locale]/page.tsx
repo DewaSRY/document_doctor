@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isAppLocale, locales, type AppLocale } from "@/i18n/settings";
+import { isAppLocale } from "@/i18n/settings";
 import { getTranslation } from "@/i18n/server";
-import {
-  SITE_NAME,
-  SITE_URL,
-  canonicalFor,
-  buildLanguageAlternates,
-} from "@/lib/seo/metadata";
+import { SITE_NAME, canonicalFor, pageMetadata } from "@/lib/seo/metadata";
+import { TOOL_IDS } from "@/lib/seo/routes";
+import { faqNode, graph, ORGANIZATION_ID, siteNodes } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/seo/json-ld";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { HeroSection } from "@/components/landing/hero-section";
 import {
@@ -22,8 +20,7 @@ import { FaqSection, type FaqItem } from "@/components/landing/faq-section";
 import { FinalCtaSection } from "@/components/landing/final-cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { tList } from "@/components/landing/types";
-
-const OG_LOCALES: Record<AppLocale, string> = { en: "en_US", id: "id_ID" };
+import { TOOL_HREFS } from "@/feature/tools/constants";
 
 export async function generateMetadata({
   params,
@@ -35,35 +32,17 @@ export async function generateMetadata({
   }
 
   const { t } = await getTranslation(locale, "landing");
-  const title = t("meta.title");
-  const description = t("meta.description");
 
   // Images come from the sibling opengraph-image.tsx file convention.
   return {
-    title: { absolute: title },
-    description,
+    ...pageMetadata({
+      locale,
+      path: "",
+      title: t("meta.title"),
+      description: t("meta.description"),
+      absoluteTitle: true,
+    }),
     keywords: tList<string>(t, "meta.keywords"),
-    alternates: {
-      canonical: canonicalFor(locale, ""),
-      languages: buildLanguageAlternates(""),
-    },
-    openGraph: {
-      title,
-      description,
-      type: "website",
-      siteName: SITE_NAME,
-      url: canonicalFor(locale, ""),
-      locale: OG_LOCALES[locale],
-      alternateLocale: locales
-        .filter((l) => l !== locale)
-        .map((l) => OG_LOCALES[l]),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
-    robots: { index: true, follow: true },
   };
 }
 
@@ -81,62 +60,37 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
   const languages = tList<{ name: string }>(t, "languages.items");
   const tools = tList<ToolGroup>(t, "tools.groups").flatMap((g) => g.items);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": `${SITE_URL}/#organization`,
-        name: SITE_NAME,
-        url: SITE_URL,
-        logo: `${SITE_URL}/icons/android-chrome-512x512.png`,
-      },
-      {
-        "@type": "WebSite",
-        "@id": `${SITE_URL}/#website`,
-        name: SITE_NAME,
-        url: pageUrl,
-        inLanguage: locale,
-        publisher: { "@id": `${SITE_URL}/#organization` },
-      },
-      {
-        "@type": "WebApplication",
-        name: SITE_NAME,
-        url: pageUrl,
-        description: t("meta.description"),
-        applicationCategory: "ProductivityApplication",
-        operatingSystem: "Web",
-        inLanguage: locale,
-        featureList: tools.map((tool) => tool.name),
-        availableLanguage: languages.map((l) => l.name),
-        publisher: { "@id": `${SITE_URL}/#organization` },
-      },
-      {
-        "@type": "FAQPage",
-        inLanguage: locale,
-        mainEntity: faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer },
-        })),
-      },
-    ],
-  };
+  const jsonLd = graph([
+    ...siteNodes(locale),
+    {
+      "@type": "WebApplication",
+      "@id": `${pageUrl}#app`,
+      name: SITE_NAME,
+      url: pageUrl,
+      description: t("meta.description"),
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Any",
+      inLanguage: locale,
+      featureList: tools.map((tool) => tool.name),
+      availableLanguage: languages.map((l) => l.name),
+      publisher: { "@id": ORGANIZATION_ID },
+    },
+    {
+      // The toolkit, each entry pointing at the tool's own page.
+      "@type": "ItemList",
+      itemListElement: TOOL_IDS.map((id, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: tools.find((tool) => tool.icon === id)?.name ?? id,
+        url: canonicalFor(locale, TOOL_HREFS[id]),
+      })),
+    },
+    faqNode(locale, faqs),
+  ]);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
-        }}
-      />
-      <a
-        href="#main"
-        className="sr-only z-50 rounded-md bg-background px-4 py-2 text-sm font-medium shadow focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-      >
-        {t("nav.skipToContent")}
-      </a>
+      <JsonLd data={jsonLd} />
       <LandingNav />
       {/* Flat light-gray canvas so the white tool cards carry the page. */}
       <main id="main" className="flex w-full flex-1 flex-col bg-muted">

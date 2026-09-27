@@ -8,8 +8,12 @@ export function getPathname({
   href: string;
   locale: AppLocale;
 }) {
-  const normalized = href.startsWith("/") ? href : `/${href}`;
-  return `/${locale}${normalized === "/" ? "" : normalized}`;
+  // Keep "?query" and "#hash" off the path so "/#faq" becomes "/id#faq".
+  const suffixAt = href.search(/[?#]/);
+  const path = suffixAt === -1 ? href : href.slice(0, suffixAt);
+  const suffix = suffixAt === -1 ? "" : href.slice(suffixAt);
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `/${locale}${normalized === "/" ? "" : normalized}${suffix}`;
 }
 
 export function redirect({

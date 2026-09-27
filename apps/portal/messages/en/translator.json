@@ -1,7 +1,5 @@
 {
   "meta": {
-    "title": "Translate a document",
-    "description": "Upload a PDF or Word document, choose the languages, and download the translation — or edit it in the browser first.",
     "editTitle": "Edit translation"
   },
   "header": {

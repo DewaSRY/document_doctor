@@ -7,7 +7,8 @@ import { SECTION_IDS, START_HREF, tList, type LandingT } from "./types";
 const LINK_CLASS =
   "text-sm text-background/65 transition-colors hover:text-background";
 
-/** Dark footer with one column per tool category, then the page sections. */
+/** Dark footer with one column per tool category, then the home page's
+ *  sections. Shared by the home page and every tool page. */
 export function LandingFooter({
   t,
   appName,
@@ -17,11 +18,11 @@ export function LandingFooter({
 }) {
   const groups = tList<ToolGroup>(t, "tools.groups");
   const links = [
-    { href: `#${SECTION_IDS.tools}`, label: t("nav.links.tools") },
-    { href: `#${SECTION_IDS.howItWorks}`, label: t("nav.links.howItWorks") },
-    { href: `#${SECTION_IDS.useCases}`, label: t("nav.links.useCases") },
-    { href: `#${SECTION_IDS.features}`, label: t("nav.links.features") },
-    { href: `#${SECTION_IDS.faq}`, label: t("nav.links.faq") },
+    { href: `/#${SECTION_IDS.tools}`, label: t("nav.links.tools") },
+    { href: `/#${SECTION_IDS.howItWorks}`, label: t("nav.links.howItWorks") },
+    { href: `/#${SECTION_IDS.useCases}`, label: t("nav.links.useCases") },
+    { href: `/#${SECTION_IDS.features}`, label: t("nav.links.features") },
+    { href: `/#${SECTION_IDS.faq}`, label: t("nav.links.faq") },
   ];
 
   return (
@@ -67,9 +68,9 @@ export function LandingFooter({
           <ul className="mt-4 flex flex-col gap-2.5">
             {links.map((link) => (
               <li key={link.href}>
-                <a href={link.href} className={LINK_CLASS}>
+                <Link href={link.href} className={LINK_CLASS}>
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

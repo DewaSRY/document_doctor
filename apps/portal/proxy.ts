@@ -1,58 +1,52 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { locales, defaultLocale, type AppLocale } from "./i18n/settings";
-// import { SESSION_COOKIE_NAME } from "./feature/auth/constants";
-// const SESSION_COOKIE_NAME = "session";
+import { locales, defaultLocale, isAppLocale, type AppLocale } from "./i18n/settings";
 
-// export const PROTECTED_PATH_PREFIXES = ["/dashboard"];
-// export const AUTH_ONLY_PATHS = ["/login", "/register", "/logout"];
+function hasLocalePrefix(pathname: string): boolean {
+  return locales.some(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
+  );
+}
 
-// function splitLocale(pathname: string): {
-//   locale: AppLocale | null;
-//   path: string;
-// } {
-//   for (const locale of locales) {
-//     if (pathname === `/${locale}`) {
-//       return { locale, path: "/" };
-//     }
-//     if (pathname.startsWith(`/${locale}/`)) {
-//       return { locale, path: pathname.slice(`/${locale}`.length) };
-//     }
-//   }
-//   return { locale: null, path: pathname };
-// }
+/** Best supported language from Accept-Language, else the default locale.
+ *  Crawlers usually send none, so they land on the x-default locale. */
+function preferredLocale(request: NextRequest): AppLocale {
+  const header = request.headers.get("accept-language") ?? "";
+  const ranked = header
+    .split(",")
+    .map((part) => {
+      const [tag, ...params] = part.trim().split(";");
+      const q = params.find((param) => param.trim().startsWith("q="));
+      return {
+        language: tag.toLowerCase().split("-")[0],
+        quality: q ? Number(q.trim().slice(2)) : 1,
+      };
+    })
+    .filter((entry) => entry.language && entry.quality > 0)
+    .sort((a, b) => b.quality - a.quality);
 
+  for (const { language } of ranked) {
+    if (isAppLocale(language)) return language;
+  }
+  return defaultLocale;
+}
+
+/** Every page lives under /<locale>. Locale-less URLs ("/", "/translate")
+ *  redirect to the visitor's language; the redirect is temporary (307)
+ *  because its target depends on the request. */
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  // const { locale, path } = splitLocale(pathname);
-  // const activeLocale = locale ?? defaultLocale;
 
-  // if (!locale) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = `/${activeLocale}${path === "/" ? "" : path}`;
-  //   return NextResponse.redirect(url);
-  // }
+  if (hasLocalePrefix(pathname)) {
+    return NextResponse.next();
+  }
 
-  // const isAuthenticated = Boolean(
-  //   request.cookies.get(SESSION_COOKIE_NAME)?.value,
-  // );
+  const url = request.nextUrl.clone();
+  url.pathname = `/${preferredLocale(request)}${pathname === "/" ? "" : pathname}`;
 
-  // if (
-  //   !isAuthenticated &&
-  //   PROTECTED_PATH_PREFIXES.some((p) => path.startsWith(p))
-  // ) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = `/${activeLocale}/login`;
-  //   return NextResponse.redirect(url);
-  // }
-
-  // if (isAuthenticated && path !== "/logout" && AUTH_ONLY_PATHS.includes(path)) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = `/${activeLocale}/dashboard`;
-  //   return NextResponse.redirect(url);
-  // }
-
-  return NextResponse.next();
+  const response = NextResponse.redirect(url, 307);
+  response.headers.set("Vary", "Accept-Language");
+  return response;
 }
 
 export const config = {

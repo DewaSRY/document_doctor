@@ -42,10 +42,6 @@
     "es": "Spanyol"
   },
   "summarizer": {
-    "meta": {
-      "title": "Ringkas dokumen",
-      "description": "Unggah dokumen PDF atau Word dan dapatkan gambaran singkat serta poin pentingnya, dalam bahasa pilihan Anda."
-    },
     "title": "Ringkas dokumen",
     "description": "Dapatkan gambaran singkat dan poin penting dari dokumen PDF atau Word.",
     "length": "Panjang ringkasan",
@@ -70,10 +66,6 @@
     "another": "Ringkas dokumen lain"
   },
   "extractor": {
-    "meta": {
-      "title": "Ekstrak informasi dari dokumen",
-      "description": "Ambil nama, organisasi, tanggal, jumlah, tempat, dan kontak dari dokumen PDF atau Word."
-    },
     "title": "Ekstrak informasi",
     "description": "Ambil nama, tanggal, jumlah, dan detail lain dari dokumen PDF atau Word.",
     "looksFor": "Ekstraktor mencari:",
@@ -99,10 +91,6 @@
     "another": "Pakai dokumen lain"
   },
   "converter": {
-    "meta": {
-      "title": "Ubah PDF ke Word dan Word ke PDF",
-      "description": "Ubah PDF menjadi dokumen Word yang bisa diedit, atau dokumen Word menjadi PDF."
-    },
     "title": "Konversi dokumen",
     "description": "Ubah PDF menjadi file Word yang bisa diedit, atau file Word menjadi PDF. Arahnya ditentukan dari file yang Anda unggah.",
     "formats": {
@@ -127,10 +115,6 @@
     "another": "Konversi dokumen lain"
   },
   "pdf": {
-    "meta": {
-      "title": "Gabung dan pisah file PDF",
-      "description": "Gabungkan beberapa file PDF menjadi satu, atau pisahkan PDF berdasarkan rentang halaman."
-    },
     "title": "Gabung & pisah PDF",
     "description": "Gabungkan beberapa PDF menjadi satu, atau pisahkan satu PDF menjadi beberapa bagian.",
     "merge": {
@@ -180,10 +164,6 @@
     }
   },
   "resizer": {
-    "meta": {
-      "title": "Ubah ukuran gambar",
-      "description": "Ubah ukuran gambar JPG, PNG, dan WEBP ke dimensi tepat seperti 1200 × 630 px."
-    },
     "title": "Ubah ukuran gambar",
     "description": "Ubah ukuran gambar JPG, PNG, atau WEBP ke dimensi yang tepat, misalnya 1200 × 630 px.",
     "presets": "Ukuran umum",
@@ -220,10 +200,6 @@
     "another": "Ubah ukuran gambar lain"
   },
   "compressor": {
-    "meta": {
-      "title": "Kompres gambar",
-      "description": "Perkecil gambar JPG, PNG, dan WEBP tanpa penurunan kualitas yang terlihat. Data lokasi dan kamera dihapus."
-    },
     "title": "Kompres gambar",
     "description": "Perkecil gambar JPG, PNG, atau WEBP tanpa penurunan kualitas yang terlihat.",
     "quality": "Kualitas",

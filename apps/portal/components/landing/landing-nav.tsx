@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronDown, Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,7 @@ export function LandingNav() {
   const { t } = useTranslation("landing");
   const { t: tCommon } = useTranslation("common");
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   const quick = t("nav.quick", { returnObjects: true }) as unknown as string[];
   const groups = t("tools.groups", {
@@ -90,7 +91,8 @@ export function LandingNav() {
                 <li key={tool}>
                   <Link
                     href={TOOL_HREFS[tool] ?? START_HREF}
-                    className={QUICK_LINK_CLASS}
+                    aria-current={pathname === TOOL_HREFS[tool] ? "page" : undefined}
+                    className={cn(QUICK_LINK_CLASS, "aria-[current=page]:text-brand")}
                   >
                     {t(`nav.quickLabels.${tool}`)}
                   </Link>
@@ -142,12 +144,12 @@ export function LandingNav() {
           <ul className="hidden items-center xl:flex">
             {SECTION_LINKS.map((link) => (
               <li key={link.id}>
-                <a
-                  href={`#${link.id}`}
+                <Link
+                  href={`/#${link.id}`}
                   className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {t(`nav.links.${link.key}`)}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -184,6 +186,9 @@ export function LandingNav() {
                         <li key={tool.icon}>
                           <Link
                             href={TOOL_HREFS[tool.icon] ?? START_HREF}
+                            aria-current={
+                              pathname === TOOL_HREFS[tool.icon] ? "page" : undefined
+                            }
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 rounded-md px-2 py-2.5 text-base font-medium transition-colors hover:bg-muted"
                           >
@@ -198,13 +203,13 @@ export function LandingNav() {
                 <ul className="flex flex-col border-t pt-4">
                   {SECTION_LINKS.map((link) => (
                     <li key={link.id}>
-                      <a
-                        href={`#${link.id}`}
+                      <Link
+                        href={`/#${link.id}`}
                         onClick={() => setOpen(false)}
                         className="block rounded-md px-2 py-2.5 text-base transition-colors hover:bg-muted"
                       >
                         {t(`nav.links.${link.key}`)}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

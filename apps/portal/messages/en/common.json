@@ -48,5 +48,6 @@
     "hide": "Hide preview",
     "alt": "Preview of {{name}}",
     "error": "This document can't be previewed here."
-  }
+  },
+  "skipToContent": "Skip to content"
 }

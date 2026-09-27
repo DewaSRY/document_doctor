@@ -42,10 +42,6 @@
     "es": "Spanish"
   },
   "summarizer": {
-    "meta": {
-      "title": "Summarize a document",
-      "description": "Upload a PDF or Word document and get a short overview and its key points, in the language you choose."
-    },
     "title": "Summarize a document",
     "description": "Get a short overview and the key points of a PDF or Word document.",
     "length": "Summary length",
@@ -70,10 +66,6 @@
     "another": "Summarize another document"
   },
   "extractor": {
-    "meta": {
-      "title": "Extract information from a document",
-      "description": "Pull names, organizations, dates, amounts, places and contact details out of a PDF or Word document."
-    },
     "title": "Extract information",
     "description": "Pull names, dates, amounts and other details out of a PDF or Word document.",
     "looksFor": "The extractor looks for:",
@@ -99,10 +91,6 @@
     "another": "Use another document"
   },
   "converter": {
-    "meta": {
-      "title": "Convert PDF to Word and Word to PDF",
-      "description": "Turn a PDF into an editable Word document, or a Word document into a PDF."
-    },
     "title": "Convert a document",
     "description": "Turn a PDF into an editable Word file, or a Word file into a PDF. The direction is picked from the file you upload.",
     "formats": {
@@ -127,10 +115,6 @@
     "another": "Convert another document"
   },
   "pdf": {
-    "meta": {
-      "title": "Merge and split PDF files",
-      "description": "Combine several PDF files into one, or split a PDF into parts by page range."
-    },
     "title": "PDF merge & split",
     "description": "Combine several PDFs into one, or split one PDF into parts.",
     "merge": {
@@ -181,10 +165,6 @@
     }
   },
   "resizer": {
-    "meta": {
-      "title": "Resize an image",
-      "description": "Resize JPG, PNG and WEBP images to exact dimensions like 1200 × 630 px, in your browser."
-    },
     "title": "Resize an image",
     "description": "Resize a JPG, PNG or WEBP image to exact dimensions, like 1200 × 630 px.",
     "presets": "Common sizes",
@@ -221,10 +201,6 @@
     "another": "Resize another image"
   },
   "compressor": {
-    "meta": {
-      "title": "Compress an image",
-      "description": "Make JPG, PNG and WEBP images smaller without visible quality loss. Location and camera data are removed."
-    },
     "title": "Compress an image",
     "description": "Make a JPG, PNG or WEBP image smaller without visible quality loss.",
     "quality": "Quality",

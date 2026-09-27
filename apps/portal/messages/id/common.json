@@ -48,5 +48,6 @@
     "hide": "Sembunyikan pratinjau",
     "alt": "Pratinjau {{name}}",
     "error": "Dokumen ini tidak dapat dipratinjau di sini."
-  }
+  },
+  "skipToContent": "Langsung ke konten"
 }

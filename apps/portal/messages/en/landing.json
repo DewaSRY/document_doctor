@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Document Doctor — Translate, Summarize and Convert Documents Online",
-    "description": "Translate PDF and Word documents without losing the layout, summarize long reports, extract key details, convert PDF ⇄ Word, merge or split PDFs, and resize or compress images — in your browser, with no install or sign-up.",
+    "description": "Translate PDF and Word documents without losing the layout, summarize reports, convert PDF ⇄ Word, merge PDFs and compress images. Online, no sign-up.",
     "keywords": [
       "online document tools",
       "AI document tools",
@@ -20,7 +20,6 @@
   "nav": {
     "label": "Main navigation",
     "home": "Document Doctor home",
-    "skipToContent": "Skip to content",
     "links": {
       "tools": "Tools",
       "howItWorks": "How it works",
