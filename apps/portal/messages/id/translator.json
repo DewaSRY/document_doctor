@@ -85,6 +85,7 @@
     "download": "Unduh",
     "saveAndDownload": "Simpan dan unduh",
     "saveError": "Perubahan Anda tidak dapat disimpan. Coba lagi.",
+    "layoutError": "Tata letak halaman tidak dapat dimuat, jadi dokumen hanya ditampilkan sebagai teks.",
     "emptySegment": "Kosong — teks asli akan tetap dipakai di dokumen.",
     "help": "Hanya terjemahan yang ditampilkan. Setiap blok adalah satu paragraf atau baris dokumen, jadi posisi dan formatnya tetap terjaga saat file dibuat ulang. Arahkan kursor ke blok lalu buka ⋮ untuk melihat teks asli atau memulihkan terjemahan AI.",
     "blockMenu": "Aksi blok",

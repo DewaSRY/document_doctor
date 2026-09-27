@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import Document from "@tiptap/extension-document";
@@ -52,12 +58,26 @@ import { docxToContent, type DocxSetup } from "./docx-content";
 import { docxExtensions } from "./docx-extension";
 import { PaginationStore } from "./docx-pagination";
 import type { DocxStyles } from "./docx-style";
-import { DocShortcuts, activeFormat, editorActions, type EditorMode } from "./editor-commands";
-import { EditorToolbar, MAX_ZOOM, MIN_ZOOM, type ZoomControls } from "./editor-toolbar";
+import {
+  DocShortcuts,
+  activeFormat,
+  editorActions,
+  type EditorMode,
+} from "./editor-commands";
+import {
+  EditorToolbar,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  type ZoomControls,
+} from "./editor-toolbar";
 import { FindBar } from "./find-bar";
 import { FORMAT_MARKS, sameRuns } from "./format-marks";
 import { MenuBar } from "./menu-bar";
-import { FitStore, PdfViewContext, type PdfViewSettings } from "./pdf-view-context";
+import {
+  FitStore,
+  PdfViewContext,
+  type PdfViewSettings,
+} from "./pdf-view-context";
 import { Search } from "./search-extension";
 import {
   Page,
@@ -99,7 +119,11 @@ const CANVAS_PADDING = 64;
 const COMPARE_GAP = 24;
 
 /** The zoom (in %) at which the widest page, or two side by side, fills `width` px. */
-function fitPercent(pageWidths: number[], width: number, sideBySide: boolean): number {
+function fitPercent(
+  pageWidths: number[],
+  width: number,
+  sideBySide: boolean,
+): number {
   const widest = Math.max(...pageWidths);
   const columns = sideBySide ? 2 : 1;
   const available = width - CANVAS_PADDING - (sideBySide ? COMPARE_GAP : 0);
@@ -148,12 +172,17 @@ export function SegmentEditor({ documentId }: { documentId: string }) {
           icon={AlertCircle}
           title={t(notFound ? "editor.notFoundTitle" : "editor.loadErrorTitle")}
           description={t(
-            notFound ? "editor.notFoundDescription" : "editor.loadErrorDescription",
+            notFound
+              ? "editor.notFoundDescription"
+              : "editor.loadErrorDescription",
           )}
           className="max-w-md flex-none"
         />
         {notFound ? (
-          <Link href="/translate" className={cn(buttonVariants(), "h-9 rounded-lg")}>
+          <Link
+            href="/translate"
+            className={cn(buttonVariants(), "h-9 rounded-lg")}
+          >
             {t("editor.translateAgain")}
           </Link>
         ) : (
@@ -167,9 +196,12 @@ export function SegmentEditor({ documentId }: { documentId: string }) {
 
   return (
     <LoadedEditor
-      key={segments.data.document_id}
+      // The schema is fixed when the editor mounts: start over once a layout arrives.
+      key={`${segments.data.document_id}:${layout.data ? "layout" : "text"}`}
       document={segments.data}
       layout={layout.data}
+      layoutFailed={layout.isError}
+      onRetryLayout={() => layout.refetch()}
     />
   );
 }
@@ -178,7 +210,9 @@ function isPdfLayout(layout: DocumentLayout | undefined): layout is PdfLayout {
   return !!layout && "pages" in layout;
 }
 
-function isDocxLayout(layout: DocumentLayout | undefined): layout is DocxLayout {
+function isDocxLayout(
+  layout: DocumentLayout | undefined,
+): layout is DocxLayout {
   return !!layout && "sections" in layout;
 }
 
@@ -192,8 +226,17 @@ interface Prepared {
   fonts: string[];
 }
 
-function prepare(document: DocumentSegments, layout: DocumentLayout | undefined): Prepared {
-  const empty = { pageWidths: [], pdfLayout: null, docx: null, setup: null, fonts: [] };
+function prepare(
+  document: DocumentSegments,
+  layout: DocumentLayout | undefined,
+): Prepared {
+  const empty = {
+    pageWidths: [],
+    pdfLayout: null,
+    docx: null,
+    setup: null,
+    fonts: [],
+  };
   if (document.document_type === "pdf" && isPdfLayout(layout)) {
     const content = segmentsToContent(document.segments, layout.pages);
     if (content.content?.[0]?.type === "page") {
@@ -225,15 +268,23 @@ function prepare(document: DocumentSegments, layout: DocumentLayout | undefined)
       };
     }
   }
-  return { ...empty, mode: "blocks", content: segmentsToContent(document.segments) };
+  return {
+    ...empty,
+    mode: "blocks",
+    content: segmentsToContent(document.segments),
+  };
 }
 
 function LoadedEditor({
   document,
   layout,
+  layoutFailed,
+  onRetryLayout,
 }: {
   document: DocumentSegments;
   layout?: DocumentLayout;
+  layoutFailed: boolean;
+  onRetryLayout: () => void;
 }) {
   const { t } = useTranslation("translator");
   const router = useRouter();
@@ -250,7 +301,11 @@ function LoadedEditor({
     new Map<string, SegmentValue>(
       document.segments.map((s) => [
         s.key,
-        { text: s.translated_text, style: s.style ?? null, runs: s.runs?.length ? s.runs : null },
+        {
+          text: s.translated_text,
+          style: s.style ?? null,
+          runs: s.runs?.length ? s.runs : null,
+        },
       ]),
     ),
   );
@@ -265,7 +320,13 @@ function LoadedEditor({
   // Open at the printed size, or smaller when the page is wider than the screen.
   const [zoomPercent, setZoomPercentState] = useState(() =>
     paged
-      ? Math.max(MIN_ZOOM, Math.min(100, fitPercent(prepared.pageWidths, window.innerWidth, false)))
+      ? Math.max(
+          MIN_ZOOM,
+          Math.min(
+            100,
+            fitPercent(prepared.pageWidths, window.innerWidth, false),
+          ),
+        )
       : 100,
   );
   const [compare, setCompare] = useState(false);
@@ -275,11 +336,20 @@ function LoadedEditor({
   const [pagination] = useState(() => new PaginationStore());
   const [pixelRatio] = useState(() => window.devicePixelRatio || 1);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const pagedDocx = useSyncExternalStore(pagination.subscribe, pagination.get, pagination.get);
+  const pagedDocx = useSyncExternalStore(
+    pagination.subscribe,
+    pagination.get,
+    pagination.get,
+  );
 
   const [extensions] = useState(() => [
     Document.extend({
-      content: mode === "pdf" ? "page+" : mode === "docx" ? "docxRegion* docxBlock+" : "segment+",
+      content:
+        mode === "pdf"
+          ? "page+"
+          : mode === "docx"
+            ? "docxRegion* docxBlock+"
+            : "segment+",
     }),
     Text,
     Page,
@@ -288,7 +358,9 @@ function LoadedEditor({
     UndoRedo,
     Search,
     DocShortcuts.configure({ mode, docx }),
-    ...(mode === "docx" && docx && setup ? docxExtensions(docx, setup, pagination) : []),
+    ...(mode === "docx" && docx && setup
+      ? docxExtensions(docx, setup, pagination)
+      : []),
   ]);
 
   const wordTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -300,10 +372,13 @@ function LoadedEditor({
       attributes: {
         class: cn(
           "outline-none",
-          mode === "pdf" && "mx-auto flex w-max min-w-full flex-col items-center gap-12",
+          mode === "pdf" &&
+            "mx-auto flex w-max min-w-full flex-col items-center gap-12",
           mode === "docx" && "docx-body",
         ),
-        style: setup ? `padding-top: calc(${setup.sections[0].margin.top} * var(--z));` : "",
+        style: setup
+          ? `padding-top: calc(${setup.sections[0].margin.top} * var(--z));`
+          : "",
         "aria-label": t("editor.translation"),
         spellcheck: "true",
         lang: document.target_language,
@@ -313,14 +388,21 @@ function LoadedEditor({
     onUpdate: ({ editor }) => {
       setChanges(changedSegments(editor.state.doc, saved.current));
       clearTimeout(wordTimer.current);
-      wordTimer.current = setTimeout(() => setWords(countWords(editor.state.doc)), 400);
+      wordTimer.current = setTimeout(
+        () => setWords(countWords(editor.state.doc)),
+        400,
+      );
     },
   });
 
-  const actions = useMemo(() => editorActions(editor, mode, docx), [editor, mode, docx]);
+  const actions = useMemo(
+    () => editorActions(editor, mode, docx),
+    [editor, mode, docx],
+  );
   const activeSource = useEditorState({
     editor,
-    selector: ({ editor }) => (editor ? (activeFormat(editor.state, docx)?.source ?? null) : null),
+    selector: ({ editor }) =>
+      editor ? (activeFormat(editor.state, docx)?.source ?? null) : null,
   });
 
   const hasChanges = changes.length > 0;
@@ -337,7 +419,11 @@ function LoadedEditor({
     const sent = changes;
     await update.mutateAsync({ segments: sent });
     for (const { key, translated_text, style, runs } of sent) {
-      saved.current.set(key, { text: translated_text, style: style ?? null, runs: runs ?? null });
+      saved.current.set(key, {
+        text: translated_text,
+        style: style ?? null,
+        runs: runs ?? null,
+      });
     }
     // The user may have kept typing while the request was in flight.
     setChanges(changedSegments(editor.state.doc, saved.current));
@@ -405,7 +491,9 @@ function LoadedEditor({
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const sheets = canvasRef.current?.querySelectorAll<HTMLElement>("[data-sheet], [data-page]");
+        const sheets = canvasRef.current?.querySelectorAll<HTMLElement>(
+          "[data-sheet], [data-page]",
+        );
         if (!sheets?.length) return;
         const line = window.innerHeight / 3;
         let index = 0;
@@ -424,11 +512,14 @@ function LoadedEditor({
   }, [paged]);
 
   function setZoomPercent(percent: number) {
-    setZoomPercentState(Math.round(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, percent))));
+    setZoomPercentState(
+      Math.round(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, percent))),
+    );
   }
 
   function fitWidthPercent(sideBySide: boolean): number {
-    const width = canvasRef.current?.parentElement?.clientWidth ?? window.innerWidth;
+    const width =
+      canvasRef.current?.parentElement?.clientWidth ?? window.innerWidth;
     return fitPercent(prepared.pageWidths, width, sideBySide);
   }
 
@@ -458,7 +549,8 @@ function LoadedEditor({
           setCompare: (value: boolean) => {
             setCompare(value);
             // Keep both pages on screen when they no longer fit.
-            if (value) setZoomPercent(Math.min(zoomPercent, fitWidthPercent(true)));
+            if (value)
+              setZoomPercent(Math.min(zoomPercent, fitWidthPercent(true)));
           },
           showBoxes,
           setShowBoxes,
@@ -472,7 +564,8 @@ function LoadedEditor({
     source: t(`languages.${document.source_language}`),
     target: t(`languages.${document.target_language}`),
   });
-  const pageCount = mode === "pdf" ? pages.length : Math.max(1, pagedDocx.pages.length);
+  const pageCount =
+    mode === "pdf" ? pages.length : Math.max(1, pagedDocx.pages.length);
   const firstPage = setup?.sections[0].page ?? pages[0];
 
   return (
@@ -498,7 +591,9 @@ function LoadedEditor({
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
-              <h1 className="truncate text-[1.05rem] leading-6 font-medium">{document.file_name}</h1>
+              <h1 className="truncate text-[1.05rem] leading-6 font-medium">
+                {document.file_name}
+              </h1>
               <span className="hidden shrink-0 rounded-full border border-border/70 px-2 py-px text-xs text-muted-foreground md:inline">
                 {languagePair}
               </span>
@@ -509,7 +604,10 @@ function LoadedEditor({
                 {update.isPending ? (
                   <Loader2 className="size-3 animate-spin" aria-hidden />
                 ) : hasChanges ? (
-                  <span className="size-1.5 rounded-full bg-amber-500" aria-hidden />
+                  <span
+                    className="size-1.5 rounded-full bg-amber-500"
+                    aria-hidden
+                  />
                 ) : (
                   <Check className="size-3" aria-hidden />
                 )}
@@ -525,7 +623,11 @@ function LoadedEditor({
               actions={actions}
               canSave={hasChanges && !update.isPending}
               onSave={() => save().catch(() => {})}
-              onDownload={hasChanges ? saveAndDownload : () => window.location.assign(downloadHref)}
+              onDownload={
+                hasChanges
+                  ? saveAndDownload
+                  : () => window.location.assign(downloadHref)
+              }
               onPrint={print}
               onBack={() => router.push("/translate")}
               onFind={() => setFindOpen(true)}
@@ -569,12 +671,21 @@ function LoadedEditor({
               {linkCopied ? t("editor.linkCopied") : t("editor.copyLink")}
             </Button>
             {hasChanges ? (
-              <Button size="sm" className="rounded-full" disabled={update.isPending} onClick={saveAndDownload}>
+              <Button
+                size="sm"
+                className="rounded-full"
+                disabled={update.isPending}
+                onClick={saveAndDownload}
+              >
                 <Download aria-hidden />
                 {t("editor.saveAndDownload")}
               </Button>
             ) : (
-              <a href={downloadHref} download className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
+              <a
+                href={downloadHref}
+                download
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+              >
                 <Download aria-hidden />
                 {t("editor.download")}
               </a>
@@ -609,6 +720,24 @@ function LoadedEditor({
             <span className="line-clamp-2 text-foreground/80">
               {activeSource ?? t("editor.sourceHint")}
             </span>
+          </p>
+        )}
+
+        {layoutFailed && (
+          <p
+            role="alert"
+            className="flex items-center gap-2 border-b border-amber-500/20 bg-amber-500/5 px-4 py-1.5 text-sm text-amber-700 dark:text-amber-400"
+          >
+            <AlertCircle className="size-4 shrink-0" aria-hidden />
+            <span className="flex-1">{t("editor.layoutError")}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 rounded-full"
+              onClick={onRetryLayout}
+            >
+              {t("error.retry")}
+            </Button>
           </p>
         )}
 
@@ -717,8 +846,17 @@ function WordCountDialog({
       noSpaces += [...node.textContent.replace(/\s/g, "")].length;
       return false;
     });
-    const source = document.segments.reduce((sum, segment) => sum + [...segment.source_text].length, 0);
-    return { words: countWords(doc), characters, noSpaces, source, segments: document.segments.length };
+    const source = document.segments.reduce(
+      (sum, segment) => sum + [...segment.source_text].length,
+      0,
+    );
+    return {
+      words: countWords(doc),
+      characters,
+      noSpaces,
+      source,
+      segments: document.segments.length,
+    };
   }, [open, doc, document.segments]);
 
   const rows: [string, number | null][] = counts
@@ -737,7 +875,9 @@ function WordCountDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("editor.wordCount.title")}</DialogTitle>
-          <DialogDescription>{t("editor.wordCount.description")}</DialogDescription>
+          <DialogDescription>
+            {t("editor.wordCount.description")}
+          </DialogDescription>
         </DialogHeader>
         <dl className="grid grid-cols-[1fr_auto] gap-y-2 text-sm">
           {rows
@@ -745,7 +885,9 @@ function WordCountDialog({
             .map(([label, value]) => (
               <div key={label} className="contents">
                 <dt className="text-muted-foreground">{label}</dt>
-                <dd className="text-right font-medium tabular-nums">{value?.toLocaleString()}</dd>
+                <dd className="text-right font-medium tabular-nums">
+                  {value?.toLocaleString()}
+                </dd>
               </div>
             ))}
         </dl>

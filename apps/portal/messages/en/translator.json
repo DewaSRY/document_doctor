@@ -85,6 +85,7 @@
     "download": "Download",
     "saveAndDownload": "Save and download",
     "saveError": "Your changes couldn't be saved. Try again.",
+    "layoutError": "The page layout couldn't be loaded, so the document is shown as text only.",
     "emptySegment": "Empty — the original text will be kept in the document.",
     "help": "Only the translation is shown. Each block is one paragraph or line of the document, so it keeps its place and formatting when the file is rebuilt. Hover a block and open ⋮ to see the original or restore the AI translation.",
     "blockMenu": "Block actions",
