@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,7 +49,7 @@ async def translate(
             voice_tags=[get_voice_name(tag) for tag in (request.voice_tags or [])],
         )
 
-        translated_text = get_translator().translate(translation_params=params)
+        translated_text = await asyncio.to_thread(get_translator().translate, params)
         model_name = get_translator().model.name_or_path
 
         response_data = {

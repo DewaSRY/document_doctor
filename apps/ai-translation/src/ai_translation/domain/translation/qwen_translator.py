@@ -1,4 +1,5 @@
 import os
+import threading
 from typing import Any
 
 import torch
@@ -37,6 +38,14 @@ class QwenTranslatorModel:
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name,
         )
+        # Decoder-only models must be padded on the left for batched generation.
+        self.tokenizer.padding_side = "left"
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        self.batch_size = int(os.getenv("TRANSLATION_BATCH_SIZE", "8"))
+        # generate() is not safe to run from several threads on one model.
+        self._lock = threading.Lock()
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
@@ -127,26 +136,62 @@ class QwenTranslatorModel:
             add_generation_prompt=True,
         )
 
-    @torch.inference_mode()
     def translate(
         self,
         translation_params: TranslationParams,
+        **generation_options: Any,
+    ) -> str:
+        """Process one translation request at runtime."""
+        return self.translate_batch([translation_params], **generation_options)[0]
+
+    def translate_batch(
+        self,
+        params_list: list[TranslationParams],
         *,
         max_new_tokens: int = 256,
         temperature: float = 0.2,
         do_sample: bool = False,
-    ) -> str:
+    ) -> list[str]:
         """
-        Process one translation request at runtime.
+        Translate many texts with batched generation.
 
-        The model itself is NOT loaded again.
+        Texts are sorted by length so each batch carries little padding;
+        results are returned in the input order.
         """
+        order = sorted(
+            range(len(params_list)),
+            key=lambda index: len(params_list[index].text),
+        )
+        results: list[str] = [""] * len(params_list)
 
-        prompt = self._build_prompt(translation_params)
+        for start in range(0, len(order), self.batch_size):
+            batch_indices = order[start:start + self.batch_size]
+            translations = self._generate(
+                [params_list[index] for index in batch_indices],
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=do_sample,
+            )
+            for index, translation in zip(batch_indices, translations):
+                results[index] = translation
+
+        return results
+
+    @torch.inference_mode()
+    def _generate(
+        self,
+        params_list: list[TranslationParams],
+        *,
+        max_new_tokens: int,
+        temperature: float,
+        do_sample: bool,
+    ) -> list[str]:
+        prompts = [self._build_prompt(params) for params in params_list]
 
         inputs = self.tokenizer(
-            prompt,
+            prompts,
             return_tensors="pt",
+            padding=True,
             truncation=True,
         )
 
@@ -158,23 +203,24 @@ class QwenTranslatorModel:
         generation_kwargs: dict[str, Any] = {
             "max_new_tokens": max_new_tokens,
             "do_sample": do_sample,
+            "pad_token_id": self.tokenizer.pad_token_id,
         }
 
         if do_sample:
             generation_kwargs["temperature"] = temperature
 
-        outputs = self.model.generate(
-            **inputs,
-            **generation_kwargs,
-        )
+        with self._lock:
+            outputs = self.model.generate(
+                **inputs,
+                **generation_kwargs,
+            )
 
+        # Left padding gives every prompt the same length.
         input_length = inputs["input_ids"].shape[1]
 
-        generated_tokens = outputs[0][input_length:]
-
-        translation = self.tokenizer.decode(
-            generated_tokens,
+        translations = self.tokenizer.batch_decode(
+            outputs[:, input_length:],
             skip_special_tokens=True,
         )
 
-        return translation.strip()
+        return [translation.strip() for translation in translations]

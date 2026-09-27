@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from urllib.parse import quote
 
@@ -70,16 +71,17 @@ async def translate_document(
     try:
         max_size = 5 * 1024 * 1024
         file_size = 0
-        file_content = b""
+        chunks: list[bytes] = []
 
         while True:
-            chunk = await file.read(8192)
+            chunk = await file.read(64 * 1024)
             if not chunk:
                 break
             file_size += len(chunk)
             if file_size > max_size:
                 raise FileTooLargeError(max_size_mb=5)
-            file_content += chunk
+            chunks.append(chunk)
+        file_content = b"".join(chunks)
 
         file_ext = file.filename.split(".")[-1].lower()
         if file_ext not in ["pdf", "docx"]:
@@ -95,22 +97,34 @@ async def translate_document(
         emotion_tags_list = [tag.strip() for tag in (emotion_tags.split(",") if emotion_tags else [])]
         voice_tags_list = [tag.strip() for tag in (voice_tags.split(",") if voice_tags else [])]
 
+        source_language_name = get_language_name(source_language)
+        target_language_name = get_language_name(target_language)
+        emotion_names = [get_emotion_name(tag) for tag in emotion_tags_list]
+        voice_names = [get_voice_name(tag) for tag in voice_tags_list]
+
+        # Translate each distinct sentence once, in batches, off the event loop.
+        unique_sentences = list(
+            dict.fromkeys(text for texts in extracted_text.values() for text in texts if text)
+        )
+        translated_sentences = await asyncio.to_thread(
+            get_translator().translate_batch,
+            [
+                TranslationParams(
+                    text=text,
+                    source_language=source_language_name,
+                    target_language=target_language_name,
+                    emotions_tags=emotion_names,
+                    voice_tags=voice_names,
+                )
+                for text in unique_sentences
+            ],
+        )
+        sentence_translations = dict(zip(unique_sentences, translated_sentences))
+
         translations = {}
         segments = []
         for key, texts in extracted_text.items():
-            translated_sentences = []
-            for text in texts:
-                if text:
-                    params = TranslationParams(
-                        text=text,
-                        source_language=get_language_name(source_language),
-                        target_language=get_language_name(target_language),
-                        emotions_tags=[get_emotion_name(tag) for tag in emotion_tags_list],
-                        voice_tags=[get_voice_name(tag) for tag in voice_tags_list],
-                    )
-                    translated = get_translator().translate(translation_params=params)
-                    translated_sentences.append(translated)
-            translations[key] = " ".join(translated_sentences) if translated_sentences else ""
+            translations[key] = " ".join(sentence_translations[text] for text in texts if text)
             segments.append(
                 {
                     "key": key,

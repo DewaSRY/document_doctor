@@ -1,3 +1,4 @@
+import asyncio
 import os
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
@@ -5,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from ai_translation.config import settings
+from ai_translation.domain.translation import get_translator
 from ai_translation.infrastructure.database import (
     init_db,
     close_db,
@@ -26,6 +28,8 @@ from ai_translation.infrastructure.middleware import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    # Load the model at startup so the first request does not pay for it.
+    await asyncio.to_thread(get_translator)
     yield
     await close_db()
 

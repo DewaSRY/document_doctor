@@ -8,11 +8,11 @@ from .utils import (
     get_voice_name,
 )
 
-_translator: NllbTranslatorModel | None = None
+_translator: QwenTranslatorModel | None = None
 
 
-def get_translator() -> NllbTranslatorModel:
+def get_translator() -> QwenTranslatorModel:
     global _translator
     if _translator is None:
-        _translator = NllbTranslatorModel()
+        _translator = QwenTranslatorModel()
     return _translator

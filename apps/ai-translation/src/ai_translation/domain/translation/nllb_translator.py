@@ -1,6 +1,7 @@
 
 
 import os
+import threading
 
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
@@ -68,6 +69,11 @@ class NllbTranslatorModel:
         # max_new_tokens is computed per request; drop the conflicting default.
         self.model.generation_config.max_length = None
 
+        self.batch_size = int(os.getenv("TRANSLATION_BATCH_SIZE", "16"))
+        # generate() is not safe to run from several threads on one model,
+        # and tokenizer.src_lang is shared state.
+        self._lock = threading.Lock()
+
     @staticmethod
     def _get_device() -> torch.device:
         if torch.cuda.is_available():
@@ -94,59 +100,102 @@ class NllbTranslatorModel:
 
         return code
 
-    @torch.inference_mode()
     def translate(
         self,
         translation_params: TranslationParams,
     ) -> str:
+        return self.translate_batch([translation_params])[0]
 
-        src_code = self._resolve_lang_code(
-            getattr(
-                translation_params,
-                "source_language",
-                "eng_Latn",
+    def translate_batch(
+        self,
+        params_list: list[TranslationParams],
+    ) -> list[str]:
+        """
+        Translate many texts with batched generation.
+
+        All params must share the same source and target language.
+        Results are returned in the input order.
+        """
+        if not params_list:
+            return []
+
+        first = params_list[0]
+        if any(
+            params.source_language != first.source_language
+            or params.target_language != first.target_language
+            for params in params_list
+        ):
+            raise ValueError("translate_batch requires one language pair per call")
+
+        src_code = self._resolve_lang_code(first.source_language)
+        tgt_code = self._resolve_lang_code(first.target_language)
+
+        # Sort by length so each batch carries little padding.
+        order = sorted(
+            range(len(params_list)),
+            key=lambda index: len(params_list[index].text),
+        )
+        results: list[str] = [""] * len(params_list)
+
+        for start in range(0, len(order), self.batch_size):
+            batch_indices = order[start:start + self.batch_size]
+            translations = self._generate(
+                [params_list[index].text for index in batch_indices],
+                src_code,
+                tgt_code,
             )
-        )
+            for index, translation in zip(batch_indices, translations):
+                results[index] = translation
 
-        tgt_code = self._resolve_lang_code(
-            translation_params.target_language
-        )
+        return results
 
-        self.tokenizer.src_lang = src_code
+    @torch.inference_mode()
+    def _generate(
+        self,
+        texts: list[str],
+        src_code: str,
+        tgt_code: str,
+    ) -> list[str]:
+        with self._lock:
+            self.tokenizer.src_lang = src_code
 
-        inputs = self.tokenizer(
-            translation_params.text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-        )
+            inputs = self.tokenizer(
+                texts,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=512,
+            )
 
-        inputs = {
-            key: value.to(self.device)
-            for key, value in inputs.items()
-        }
+            inputs = {
+                key: value.to(self.device)
+                for key, value in inputs.items()
+            }
 
-        target_lang_id = self.tokenizer.convert_tokens_to_ids(
-            tgt_code
-        )
+            target_lang_id = self.tokenizer.convert_tokens_to_ids(
+                tgt_code
+            )
 
-        outputs = self.model.generate(
-            **inputs,
-            forced_bos_token_id=target_lang_id,
+            outputs = self.model.generate(
+                **inputs,
+                forced_bos_token_id=target_lang_id,
 
-            # Runtime optimization
-            num_beams=1,
-            do_sample=False,
-            use_cache=True,
+                # Runtime optimization
+                num_beams=1,
+                do_sample=False,
+                use_cache=True,
 
-            # Scale with the input so long segments are not cut off
-            max_new_tokens=min(512, inputs["input_ids"].shape[-1] * 2 + 16),
+                # Scale with the input so long segments are not cut off
+                max_new_tokens=min(512, inputs["input_ids"].shape[-1] * 2 + 16),
 
-            # Avoid returning unnecessary generation data
-            return_dict_in_generate=False,
-        )
+                # Avoid returning unnecessary generation data
+                return_dict_in_generate=False,
+            )
 
-        return self.tokenizer.decode(
-            outputs[0],
-            skip_special_tokens=True,
-        ).strip()
+        return [
+            translation.strip()
+            for translation in self.tokenizer.batch_decode(
+                outputs,
+                skip_special_tokens=True,
+            )
+        ]
