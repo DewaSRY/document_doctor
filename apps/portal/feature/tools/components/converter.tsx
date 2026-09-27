@@ -5,10 +5,8 @@ import { useTranslation } from "react-i18next";
 import { ArrowRight, Repeat2 } from "lucide-react";
 
 import {
-  DocumentPreview,
   ErrorAlert,
   FieldError,
-  FileChip,
   FileDropzone,
   FileResult,
   Processing,
@@ -16,6 +14,7 @@ import {
   ToolIntro,
   useFileValidator,
 } from "@/components/file-tools";
+import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -86,13 +85,11 @@ export function Converter() {
 
       {file && !convert.isPending && !convert.isSuccess && (
         <section className="flex flex-col gap-6">
-          <FileChip file={file}>
+          <FileChip file={file} preview defaultPreviewOpen>
             <Button variant="ghost" size="sm" onClick={startOver}>
               {t("common.changeFile")}
             </Button>
           </FileChip>
-
-          <DocumentPreview file={file} />
 
           <div className="flex items-center justify-center gap-4 rounded-xl border bg-card p-6">
             <FormatBadge label={t(`converter.formats.${source}`)} />

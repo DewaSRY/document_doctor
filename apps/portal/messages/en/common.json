@@ -42,5 +42,11 @@
   "localeNames": {
     "en": "English",
     "id": "Bahasa Indonesia"
+  },
+  "filePreview": {
+    "show": "Preview",
+    "hide": "Hide preview",
+    "alt": "Preview of {{name}}",
+    "error": "This document can't be previewed here."
   }
 }

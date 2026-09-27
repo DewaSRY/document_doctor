@@ -42,5 +42,11 @@
   "localeNames": {
     "en": "English",
     "id": "Bahasa Indonesia"
+  },
+  "filePreview": {
+    "show": "Pratinjau",
+    "hide": "Sembunyikan pratinjau",
+    "alt": "Pratinjau {{name}}",
+    "error": "Dokumen ini tidak dapat dipratinjau di sini."
   }
 }

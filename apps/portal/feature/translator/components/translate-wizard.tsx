@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type DragEvent } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
@@ -8,15 +8,15 @@ import {
   Check,
   CheckCircle2,
   Download,
-  FileText,
   Loader2,
   PencilLine,
   RotateCcw,
-  Upload,
 } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { FieldError, FileDropzone, SelectField } from "@/components/file-tools";
+import { FileChip } from "@/components/file-chip";
 import { cn } from "@/lib/utils";
 
 import {
@@ -42,11 +42,6 @@ const STEPS: { id: Step; label: string }[] = [
 
 const MAX_FILE_SIZE_MB = MAX_FILE_SIZE / 1024 / 1024;
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
 export function TranslateWizard() {
   const { t } = useTranslation("translator");
   const translate = useTranslateDocument();
@@ -65,6 +60,10 @@ export function TranslateWizard() {
         : "upload";
 
   const languageName = (code: LanguageCode) => t(`languages.${code}`);
+  const languageOptions = LANGUAGE_CODES.map((code) => ({
+    value: code,
+    label: languageName(code),
+  }));
 
   function selectFile(selected: File | undefined) {
     if (!selected) return;
@@ -112,18 +111,18 @@ export function TranslateWizard() {
             </p>
           </div>
 
-          <FileChip file={file}>
+          <FileChip file={file} preview defaultPreviewOpen>
             <Button variant="ghost" size="sm" onClick={startOver}>
               {t("languageStep.changeFile")}
             </Button>
           </FileChip>
 
           <div className="grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
-            <LanguageSelect
+            <SelectField
               label={t("languageStep.source")}
               value={sourceLanguage}
+              options={languageOptions}
               onChange={setSourceLanguage}
-              languageName={languageName}
             />
             <Button
               variant="outline"
@@ -137,11 +136,11 @@ export function TranslateWizard() {
             >
               <ArrowLeftRight aria-hidden />
             </Button>
-            <LanguageSelect
+            <SelectField
               label={t("languageStep.target")}
               value={targetLanguage}
+              options={languageOptions}
               onChange={setTargetLanguage}
-              languageName={languageName}
             />
           </div>
 
@@ -290,14 +289,6 @@ function UploadStep({
   error: string | null;
 }) {
   const { t } = useTranslation("translator");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [dragging, setDragging] = useState(false);
-
-  function onDrop(event: DragEvent) {
-    event.preventDefault();
-    setDragging(false);
-    onSelect(event.dataTransfer.files[0]);
-  }
 
   return (
     <section aria-labelledby="upload-title" className="flex flex-col gap-6">
@@ -308,104 +299,16 @@ function UploadStep({
         <p className="mt-2 text-muted-foreground">{t("upload.description")}</p>
       </div>
 
-      <div
-        onDragOver={(event) => {
-          event.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={onDrop}
-        className={cn(
-          "flex flex-col items-center gap-3 rounded-xl border-2 border-dashed px-6 py-14 text-center transition-colors",
-          dragging ? "border-brand bg-brand-soft/40" : "border-border bg-card",
-        )}
-      >
-        <span className="grid size-12 place-items-center rounded-full bg-brand-soft text-brand">
-          <Upload className="size-5" aria-hidden />
-        </span>
-        <Button
-          size="lg"
-          className="mt-2 h-11 rounded-lg px-6 text-base"
-          onClick={() => inputRef.current?.click()}
-        >
-          {t("upload.pick")}
-        </Button>
-        <p className="text-sm text-muted-foreground">{t("upload.drop")}</p>
-        <p className="text-xs text-muted-foreground">
-          {t("upload.hint", { size: MAX_FILE_SIZE_MB })}
-        </p>
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPT_ATTRIBUTE}
-          className="sr-only"
-          tabIndex={-1}
-          aria-hidden
-          onChange={(event) => {
-            onSelect(event.target.files?.[0]);
-            // Let the same file be picked again after an error.
-            event.target.value = "";
-          }}
-        />
-      </div>
+      <FileDropzone
+        accept={ACCEPT_ATTRIBUTE}
+        hint={t("upload.hint", { size: MAX_FILE_SIZE_MB })}
+        pickLabel={t("upload.pick")}
+        dropLabel={t("upload.drop")}
+        onFiles={(files) => onSelect(files[0])}
+      />
 
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
+      <FieldError>{error}</FieldError>
     </section>
-  );
-}
-
-function FileChip({ file, children }: { file: File; children?: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-        <FileText className="size-5" aria-hidden />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{file.name}</p>
-        <p className="text-xs text-muted-foreground">
-          {getFileExtension(file.name).toUpperCase()} · {formatFileSize(file.size)}
-        </p>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function LanguageSelect({
-  label,
-  value,
-  onChange,
-  languageName,
-}: {
-  label: string;
-  value: LanguageCode;
-  onChange: (value: LanguageCode) => void;
-  languageName: (code: LanguageCode) => string;
-}) {
-  const id = useId();
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value as LanguageCode)}
-        className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-      >
-        {LANGUAGE_CODES.map((code) => (
-          <option key={code} value={code}>
-            {languageName(code)}
-          </option>
-        ))}
-      </select>
-    </div>
   );
 }
 

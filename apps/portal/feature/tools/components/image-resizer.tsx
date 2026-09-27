@@ -7,7 +7,6 @@ import { Image as ImageIcon, Link2, Link2Off } from "lucide-react";
 import {
   ErrorAlert,
   FieldError,
-  FileChip,
   FileDropzone,
   FileResult,
   NumberField,
@@ -18,6 +17,7 @@ import {
   ToolIntro,
   useFileValidator,
 } from "@/components/file-tools";
+import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

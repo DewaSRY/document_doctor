@@ -24,7 +24,6 @@
     "outputFormat": "Output format",
     "keepFormat": "Same as the original",
     "previewAlt": "Preview of {{name}}",
-    "previewError": "This document can't be previewed, but it can still be converted.",
     "resultAlt": "Preview of the result"
   },
   "categories": {

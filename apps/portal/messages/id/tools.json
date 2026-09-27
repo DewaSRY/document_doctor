@@ -24,7 +24,6 @@
     "outputFormat": "Format hasil",
     "keepFormat": "Sama dengan aslinya",
     "previewAlt": "Pratinjau {{name}}",
-    "previewError": "Dokumen ini tidak dapat dipratinjau, tetapi tetap dapat dikonversi.",
     "resultAlt": "Pratinjau hasil"
   },
   "categories": {

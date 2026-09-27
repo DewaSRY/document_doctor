@@ -7,7 +7,6 @@ import { ArrowDown, ArrowUp, Combine, FileText, X } from "lucide-react";
 import {
   ErrorAlert,
   FieldError,
-  FileChip,
   FileDropzone,
   FileResult,
   Processing,
@@ -16,6 +15,7 @@ import {
   ToolIntro,
   useFileValidator,
 } from "@/components/file-tools";
+import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -282,7 +282,7 @@ function SplitPdf() {
 
   return (
     <section className="flex flex-col gap-6">
-      <FileChip file={file}>
+      <FileChip file={file} preview>
         {pageCount !== undefined && (
           <span className="text-xs text-muted-foreground">{t("pdf.split.pages", { count: pageCount })}</span>
         )}

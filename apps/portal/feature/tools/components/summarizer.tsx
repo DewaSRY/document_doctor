@@ -7,7 +7,6 @@ import { Check, Copy, Download, FileText, RotateCcw } from "lucide-react";
 import {
   ErrorAlert,
   FieldError,
-  FileChip,
   FileDropzone,
   Processing,
   saveBlob,
@@ -17,6 +16,7 @@ import {
   ToolIntro,
   useFileValidator,
 } from "@/components/file-tools";
+import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
 import { LANGUAGE_CODES, type LanguageCode } from "@/feature/translator/constants";
 
@@ -87,7 +87,7 @@ export function Summarizer() {
 
       {file && !summarize.isPending && !summarize.isSuccess && (
         <section className="flex flex-col gap-6">
-          <FileChip file={file}>
+          <FileChip file={file} preview>
             <Button variant="ghost" size="sm" onClick={startOver}>
               {t("common.changeFile")}
             </Button>

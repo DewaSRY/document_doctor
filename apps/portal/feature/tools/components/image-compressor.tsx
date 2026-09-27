@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import {
   ErrorAlert,
   FieldError,
-  FileChip,
   FileDropzone,
   FileResult,
   formatFileSize,
@@ -16,6 +15,7 @@ import {
   ToolIntro,
   useFileValidator,
 } from "@/components/file-tools";
+import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon, Minimize2 } from "lucide-react";
 

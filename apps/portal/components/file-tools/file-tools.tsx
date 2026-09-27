@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { useId, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
@@ -14,6 +14,13 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 import { getFileExtension } from "@/feature/tools/constants";
@@ -74,12 +81,17 @@ export function FileDropzone({
   hint,
   multiple = false,
   compact = false,
+  pickLabel,
+  dropLabel,
   onFiles,
 }: {
   accept: string;
   hint: string;
   multiple?: boolean;
   compact?: boolean;
+  /** Override the default "Choose file(s)" / "or drop it here" texts. */
+  pickLabel?: string;
+  dropLabel?: string;
   onFiles: (files: File[]) => void;
 }) {
   const { t } = useTranslation("tools");
@@ -119,10 +131,10 @@ export function FileDropzone({
         onClick={() => inputRef.current?.click()}
       >
         {compact && <Upload aria-hidden />}
-        {multiple ? t("common.pickMany") : t("common.pick")}
+        {pickLabel ?? (multiple ? t("common.pickMany") : t("common.pick"))}
       </Button>
       <p className="text-sm text-muted-foreground">
-        {multiple ? t("common.dropMany") : t("common.drop")}
+        {dropLabel ?? (multiple ? t("common.dropMany") : t("common.drop"))}
       </p>
       <p className="text-xs text-muted-foreground">{hint}</p>
       <input
@@ -139,97 +151,6 @@ export function FileDropzone({
           event.target.value = "";
         }}
       />
-    </div>
-  );
-}
-
-export function FileChip({
-  file,
-  icon: Icon = FileText,
-  children,
-}: {
-  file: File;
-  icon?: LucideIcon;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-        <Icon className="size-5" aria-hidden />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{file.name}</p>
-        <p className="text-xs text-muted-foreground">
-          {getFileExtension(file.name).toUpperCase()} · {formatFileSize(file.size)}
-        </p>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-/** Read-only look at a picked PDF or DOCX, so the user can check it's the right file. */
-export function DocumentPreview({ file }: { file: File }) {
-  const { t } = useTranslation("tools");
-  const isPdf = getFileExtension(file.name) === "pdf";
-  const containerRef = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<HTMLIFrameElement>(null);
-  const [status, setStatus] = useState<{ file: File; failed: boolean } | null>(null);
-
-  useEffect(() => {
-    const frame = frameRef.current;
-    if (!isPdf || !frame) return;
-    const url = URL.createObjectURL(file);
-    frame.src = `${url}#view=FitH`;
-    return () => URL.revokeObjectURL(url);
-  }, [file, isPdf]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (isPdf || !container) return;
-    let active = true;
-    container.replaceChildren();
-    // Loaded on demand: only DOCX previews need it.
-    import("docx-preview")
-      .then(({ renderAsync }) =>
-        renderAsync(file, container, undefined, {
-          className: "docx-preview",
-          inWrapper: true,
-          ignoreLastRenderedPageBreak: false,
-        }),
-      )
-      .then(
-        () => active && setStatus({ file, failed: false }),
-        () => active && setStatus({ file, failed: true }),
-      );
-    return () => {
-      active = false;
-    };
-  }, [file, isPdf]);
-
-  const label = t("common.previewAlt", { name: file.name });
-  // A state left over from an earlier file is never used for the current one.
-  const current = status?.file === file ? status : null;
-
-  if (isPdf) {
-    return (
-      <iframe ref={frameRef} title={label} className="h-[32rem] w-full rounded-lg border bg-muted" />
-    );
-  }
-
-  return (
-    <div className="relative h-[32rem] overflow-auto rounded-lg border bg-muted">
-      {!current && (
-        <div className="absolute inset-0 grid place-items-center">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" aria-hidden />
-        </div>
-      )}
-      {current?.failed && (
-        <p className="absolute inset-0 grid place-items-center p-6 text-center text-sm text-muted-foreground">
-          {t("common.previewError")}
-        </p>
-      )}
-      <div ref={containerRef} role="document" aria-label={label} />
     </div>
   );
 }
@@ -419,18 +340,22 @@ export function SelectField<T extends string>({
       <label htmlFor={id} className="text-sm font-medium">
         {label}
       </label>
-      <select
-        id={id}
+      <Select
+        items={options}
         value={value}
-        onChange={(event) => onChange(event.target.value as T)}
-        className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        onValueChange={(next) => next !== null && onChange(next)}
       >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger id={id} size="lg" className="w-full bg-background">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
