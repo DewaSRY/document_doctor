@@ -551,8 +551,9 @@ class PDFHandler(DocumentHandler):
             align = (
                 "justify" if len(ends) >= 2 and max(ends) - min(ends) <= 1.5 else "left"
             )
-            # A wrapped paragraph already shows its column width; only single lines widen.
-            x1 = bbox.x1 + 1 if len(segment.lines) > 1 else max(right, bbox.x1)
+            # Every paragraph may grow into the free space beside it (right_limit
+            # already stops at real neighbours), not just its original column.
+            x1 = max(right, bbox.x1)
             x0 = bbox.x0
 
         bottom = layout.bottom_limit(pymupdf.Rect(x0, bbox.y0, x1, bbox.y1), own)
