@@ -18,6 +18,7 @@ import {
   useFileValidator,
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { Button } from "@/components/ui/button";
 import { zodResolverTranslate } from "@/lib/form";
 import { cn } from "@/lib/utils";
@@ -61,6 +62,7 @@ export function ImageResizer() {
     },
     mode: "onChange",
   });
+  useLeaveGuard(form.formState.isDirty && !resize.isSuccess);
   const [file, width, height, lockRatio] = useWatch({
     control: form.control,
     name: ["file", "width", "height", "lockRatio"],
@@ -80,7 +82,7 @@ export function ImageResizer() {
     const error = validate(selected);
     if (error) return form.setError("file", { message: error });
     form.clearErrors("file");
-    form.setValue("file", selected);
+    form.setValue("file", selected, { shouldDirty: true });
   }
 
   /** Width and height are checked together: one side's value can clear or

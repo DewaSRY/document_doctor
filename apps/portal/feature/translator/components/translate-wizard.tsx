@@ -22,6 +22,7 @@ import {
   useFileValidator,
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { zodResolverTranslate } from "@/lib/form";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +63,7 @@ export function TranslateWizard() {
     defaultValues: { file: null, sourceLanguage: "id", targetLanguage: "en" },
     mode: "onChange",
   });
+  useLeaveGuard(form.formState.isDirty && !translate.isSuccess);
   const [file, sourceLanguage, targetLanguage] = useWatch({
     control: form.control,
     name: ["file", "sourceLanguage", "targetLanguage"],
@@ -87,7 +89,7 @@ export function TranslateWizard() {
     const error = validate(selected);
     if (error) return form.setError("file", { message: error });
     form.clearErrors("file");
-    form.setValue("file", selected);
+    form.setValue("file", selected, { shouldDirty: true });
   }
 
   /** The languages are checked together: they must differ. */

@@ -17,6 +17,7 @@ import {
   useFileValidator,
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon, Minimize2 } from "lucide-react";
 import { zodResolverTranslate } from "@/lib/form";
@@ -46,6 +47,7 @@ export function ImageCompressor() {
     defaultValues: { file: null, quality: 75, format: KEEP_FORMAT, maxDimension: "" },
     mode: "onChange",
   });
+  useLeaveGuard(form.formState.isDirty && !compress.isSuccess);
   const file = useWatch({ control: form.control, name: "file" });
   const { errors } = form.formState;
 
@@ -57,7 +59,7 @@ export function ImageCompressor() {
     const error = validate(selected);
     if (error) return form.setError("file", { message: error });
     form.clearErrors("file");
-    form.setValue("file", selected);
+    form.setValue("file", selected, { shouldDirty: true });
   }
 
   function startOver() {

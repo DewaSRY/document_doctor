@@ -23,6 +23,12 @@
   "leave": "Leave",
   "unsavedChangesTitle": "Unsaved changes",
   "unsavedChangesDescription": "You have unsaved changes. If you leave now, they will be lost.",
+  "leaveGuard": {
+    "title": "Leave this page?",
+    "description": "Your work here isn't finished yet. If you leave now, the file and settings you've entered will be lost.",
+    "stay": "Stay on page",
+    "leave": "Leave anyway"
+  },
   "availableBalance": "Available balance",
   "searchPlaceholder": "Search...",
   "sidebarTitle": "Sidebar",

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 
 import { Link, useRouter } from "@/i18n/navigation";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -392,12 +393,7 @@ export function DocumentEditor({
 
   const hasChanges = changes.length > 0;
 
-  useEffect(() => {
-    if (!hasChanges) return;
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [hasChanges]);
+  useLeaveGuard(hasChanges);
 
   async function save() {
     if (!editor || !hasChanges) return;

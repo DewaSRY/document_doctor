@@ -23,6 +23,12 @@
   "leave": "Tinggalkan",
   "unsavedChangesTitle": "Perubahan belum disimpan",
   "unsavedChangesDescription": "Anda memiliki perubahan yang belum disimpan. Jika Anda keluar sekarang, perubahan tersebut akan hilang.",
+  "leaveGuard": {
+    "title": "Tinggalkan halaman ini?",
+    "description": "Proses Anda di sini belum selesai. Jika Anda keluar sekarang, file dan pengaturan yang sudah Anda masukkan akan hilang.",
+    "stay": "Tetap di halaman",
+    "leave": "Tetap tinggalkan"
+  },
   "availableBalance": "Saldo tersedia",
   "searchPlaceholder": "Cari...",
   "sidebarTitle": "Sidebar",

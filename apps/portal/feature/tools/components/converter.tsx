@@ -15,6 +15,7 @@ import {
   useFileValidator,
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { Button } from "@/components/ui/button";
 import { zodResolverTranslate } from "@/lib/form";
 
@@ -38,6 +39,7 @@ export function Converter() {
     resolver: zodResolverTranslate(converterSchema, t),
     defaultValues: { file: null },
   });
+  useLeaveGuard(form.formState.isDirty && !convert.isSuccess);
   const file = useWatch({ control: form.control, name: "file" });
   const fileError = form.formState.errors.file?.message;
 
@@ -49,7 +51,7 @@ export function Converter() {
     const error = validate(selected);
     if (error) return form.setError("file", { message: error });
     form.clearErrors("file");
-    form.setValue("file", selected);
+    form.setValue("file", selected, { shouldDirty: true });
   }
 
   function startOver() {

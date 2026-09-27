@@ -18,6 +18,7 @@ import {
   useFileValidator,
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { Button } from "@/components/ui/button";
 import { LANGUAGE_CODES } from "@/feature/translator/constants";
 import { zodResolverTranslate } from "@/lib/form";
@@ -52,6 +53,7 @@ export function Summarizer() {
     resolver: zodResolverTranslate(summarizerSchema, t),
     defaultValues: { file: null, length: "medium", language: SAME_LANGUAGE },
   });
+  useLeaveGuard(form.formState.isDirty && !summarize.isSuccess);
   const file = useWatch({ control: form.control, name: "file" });
   const fileError = form.formState.errors.file?.message;
 
@@ -60,7 +62,7 @@ export function Summarizer() {
     const error = validate(selected);
     if (error) return form.setError("file", { message: error });
     form.clearErrors("file");
-    form.setValue("file", selected);
+    form.setValue("file", selected, { shouldDirty: true });
   }
 
   function startOver() {

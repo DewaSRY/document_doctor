@@ -17,6 +17,7 @@ import {
   useFileValidator,
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
+import { useLeaveGuard } from "@/components/leave-guard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { zodResolverTranslate } from "@/lib/form";
@@ -84,6 +85,7 @@ function MergePdfs() {
     control: form.control,
     name: "files",
   });
+  useLeaveGuard(form.formState.isDirty && !merge.isSuccess);
   const fileError = form.formState.errors.files?.message;
 
   function addFiles(picked: File[]) {
@@ -227,6 +229,7 @@ function SplitPdf() {
     defaultValues: { file: null, mode: "ranges", ranges: "", singleFile: false },
     mode: "onChange",
   });
+  useLeaveGuard(form.formState.isDirty && !split.isSuccess);
   const [file, mode] = useWatch({ control: form.control, name: ["file", "mode"] });
   const { errors, isValid } = form.formState;
 
@@ -237,7 +240,7 @@ function SplitPdf() {
     const error = validate(selected);
     if (error) return form.setError("file", { message: error });
     form.clearErrors("file");
-    form.setValue("file", selected, { shouldValidate: true });
+    form.setValue("file", selected, { shouldDirty: true, shouldValidate: true });
     info.mutate(selected);
   }
 
