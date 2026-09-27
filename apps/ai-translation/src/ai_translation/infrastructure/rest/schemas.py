@@ -1,5 +1,5 @@
 from typing import Any, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class PaginationMeta(BaseModel):
@@ -62,14 +62,47 @@ class TranslateDocumentResponse(BaseModel):
 
 
 class SegmentStyle(BaseModel):
-    """Overrides of a PDF segment's detected style; unset fields keep the detected value."""
+    """
+    Overrides of a segment's style; unset fields keep the document's value.
+    Text fields apply to the whole segment; paragraph fields (DOCX only) to its paragraph.
+    """
 
     bold: bool | None = None
     italic: bool | None = None
     font_size: float | None = Field(default=None, ge=4, le=96, description="Font size in points")
     color: str | None = Field(default=None, pattern=r"^#[0-9a-fA-F]{6}$")
     align: Literal["left", "center", "right", "justify"] | None = None
-    family: Literal["Helvetica", "Times", "Courier"] | None = None
+    family: str | None = Field(
+        default=None,
+        max_length=64,
+        pattern=r"^[\w .\-]+$",
+        description="PDF: Helvetica, Times or Courier (other fonts map to the closest). DOCX: any font name.",
+    )
+    heading: Literal["normal", "title", "subtitle", "h1", "h2", "h3", "h4", "h5", "h6"] | None = Field(
+        default=None, description="DOCX only: the paragraph style."
+    )
+    line_spacing: float | None = Field(default=None, ge=0.5, le=5, description="DOCX only: a multiple of single spacing")
+    space_before: float | None = Field(default=None, ge=0, le=400, description="DOCX only: in points")
+    space_after: float | None = Field(default=None, ge=0, le=400, description="DOCX only: in points")
+    indent_left: float | None = Field(default=None, ge=-200, le=800, description="DOCX only: in points")
+
+
+class RunStyle(BaseModel):
+    """Formatting of a range of text; unset fields keep the segment's formatting."""
+
+    bold: bool | None = None
+    italic: bool | None = None
+    underline: bool | None = None
+    strike: bool | None = None
+    color: str | None = Field(default=None, pattern=r"^#[0-9a-fA-F]{6}$")
+    highlight: str | None = Field(
+        default=None, pattern=r"^(#[0-9a-fA-F]{6}|transparent)$", description="'transparent' removes a highlight"
+    )
+
+
+class SegmentRun(BaseModel):
+    text: str
+    style: RunStyle | None = None
 
 
 class SegmentEdit(BaseModel):
@@ -77,8 +110,19 @@ class SegmentEdit(BaseModel):
     translated_text: str = Field(..., description="New translated text for the segment")
     style: SegmentStyle | None = Field(
         default=None,
-        description="PDF only. Replaces the segment's style overrides when sent; null or {} clears them.",
+        description="Replaces the segment's style overrides when sent; null or {} clears them.",
     )
+    runs: list[SegmentRun] | None = Field(
+        default=None,
+        description="Formatting of ranges of the text, whose texts join to translated_text. "
+        "Replaces the stored runs when sent; null or [] clears them (the text takes the segment's formatting).",
+    )
+
+    @model_validator(mode="after")
+    def _runs_match_text(self) -> "SegmentEdit":
+        if self.runs and "".join(run.text for run in self.runs) != self.translated_text:
+            raise ValueError("The texts of runs must join to translated_text")
+        return self
 
 
 class UpdateSegmentsRequest(BaseModel):

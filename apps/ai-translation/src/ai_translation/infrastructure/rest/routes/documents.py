@@ -300,6 +300,12 @@ def _apply_edit(segment: dict, edit: SegmentEdit | None) -> dict:
         updated.pop("style", None)
         if style:
             updated["style"] = style
+    # Runs belong to the text they format: new text without runs clears them.
+    if "runs" in edit.model_fields_set or edit.translated_text != segment.get("translated_text"):
+        runs = [run.model_dump(exclude_none=True) for run in edit.runs or []]
+        updated.pop("runs", None)
+        if runs:
+            updated["runs"] = runs
     return updated
 
 
@@ -307,7 +313,7 @@ async def _get_pdf_original(session: AsyncSession, document_id: str) -> bytes:
     document, stored = await _get_document_with_segments(session, document_id)
     if document.document_type != "pdf":
         raise ValidationError(
-            message="Page layout is only available for PDF documents",
+            message="Page images are only available for PDF documents",
             details={"document_type": document.document_type},
         )
     return stored.original_document
@@ -319,16 +325,55 @@ async def get_document_layout(
     session: AsyncSession = Depends(get_db_session),
 ) -> dict:
     """
-    PDF only: the size of every page and, per segment, the area (in PDF points)
-    and style its translation is written with. Style overrides are not applied.
+    How the document looks, for the editor. Style overrides are not applied.
+
+    - PDF: the size of every page and, per segment, the area (in PDF points)
+      and style its translation is written with.
+    - DOCX: per section the page size, margins and headers and footers, and the
+      paragraphs, tables and images in document order, with resolved formatting.
+      Translatable text is referenced by segment key.
     """
     try:
-        original = await _get_pdf_original(session, document_id)
-        pages = await asyncio.to_thread(PDFHandler().page_layouts, original)
+        document, stored = await _get_document_with_segments(session, document_id)
+        if document.document_type == "pdf":
+            pages = await asyncio.to_thread(PDFHandler().page_layouts, stored.original_document)
+            data = {"document_id": document_id, "format": "pdf", "pages": pages}
+        else:
+            layout = await asyncio.to_thread(DOCXHandler().document_layout, stored.original_document)
+            data = {"document_id": document_id, **layout}
         return normalize_success_response(
-            data={"document_id": document_id, "pages": pages},
+            data=data,
             message="Document layout retrieved successfully",
             code=200,
+        )
+    except APIException:
+        raise
+    except Exception as exc:
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
+
+
+@router.get("/translated-document/{document_id}/media/{name:path}")
+async def get_document_media(
+    document_id: str,
+    name: str,
+    session: AsyncSession = Depends(get_db_session),
+):
+    """DOCX only: an image of the original upload, by the part name the layout returns."""
+    try:
+        document, stored = await _get_document_with_segments(session, document_id)
+        if document.document_type != "docx":
+            raise NotFoundError("Media", name)
+        found = await asyncio.to_thread(DOCXHandler.media, stored.original_document, name)
+        if found is None:
+            raise NotFoundError("Media", name)
+        blob, content_type = found
+        return Response(
+            content=blob,
+            media_type=content_type,
+            headers={"Cache-Control": "private, max-age=86400, immutable"},
         )
     except APIException:
         raise
@@ -408,6 +453,7 @@ async def update_document_segments(
             document.source_language,
             document.target_language,
             styles={segment["key"]: segment["style"] for segment in stored.segments if segment.get("style")},
+            runs={segment["key"]: segment["runs"] for segment in stored.segments if segment.get("runs")},
         )
         await session.commit()
         await session.refresh(stored)

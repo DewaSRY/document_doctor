@@ -175,13 +175,21 @@ class _Placement:
     italic: bool
     color: int
     scale: float = 1.0
+    # Formatting of ranges of the text, as sent by the editor.
+    runs: list[dict] | None = None
 
     def apply_style(self, style: dict | None) -> None:
         """Apply a user's style override (see SegmentStyle in the REST schemas)."""
         if not style:
             return
         self.font_size = style.get("font_size", self.font_size)
-        self.family = style.get("family", self.family)
+        if style.get("family"):
+            family = style["family"]
+            self.family = (
+                family
+                if family in ("Helvetica", "Times", "Courier")
+                else PDFHandler._font_family(family.lower(), 0)
+            )
         self.bold = style.get("bold", self.bold)
         self.italic = style.get("italic", self.italic)
         if "color" in style:
@@ -221,9 +229,11 @@ class PDFHandler(DocumentHandler):
         source_language: str,
         target_language: str,
         styles: dict[str, dict] | None = None,
+        runs: dict[str, list[dict]] | None = None,
     ) -> bytes:
         """Replace each source segment with its translation, keeping the layout."""
         styles = styles or {}
+        runs = runs or {}
         with pymupdf.open(stream=file_content, filetype="pdf") as pdf_document:
             for page in pdf_document:
                 # Layout is read before the original text is removed.
@@ -237,6 +247,7 @@ class PDFHandler(DocumentHandler):
                     continue
                 for placement in placements:
                     placement.apply_style(styles.get(placement.segment.key))
+                    placement.runs = runs.get(placement.segment.key)
 
                 # Redaction deletes link annotations over the text; restore them afterwards.
                 links = page.get_links()
@@ -571,7 +582,7 @@ class PDFHandler(DocumentHandler):
             segment = placement.segment
             rect = cls._text_rect(placement, 1.0)
             story = pymupdf.Story(
-                html.escape(translations[segment.key]),
+                cls._html(placement, translations[segment.key]),
                 user_css=cls._css(placement, 1.0),
             )
             fit = story.fit_scale(
@@ -598,10 +609,39 @@ class PDFHandler(DocumentHandler):
         # scale_low=0 is a safety net: the text shrinks further if it still does not fit.
         page.insert_htmlbox(
             cls._text_rect(placement, placement.scale),
-            html.escape(translated_text),
+            cls._html(placement, translated_text),
             css=cls._css(placement, placement.scale),
             scale_low=0,
         )
+
+    @staticmethod
+    def _html(placement: _Placement, text: str) -> str:
+        """The translation as HTML, with the formatting of its ranges when there is any."""
+        runs = placement.runs
+        if not runs or "".join(run.get("text", "") for run in runs) != text:
+            return html.escape(text)
+        parts = []
+        for run in runs:
+            style = run.get("style") or {}
+            css = []
+            if style.get("bold") is not None:
+                css.append(f"font-weight: {'bold' if style['bold'] else 'normal'}")
+            if style.get("italic") is not None:
+                css.append(f"font-style: {'italic' if style['italic'] else 'normal'}")
+            decoration = [
+                name
+                for name, on in (("underline", style.get("underline")), ("line-through", style.get("strike")))
+                if on
+            ]
+            if decoration:
+                css.append(f"text-decoration: {' '.join(decoration)}")
+            if re.fullmatch(r"#[0-9a-fA-F]{6}", style.get("color") or ""):
+                css.append(f"color: {style['color']}")
+            if re.fullmatch(r"#[0-9a-fA-F]{6}", style.get("highlight") or ""):
+                css.append(f"background-color: {style['highlight']}")
+            text_html = html.escape(run.get("text", ""))
+            parts.append(f'<span style="{"; ".join(css)}">{text_html}</span>' if css else text_html)
+        return "".join(parts)
 
     @staticmethod
     def _text_rect(placement: _Placement, scale: float) -> pymupdf.Rect:

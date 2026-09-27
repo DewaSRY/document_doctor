@@ -22,10 +22,12 @@ class DocumentHandler(ABC):
         source_language: str,
         target_language: str,
         styles: dict[str, dict] | None = None,
+        runs: dict[str, list[dict]] | None = None,
     ) -> bytes:
         """Create translated document preserving original structure.
 
-        styles: optional per-segment style overrides, by key (PDF only).
+        styles: optional per-segment style overrides, by key.
+        runs: optional formatting of ranges of a segment's text, by key.
         """
 
     @staticmethod

@@ -6,15 +6,18 @@ from io import BytesIO
 
 from docx import Document as DocxDocument
 from docx.document import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.shared import Pt, RGBColor
 from docx.text.hyperlink import Hyperlink
 from docx.text.paragraph import Paragraph
 from docx.text.run import Run
 from lxml import etree
 
 from .base import DocumentHandler
+from .docx_layout import DocxLayoutReader
 
 # Tabs and line breaks split a paragraph into separately translated pieces,
 # so "Label<tab>: value" and multi-line addresses keep their structure.
@@ -33,6 +36,35 @@ _LANGUAGE_TAGS = {
     "zh": "zh-CN",
 }
 _EAST_ASIAN = {"ja", "ko", "zh"}
+_ALIGNMENTS = {
+    "left": WD_ALIGN_PARAGRAPH.LEFT,
+    "center": WD_ALIGN_PARAGRAPH.CENTER,
+    "right": WD_ALIGN_PARAGRAPH.RIGHT,
+    "justify": WD_ALIGN_PARAGRAPH.JUSTIFY,
+}
+# Word's built-in style ids for the editor's paragraph styles.
+_HEADING_STYLE_IDS = {
+    "title": "Title",
+    "subtitle": "Subtitle",
+    **{f"h{level}": f"Heading{level}" for level in range(1, 7)},
+}
+# Direct formatting for a heading when the document has no such style; the
+# editor shows the same (HEADING_FALLBACKS in the portal).
+_HEADING_FALLBACKS = {
+    "title": (26.0, False),
+    "subtitle": (15.0, False),
+    "h1": (20.0, True),
+    "h2": (16.0, True),
+    "h3": (14.0, True),
+    "h4": (12.0, True),
+    "h5": (11.0, True),
+    "h6": (11.0, False),
+}
+# Elements that follow w:shd in a run's properties (the schema's order).
+_AFTER_SHD = (
+    "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang",
+    "w:eastAsianLayout", "w:specVanish", "w:oMath",
+)
 
 
 @dataclass
@@ -81,15 +113,34 @@ class DOCXHandler(DocumentHandler):
         source_language: str,
         target_language: str,
         styles: dict[str, dict] | None = None,
+        runs: dict[str, list[dict]] | None = None,
     ) -> bytes:
-        """Replace each paragraph with its translation, keeping the formatting."""
+        """
+        Replace each paragraph with its translation, keeping the formatting.
+
+        styles: a user's overrides by key: the font and size of the segment's
+        text, and the paragraph style, alignment, spacing and indent of its paragraph.
+        runs: the formatting of ranges of a segment's text (see _apply_runs).
+        """
+        styles = styles or {}
+        runs = runs or {}
         doc = DocxDocument(BytesIO(file_content))
+        styled = set()
 
         for key, piece in self._collect_pieces(doc).items():
             translated_text = translations.get(key, "").strip()
-            if translated_text:
-                self._write_piece(piece, translated_text, target_language)
-                self._let_row_grow(piece.paragraph)
+            if not translated_text:
+                continue
+            style = styles.get(key) or {}
+            # Paragraph formatting is sent with every piece of the paragraph; apply it once.
+            if style and piece.paragraph._p not in styled:
+                styled.add(piece.paragraph._p)
+                self._apply_paragraph_style(doc, piece.paragraph, style)
+            self._write_piece(piece, translated_text, target_language)
+            self._apply_text_style(piece, style)
+            if runs.get(key):
+                self._apply_runs(piece, runs[key], translations[key])
+            self._let_row_grow(piece.paragraph)
 
         for element, _ in self._stories(doc):
             self._sync_fallback_text_boxes(element)
@@ -105,6 +156,20 @@ class DOCXHandler(DocumentHandler):
         output = BytesIO()
         doc.save(output)
         return output.getvalue()
+
+    def document_layout(self, file_content: bytes) -> dict:
+        """Pages, paragraphs, tables and images of the document, for the editor."""
+        doc = DocxDocument(BytesIO(file_content))
+        return DocxLayoutReader(doc, self._collect_pieces(doc)).read()
+
+    @staticmethod
+    def media(file_content: bytes, name: str) -> tuple[bytes, str] | None:
+        """An image of the document by its part name (as the layout returns it)."""
+        doc = DocxDocument(BytesIO(file_content))
+        for part in doc.part.package.iter_parts():
+            if str(part.partname).lstrip("/") == name and name.startswith("word/media/"):
+                return part.blob, part.content_type
+        return None
 
     # ------------------------------------------------------------------ extraction
 
@@ -296,6 +361,145 @@ class DOCXHandler(DocumentHandler):
 
             for run in written:
                 cls._set_language(run, target_language)
+
+    @staticmethod
+    def _text_runs(piece: _Piece) -> list[Run]:
+        """The runs that hold the piece's text, in order."""
+        return [
+            run
+            for item in piece.items
+            for run in (item.runs if isinstance(item, Hyperlink) else [item])
+            if run.text
+        ]
+
+    @classmethod
+    def _apply_paragraph_style(cls, doc: Document, paragraph: Paragraph, style: dict) -> None:
+        heading = style.get("heading")
+        if heading:
+            style_id = _HEADING_STYLE_IDS.get(heading)
+            if heading == "normal":
+                style_id = next(
+                    (
+                        s.style_id
+                        for s in doc.styles
+                        if s.type == 1 and getattr(s, "element", None) is not None
+                        and s.element.get(qn("w:default")) in ("1", "true")
+                    ),
+                    None,
+                )
+            known = style_id is not None and any(
+                s.style_id == style_id for s in doc.styles if s.type == 1
+            )
+            ppr = paragraph._p.get_or_add_pPr()
+            if known:
+                ppr.get_or_add_pStyle().val = style_id
+            elif heading == "normal":
+                ppr._remove_pStyle()
+            # Text formatting of the old style would override the new one.
+            for run in paragraph.runs:
+                rpr = run._r.rPr
+                if rpr is None:
+                    continue
+                for tag in ("w:b", "w:bCs", "w:i", "w:iCs", "w:sz", "w:szCs", "w:color", "w:rFonts"):
+                    for element in rpr.findall(qn(tag)):
+                        rpr.remove(element)
+            if not known and heading in _HEADING_FALLBACKS:
+                size, bold = _HEADING_FALLBACKS[heading]
+                for run in paragraph.runs:
+                    run.font.size = Pt(size)
+                    run.font.bold = bold
+
+        fmt = paragraph.paragraph_format
+        if style.get("align") in _ALIGNMENTS:
+            paragraph.alignment = _ALIGNMENTS[style["align"]]
+        if style.get("line_spacing") is not None:
+            fmt.line_spacing = float(style["line_spacing"])
+        if style.get("space_before") is not None:
+            fmt.space_before = Pt(style["space_before"])
+        if style.get("space_after") is not None:
+            fmt.space_after = Pt(style["space_after"])
+        if style.get("indent_left") is not None:
+            fmt.left_indent = Pt(style["indent_left"])
+
+    @classmethod
+    def _apply_text_style(cls, piece: _Piece, style: dict) -> None:
+        """A font or size chosen for the whole segment."""
+        if style.get("font_size") is None and not style.get("family"):
+            return
+        for run in cls._text_runs(piece):
+            if style.get("font_size") is not None:
+                run.font.size = Pt(style["font_size"])
+                rpr = run._r.get_or_add_rPr()
+                for element in rpr.findall(qn("w:szCs")):
+                    rpr.remove(element)
+            if style.get("family"):
+                fonts = run._r.get_or_add_rPr().get_or_add_rFonts()
+                for name in ("w:ascii", "w:hAnsi", "w:cs"):
+                    fonts.set(qn(name), style["family"])
+                for name in ("w:asciiTheme", "w:hAnsiTheme", "w:cstheme"):
+                    fonts.attrib.pop(qn(name), None)
+
+    @classmethod
+    def _apply_runs(cls, piece: _Piece, runs: list[dict], text: str) -> None:
+        """
+        Give ranges of the written translation their own formatting ("a **bold**
+        word"): every run holding the text is split where the ranges change, and
+        each part keeps the run's formatting plus its range's style.
+
+        runs: [{"text": str, "style": {bold, italic, underline, strike, color, highlight}}],
+        whose texts join to the (unstripped) translation.
+        """
+        start = -(len(text) - len(text.lstrip()))
+        ranges = []
+        for run in runs:
+            end = start + len(run.get("text", ""))
+            ranges.append((start, end, run.get("style") or {}))
+            start = end
+
+        offset = 0
+        for run in cls._text_runs(piece):
+            value = run.text
+            begin, finish = offset, offset + len(value)
+            offset = finish
+            parts = [
+                (max(a, begin), min(b, finish), style)
+                for a, b, style in ranges
+                if min(b, finish) > max(a, begin)
+            ]
+            if not parts:
+                continue
+            anchor = run._r
+            for a, b, style in parts:
+                new_run = Run(deepcopy(run._r), run._parent)
+                new_run.text = value[a - begin : b - begin]
+                cls._apply_run_style(new_run, style)
+                anchor.addnext(new_run._r)
+                anchor = new_run._r
+            run._r.getparent().remove(run._r)
+
+    @staticmethod
+    def _apply_run_style(run: Run, style: dict) -> None:
+        font = run.font
+        for name in ("bold", "italic", "strike"):
+            if style.get(name) is not None:
+                setattr(font, name, bool(style[name]))
+        if style.get("underline") is not None:
+            font.underline = bool(style["underline"])
+        if style.get("color"):
+            font.color.rgb = RGBColor.from_string(style["color"].lstrip("#").upper())
+        highlight = style.get("highlight")
+        if highlight:
+            rpr = run._r.get_or_add_rPr()
+            rpr._remove_highlight()
+            for element in rpr.findall(qn("w:shd")):
+                rpr.remove(element)
+            if highlight != "transparent":
+                # Any colour, not only Word's named highlight colours.
+                shd = OxmlElement("w:shd")
+                shd.set(qn("w:val"), "clear")
+                shd.set(qn("w:color"), "auto")
+                shd.set(qn("w:fill"), highlight.lstrip("#").upper())
+                rpr.insert_element_before(shd, *_AFTER_SHD)
 
     @classmethod
     def _fill_runs(cls, runs: list[Run], text: str, template: Run | None) -> list[Run]:
