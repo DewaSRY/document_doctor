@@ -2,13 +2,16 @@ import type { MetadataRoute } from "next";
 import { locales } from "@/i18n/settings";
 import { canonicalFor, buildLanguageAlternates } from "@/lib/seo/metadata";
 
-const PUBLIC_PATHS = ["/", "/login", "/register"];
+// Only list routes that actually exist and should be indexed.
+const PUBLIC_PATHS = [""];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return locales.flatMap((locale) =>
     PUBLIC_PATHS.map((path) => ({
-      url: canonicalFor(locale, path === "/" ? "" : path),
-      alternates: { languages: buildLanguageAlternates(path === "/" ? "" : path) },
+      url: canonicalFor(locale, path),
+      changeFrequency: "monthly" as const,
+      priority: 1,
+      alternates: { languages: buildLanguageAlternates(path) },
     })),
   );
 }

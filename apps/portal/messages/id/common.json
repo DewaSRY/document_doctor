@@ -1,7 +1,7 @@
 {
   "searchAccountsPlaceholder": "Cari akun",
   "mainAccount": "Rekening utama",
-  "appName": "Simple Bank",
+  "appName": "Document Doctor",
   "backToHome": "Kembali ke beranda",
   "backToHomeDescription": "Mengarahkan Anda kembali ke halaman utama",
   "brandTagline": "Pelajari lebih lanjut tentang {{appName}} di sini",
@@ -12,10 +12,6 @@
   "noAccounts": "Belum ada akun.",
   "loadingAccounts": "Memuat akun…",
   "loadAccountsError": "Gagal memuat akun.",
-  "toggleTheme": "Ubah tema",
-  "themeLight": "Terang",
-  "themeDark": "Gelap",
-  "themeSystem": "Sistem",
   "toggleSidebar": "Alihkan sidebar",
   "cancel": "Batal",
   "back": "Kembali",
@@ -41,5 +37,10 @@
     "title": "Terjadi kesalahan",
     "description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
     "dashboardDescription": "Gagal memuat akun Anda."
+  },
+  "changeLanguage": "Ubah bahasa",
+  "localeNames": {
+    "en": "English",
+    "id": "Bahasa Indonesia"
   }
 }

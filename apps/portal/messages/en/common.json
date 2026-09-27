@@ -1,7 +1,7 @@
 {
   "searchAccountsPlaceholder": "Search accounts",
   "mainAccount": "Main account",
-  "appName": "Simple Bank",
+  "appName": "Document Doctor",
   "backToHome": "Back to home",
   "backToHomeDescription": "Takes you back to the landing page",
   "brandTagline": "Learn more about {{appName}} here",
@@ -12,10 +12,6 @@
   "noAccounts": "No accounts yet.",
   "loadingAccounts": "Loading accounts…",
   "loadAccountsError": "Failed to load accounts.",
-  "toggleTheme": "Toggle theme",
-  "themeLight": "Light",
-  "themeDark": "Dark",
-  "themeSystem": "System",
   "toggleSidebar": "Toggle sidebar",
   "cancel": "Cancel",
   "back": "Back",
@@ -41,5 +37,10 @@
     "title": "Something went wrong",
     "description": "An unexpected error occurred. Please try again.",
     "dashboardDescription": "Failed to load your accounts."
+  },
+  "changeLanguage": "Change language",
+  "localeNames": {
+    "en": "English",
+    "id": "Bahasa Indonesia"
   }
 }

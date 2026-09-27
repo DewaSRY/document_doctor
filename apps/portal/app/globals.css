@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Light-only product: nothing sets .dark, so any dark: utility (e.g. from a
+   future shadcn add) stays inert instead of following the OS setting. */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -40,7 +42,8 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Brand identity — wallet-icon green (#12AE52), consistent across themes */
+  /* Brand identity — red scale, see :root */
+  --color-brand-50: var(--brand-50);
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
   --color-brand-active: var(--brand-active);
@@ -69,118 +72,63 @@
 }
 
 :root {
-  --background: oklch(100% 0.00011 271.152);
-  --foreground: oklch(22.213% 0.00003 271.152);
+  /* Neutrals are a warm gray (hue ~60, very low chroma) so the red brand
+     reads as intentional rather than sitting on a cold blue-gray. Text is
+     charcoal, never pure black. */
+  --background: oklch(0.995 0.001 60);
+  --foreground: oklch(0.22 0.006 50);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.22 0.006 50);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.6578 0.1771 150);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0.006 104);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.965 0.006 104);
-  --muted-foreground: oklch(35.331% 0.00137 15.607);
-  --accent: oklch(0.97 0.045 150);
-  --accent-foreground: oklch(0.28 0.05 150);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0.004 104);
-  --input: oklch(0.922 0.004 104);
-  --ring: oklch(0.6578 0.1771 150);
-  --chart-1: oklch(0.6578 0.1771 150);
-  --chart-2: oklch(0.28 0.05 150);
-  --chart-3: oklch(0.77 0.15 75);
-  --chart-4: oklch(0.6 0.15 155);
-  --chart-5: oklch(0.5 0.01 104);
+  --popover-foreground: oklch(0.22 0.006 50);
+  --primary: var(--brand-500);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.967 0.003 60);
+  --secondary-foreground: oklch(0.26 0.006 50);
+  --muted: oklch(0.967 0.003 60);
+  --muted-foreground: oklch(0.47 0.008 50);
+  --accent: var(--brand-50);
+  --accent-foreground: var(--brand-700);
+  --destructive: oklch(0.55 0.2 20);
+  --border: oklch(0.92 0.004 60);
+  --input: oklch(0.9 0.005 60);
+  --ring: var(--brand-500);
+  --chart-1: var(--brand-500);
+  --chart-2: oklch(0.45 0.01 50);
+  --chart-3: oklch(0.72 0.12 60);
+  --chart-4: var(--brand-300);
+  --chart-5: oklch(0.6 0.01 50);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0.004 104);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.6578 0.1771 150);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0.045 150);
-  --sidebar-accent-foreground: oklch(0.28 0.05 150);
-  --sidebar-border: oklch(0.922 0.004 104);
-  --sidebar-ring: oklch(0.6578 0.1771 150);
+  --sidebar: oklch(0.982 0.002 60);
+  --sidebar-foreground: oklch(0.22 0.006 50);
+  --sidebar-primary: var(--brand-500);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: var(--brand-50);
+  --sidebar-accent-foreground: var(--brand-700);
+  --sidebar-border: oklch(0.92 0.004 60);
+  --sidebar-ring: var(--brand-500);
 
-  /* Green scale anchored on #12AE52 (sampled from the wallet icon), built
-     as Tailwind-style oklch tints/shades along the same hue (150);
-     --brand-500 is the fixed identity color — the exact #12AE52 hex — and
-     is intentionally identical in .dark below.
-     Unlike the old yellow scale, brand-500/600/700/900 are dark enough
-     that white foreground text works directly on them; brand-100/300 are
-     still light tints, so brand-foreground (used on brand-soft) stays a
-     dark shade (brand-900) for contrast there. */
-  --brand-100: oklch(0.94 0.06 150);
-  --brand-300: oklch(0.8 0.14 150);
-  --brand-500: oklch(0.6578 0.1771 150);
-  --brand-600: oklch(0.52 0.15 150);
-  --brand-700: oklch(0.43 0.13 150);
-  --brand-900: oklch(0.3 0.09 150);
+  /* Red brand scale on hue 25. --brand-500 is the identity/primary-action
+     red (white text on it passes WCAG AA), 600/700 are hover/active, and
+     50/100 are the subtle tints used for highlights and selected states.
+     Keep large surfaces neutral — red is for actions and accents. */
+  --brand-50: oklch(0.975 0.014 20);
+  --brand-100: oklch(0.945 0.032 20);
+  --brand-300: oklch(0.8 0.1 22);
+  --brand-500: oklch(0.56 0.215 26);
+  --brand-600: oklch(0.5 0.195 26);
+  --brand-700: oklch(0.44 0.165 26);
+  --brand-900: oklch(0.3 0.1 24);
   --brand: var(--brand-500);
   --brand-hover: var(--brand-600);
   --brand-active: var(--brand-700);
-  --brand-soft: var(--brand-100);
-  --brand-foreground: var(--brand-900);
+  --brand-soft: var(--brand-50);
+  --brand-foreground: var(--brand-700);
 
-  --success: oklch(0.6 0.15 155);
-  --success-foreground: oklch(0.985 0 0);
+  --success: oklch(0.58 0.14 155);
+  --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.77 0.15 75);
   --warning-foreground: oklch(0.28 0.06 70);
-}
-
-.dark {
-  --background: oklch(0.19 0.014 104);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.24 0.016 104);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.26 0.016 104);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.6578 0.1771 150);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.28 0.016 104);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.28 0.016 104);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.3 0.05 150);
-  --accent-foreground: oklch(0.95 0.05 150);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6578 0.1771 150);
-  --chart-1: oklch(0.6578 0.1771 150);
-  --chart-2: oklch(0.95 0.05 150);
-  --chart-3: oklch(0.8 0.16 80);
-  --chart-4: oklch(0.72 0.17 155);
-  --chart-5: oklch(0.708 0 0);
-  --sidebar: oklch(0.2 0.014 104);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.6578 0.1771 150);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.3 0.05 150);
-  --sidebar-accent-foreground: oklch(0.95 0.05 150);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.6578 0.1771 150);
-
-  /* --brand-500 matches :root exactly — the one fixed identity color.
-     100/300 darken into muted dark-mode tints, 600/700 stay slightly
-     deeper than 500 for hover/active, and 900 flips light so it still
-     reads as foreground text on the (now dark) brand-soft background. */
-  --brand-100: oklch(0.32 0.05 150);
-  --brand-300: oklch(0.48 0.12 150);
-  --brand-500: oklch(0.6578 0.1771 150);
-  --brand-600: oklch(0.58 0.15 150);
-  --brand-700: oklch(0.5 0.13 150);
-  --brand-900: oklch(0.88 0.1 150);
-  --brand: var(--brand-500);
-  --brand-hover: var(--brand-600);
-  --brand-active: var(--brand-700);
-  --brand-soft: var(--brand-100);
-  --brand-foreground: var(--brand-900);
-
-  --success: oklch(0.72 0.17 155);
-  --success-foreground: oklch(0.15 0.03 155);
-  --warning: oklch(0.8 0.16 80);
-  --warning-foreground: oklch(0.2 0.05 70);
 }
 
 @layer base {
@@ -192,6 +140,7 @@
   }
   html {
     @apply font-sans;
+    color-scheme: light;
     scroll-behavior: smooth !important;
   }
 }
@@ -203,4 +152,34 @@
   to {
     transform: scaleX(1);
   }
+}
+
+/* Landing hero: the "translating" scan line and progress fill. Both are
+   decorative and disabled for users who prefer reduced motion. */
+@keyframes scan {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(var(--scan-distance, 16rem)); opacity: 0; }
+}
+
+@keyframes fill {
+  from { transform: scaleX(0.08); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scan,
+  .animate-fill {
+    animation: none !important;
+  }
+}
+
+.animate-scan {
+  animation: scan 3.2s ease-in-out infinite;
+}
+
+.animate-fill {
+  transform-origin: left;
+  animation: fill 3.2s ease-in-out infinite;
 }

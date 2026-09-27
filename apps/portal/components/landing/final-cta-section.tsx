@@ -1,0 +1,42 @@
+import { ArrowRight } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { START_HREF, type LandingT } from "./types";
+
+export function FinalCtaSection({ t }: { t: LandingT }) {
+  return (
+    <section
+      aria-labelledby="final-cta-title"
+      className="mx-auto w-full max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28"
+    >
+      <div className="relative isolate overflow-hidden rounded-2xl bg-foreground px-6 py-14 text-center text-background sm:px-12 sm:py-20">
+        <div
+          aria-hidden
+          className="absolute -top-24 left-1/2 -z-10 h-64 w-2/3 -translate-x-1/2 rounded-full bg-brand/40 blur-3xl"
+        />
+        <h2
+          id="final-cta-title"
+          className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+        >
+          {t("finalCta.title")}
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-base text-pretty opacity-75 sm:text-lg">
+          {t("finalCta.description")}
+        </p>
+        <a
+          href={START_HREF}
+          className={cn(
+            buttonVariants({ size: "lg" }),
+            "group mt-8 h-11 rounded-lg px-6 text-base",
+          )}
+        >
+          {t("finalCta.cta")}
+          <ArrowRight
+            className="transition-transform group-hover:translate-x-0.5"
+            aria-hidden
+          />
+        </a>
+      </div>
+    </section>
+  );
+}

@@ -1,28 +1,28 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MotionConfig } from "motion/react";
-import { isAppLocale } from "@/i18n/settings";
+import { isAppLocale, locales, type AppLocale } from "@/i18n/settings";
 import { getTranslation } from "@/i18n/server";
-import { canonicalFor, buildLanguageAlternates } from "@/lib/seo/metadata";
+import {
+  SITE_NAME,
+  SITE_URL,
+  canonicalFor,
+  buildLanguageAlternates,
+} from "@/lib/seo/metadata";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { HeroSection } from "@/components/landing/hero-section";
-import { OverviewSection } from "@/components/landing/overview-section";
-import { SystemJourneySection } from "@/components/landing/system-journey-section";
-import { FrontendEngineeringSection } from "@/components/landing/frontend-engineering-section";
-import { BackendEngineeringSection } from "@/components/landing/backend-engineering-section";
-import { BankingDomainSection } from "@/components/landing/banking-domain-section";
-import { DatabaseArchitectureSection } from "@/components/landing/database-architecture-section";
-import { ApiArchitectureSection } from "@/components/landing/api-architecture-section";
-import { SecuritySection } from "@/components/landing/security-section";
-import { InfrastructureSection } from "@/components/landing/infrastructure-section";
-import { EngineeringDecisionsSection } from "@/components/landing/engineering-decisions-section";
-import { RequestFlowSection } from "@/components/landing/request-flow-section";
-import { CapabilitySummarySection } from "@/components/landing/capability-summary-section";
-import { TechStackSection } from "@/components/landing/tech-stack-section";
+import { PrinciplesStrip } from "@/components/landing/principles-strip";
+import { ToolsSection } from "@/components/landing/tools-section";
+import { HowItWorksSection } from "@/components/landing/how-it-works-section";
+import { ReviewEditSection } from "@/components/landing/review-edit-section";
+import { FeaturesSection } from "@/components/landing/features-section";
+import { LanguagesSection } from "@/components/landing/languages-section";
+import { AudienceSection } from "@/components/landing/audience-section";
+import { FaqSection, type FaqItem } from "@/components/landing/faq-section";
 import { FinalCtaSection } from "@/components/landing/final-cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
-import { AUTHOR } from "@/components/landing/author";
-import { AuthBackdrop } from "@/components/auth/auth-backdrop";
+import { tList } from "@/components/landing/types";
+
+const OG_LOCALES: Record<AppLocale, string> = { en: "en_US", id: "id_ID" };
 
 export async function generateMetadata({
   params,
@@ -37,11 +37,11 @@ export async function generateMetadata({
   const title = t("meta.title");
   const description = t("meta.description");
 
+  // Images come from the sibling opengraph-image.tsx file convention.
   return {
     title: { absolute: title },
     description,
-    authors: [{ name: AUTHOR.name, url: AUTHOR.githubUrl }],
-    creator: AUTHOR.name,
+    keywords: tList<string>(t, "meta.keywords"),
     alternates: {
       canonical: canonicalFor(locale, ""),
       languages: buildLanguageAlternates(""),
@@ -50,23 +50,19 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
+      siteName: SITE_NAME,
       url: canonicalFor(locale, ""),
-      locale,
-      images: [
-        {
-          url: "/icons/android-chrome-512x512.png",
-          width: 512,
-          height: 512,
-          alt: title,
-        },
-      ],
+      locale: OG_LOCALES[locale],
+      alternateLocale: locales
+        .filter((l) => l !== locale)
+        .map((l) => OG_LOCALES[l]),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: ["/icons/android-chrome-512x512.png"],
     },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -77,50 +73,84 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
     notFound();
   }
 
+  const { t } = await getTranslation(locale, "landing");
+  const { t: tCommon } = await getTranslation(locale, "common");
+  const pageUrl = canonicalFor(locale, "");
+  const faqs = tList<FaqItem>(t, "faq.items");
+  const languages = tList<{ name: string }>(t, "languages.items");
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: `${SITE_URL}/icons/android-chrome-512x512.png`,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: SITE_NAME,
+        url: pageUrl,
+        inLanguage: locale,
+        publisher: { "@id": `${SITE_URL}/#organization` },
+      },
+      {
+        "@type": "WebApplication",
+        name: SITE_NAME,
+        url: pageUrl,
+        description: t("meta.description"),
+        applicationCategory: "ProductivityApplication",
+        operatingSystem: "Web",
+        inLanguage: locale,
+        featureList: tList<{ title: string }>(t, "features.items").map(
+          (f) => f.title,
+        ),
+        availableLanguage: languages.map((l) => l.name),
+        publisher: { "@id": `${SITE_URL}/#organization` },
+      },
+      {
+        "@type": "FAQPage",
+        inLanguage: locale,
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: { "@type": "Answer", text: faq.answer },
+        })),
+      },
+    ],
+  };
+
   return (
-    <MotionConfig reducedMotion="user">
+    <>
       <script
-        id="website-jsonld"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: "Simple Bank",
-            url: canonicalFor(locale, ""),
-            author: {
-              "@type": "Person",
-              name: AUTHOR.name,
-              email: AUTHOR.email,
-              url: AUTHOR.githubUrl,
-              sameAs: [AUTHOR.githubUrl, AUTHOR.linkedinUrl],
-            },
-          }).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <main className="flex min-h-screen w-full flex-col">
-        <LandingNav />
-
-        <AuthBackdrop>
-          <HeroSection />
-        </AuthBackdrop>
-
-        <OverviewSection />
-        <SystemJourneySection />
-        <FrontendEngineeringSection />
-        <BackendEngineeringSection />
-        <BankingDomainSection />
-        <DatabaseArchitectureSection />
-        <ApiArchitectureSection />
-        <SecuritySection />
-        <InfrastructureSection />
-        <EngineeringDecisionsSection />
-        <RequestFlowSection />
-        <CapabilitySummarySection />
-        <TechStackSection />
-        <FinalCtaSection />
-        <LandingFooter />
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-md bg-background px-4 py-2 text-sm font-medium shadow focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        {t("nav.skipToContent")}
+      </a>
+      <LandingNav />
+      <main id="main" className="flex w-full flex-1 flex-col">
+        <HeroSection t={t} />
+        <ToolsSection t={t} />
+        <HowItWorksSection t={t} />
+        <ReviewEditSection t={t} />
+        <FeaturesSection t={t} />
+        <PrinciplesStrip t={t} />
+        <LanguagesSection t={t} />
+        <AudienceSection t={t} />
+        <FaqSection t={t} />
+        <FinalCtaSection t={t} />
       </main>
-    </MotionConfig>
+      <LandingFooter t={t} appName={tCommon("appName")} />
+    </>
   );
 }
