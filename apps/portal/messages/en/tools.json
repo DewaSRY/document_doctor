@@ -1,0 +1,246 @@
+{
+  "common": {
+    "pick": "Choose file",
+    "pickMany": "Choose files",
+    "drop": "or drop it here",
+    "dropMany": "or drop them here",
+    "tooLarge": "{{name}} is larger than {{size}} MB. Choose a smaller file.",
+    "empty": "{{name}} is empty. Choose another file.",
+    "documentType": "This file type isn't supported. Choose a PDF or DOCX file.",
+    "pdfType": "Only PDF files can be used here.",
+    "imageType": "This file type isn't supported. Choose a JPG, PNG or WEBP image.",
+    "documentHint": "PDF or DOCX, up to {{size}} MB",
+    "pdfHint": "PDF, up to {{size}} MB",
+    "imageHint": "JPG, PNG or WEBP, up to {{size}} MB",
+    "changeFile": "Change file",
+    "errorDescription": "Something went wrong. Try again, or choose another file.",
+    "retry": "Try again",
+    "download": "Download",
+    "processing": "This usually takes a few seconds.",
+    "processingSlow": "The AI reads the whole document, so this can take a few minutes. Keep this page open.",
+    "truncated": "This document is long, so only its first part was used.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "outputFormat": "Output format",
+    "keepFormat": "Same as the original",
+    "previewAlt": "Preview of {{name}}",
+    "resultAlt": "Preview of the result"
+  },
+  "categories": {
+    "documentAi": "Document AI",
+    "fileTools": "File tools",
+    "imageTools": "Image tools"
+  },
+  "languages": {
+    "id": "Indonesian",
+    "en": "English",
+    "zh": "Chinese",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "fr": "French",
+    "de": "German",
+    "es": "Spanish"
+  },
+  "summarizer": {
+    "meta": {
+      "title": "Summarize a document",
+      "description": "Upload a PDF or Word document and get a short overview and its key points, in the language you choose."
+    },
+    "title": "Summarize a document",
+    "description": "Get a short overview and the key points of a PDF or Word document.",
+    "length": "Summary length",
+    "lengths": {
+      "short": "Short",
+      "medium": "Medium",
+      "detailed": "Detailed"
+    },
+    "lengthDescriptions": {
+      "short": "3 key points",
+      "medium": "5 key points",
+      "detailed": "8 key points"
+    },
+    "language": "Summary language",
+    "sameLanguage": "Same as the document",
+    "submit": "Summarize document",
+    "processing": "Summarizing {{fileName}}",
+    "errorTitle": "The document couldn't be summarized",
+    "overview": "Overview",
+    "keyPoints": "Key points",
+    "downloadText": "Download as text",
+    "another": "Summarize another document"
+  },
+  "extractor": {
+    "meta": {
+      "title": "Extract information from a document",
+      "description": "Pull names, organizations, dates, amounts, places and contact details out of a PDF or Word document."
+    },
+    "title": "Extract information",
+    "description": "Pull names, dates, amounts and other details out of a PDF or Word document.",
+    "looksFor": "The extractor looks for:",
+    "fields": {
+      "people": "People",
+      "organizations": "Organizations",
+      "dates": "Dates",
+      "amounts": "Amounts",
+      "locations": "Places",
+      "emails": "E-mail addresses",
+      "phone_numbers": "Phone numbers",
+      "urls": "Links"
+    },
+    "submit": "Extract information",
+    "processing": "Reading {{fileName}}",
+    "errorTitle": "The information couldn't be extracted",
+    "resultTitle": "What we found",
+    "nothingFound": "Nothing was found in this document",
+    "notFound": "Not found: {{fields}}.",
+    "reviewHint": "Found by AI — check important details against the document.",
+    "csvField": "Field",
+    "csvValue": "Value",
+    "another": "Use another document"
+  },
+  "converter": {
+    "meta": {
+      "title": "Convert PDF to Word and Word to PDF",
+      "description": "Turn a PDF into an editable Word document, or a Word document into a PDF."
+    },
+    "title": "Convert a document",
+    "description": "Turn a PDF into an editable Word file, or a Word file into a PDF. The direction is picked from the file you upload.",
+    "formats": {
+      "pdf": "PDF",
+      "docx": "Word (DOCX)"
+    },
+    "notes": {
+      "pdf": "Text, tables and images are rebuilt as editable Word content. Scanned PDFs without selectable text come out as images.",
+      "docx": "Headings, text styles, lists, tables and images are laid out on A4 pages."
+    },
+    "submit": {
+      "docx": "Convert to Word",
+      "pdf": "Convert to PDF"
+    },
+    "processing": "Converting {{fileName}}",
+    "errorTitle": "The document couldn't be converted",
+    "doneTitle": "Your document is converted",
+    "doneDescription": {
+      "docx": "Open it in Word, Google Docs or LibreOffice to edit it.",
+      "pdf": "Your PDF is ready to share or print."
+    },
+    "another": "Convert another document"
+  },
+  "pdf": {
+    "meta": {
+      "title": "Merge and split PDF files",
+      "description": "Combine several PDF files into one, or split a PDF into parts by page range."
+    },
+    "title": "PDF merge & split",
+    "description": "Combine several PDFs into one, or split one PDF into parts.",
+    "merge": {
+      "tab": "Merge PDFs",
+      "intro": "Add the PDFs in the order they should appear. You can reorder them before merging.",
+      "hint": "PDF files, up to {{size}} MB each, up to {{count}} files",
+      "order": "Files to merge, in order",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "remove": "Remove {{name}}",
+      "tooMany": "You can merge up to {{count}} files at once.",
+      "needTwo": "Add at least one more PDF to merge.",
+      "submit": "Merge {{count}} PDFs",
+      "processing": "Merging {{count}} PDFs",
+      "errorTitle": "The PDFs couldn't be merged",
+      "doneTitle": "Your PDFs are merged",
+      "doneDescription": "{{count}} files were combined into one PDF.",
+      "another": "Merge other PDFs"
+    },
+    "split": {
+      "tab": "Split a PDF",
+      "intro": "Choose a PDF, then pick the pages you need.",
+      "pages_one": "{{count}} page",
+      "pages_other": "{{count}} pages",
+      "readError": "This PDF couldn't be read",
+      "how": "How to split",
+      "modes": {
+        "ranges": "By page range",
+        "every": "Every page"
+      },
+      "modeDescriptions": {
+        "ranges": "Choose which pages go into each part",
+        "every": "Each page becomes its own PDF"
+      },
+      "ranges": "Page ranges",
+      "rangesPlaceholder": "e.g. 1-3, 5, 8-10",
+      "rangesHint": "Separate parts with commas. Each range becomes its own PDF.",
+      "rangesHintCount": "Pages 1 to {{count}}. Separate parts with commas. Each range becomes its own PDF.",
+      "singleFile": "Put the selected pages into one PDF",
+      "singleFileDescription": "Use this to pull out or remove pages instead of splitting.",
+      "submit": "Split PDF",
+      "processing": "Splitting {{fileName}}",
+      "errorTitle": "The PDF couldn't be split",
+      "doneTitle": "Your PDF is split",
+      "doneZip": "The parts are packed in one ZIP file.",
+      "donePdf": "The selected pages are in one PDF.",
+      "another": "Split another PDF"
+    }
+  },
+  "resizer": {
+    "meta": {
+      "title": "Resize an image",
+      "description": "Resize JPG, PNG and WEBP images to exact dimensions like 1200 × 630 px, in your browser."
+    },
+    "title": "Resize an image",
+    "description": "Resize a JPG, PNG or WEBP image to exact dimensions, like 1200 × 630 px.",
+    "presets": "Common sizes",
+    "presetNames": {
+      "og": "Social share",
+      "square": "Square post",
+      "story": "Story",
+      "hd": "Full HD",
+      "thumbnail": "Thumbnail"
+    },
+    "width": "Width",
+    "height": "Height",
+    "lockRatio": "Keep the aspect ratio",
+    "unlockRatio": "Allow a different aspect ratio",
+    "ratioLocked": "The aspect ratio is kept. Enter a width or a height.",
+    "ratioUnlocked": "Enter both sides for an exact size.",
+    "fit": "When the shape changes",
+    "fitModes": {
+      "cover": "Crop",
+      "contain": "Fit inside",
+      "stretch": "Stretch"
+    },
+    "fitDescriptions": {
+      "cover": "Fill the exact size, trim the edges",
+      "contain": "Keep everything, may be smaller",
+      "stretch": "Exact size, may distort"
+    },
+    "invalidSize": "Enter whole numbers between 1 and {{max}} px.",
+    "submit": "Resize image",
+    "processing": "Resizing {{fileName}}",
+    "errorTitle": "The image couldn't be resized",
+    "doneTitle": "Your image is resized",
+    "doneDescription": "The new size is {{width}} × {{height}} px.",
+    "another": "Resize another image"
+  },
+  "compressor": {
+    "meta": {
+      "title": "Compress an image",
+      "description": "Make JPG, PNG and WEBP images smaller without visible quality loss. Location and camera data are removed."
+    },
+    "title": "Compress an image",
+    "description": "Make a JPG, PNG or WEBP image smaller without visible quality loss.",
+    "quality": "Quality",
+    "smaller": "Smaller file",
+    "sharper": "Sharper image",
+    "maxDimension": "Longest side (optional)",
+    "maxDimensionPlaceholder": "Keep the size",
+    "hint": "Shrinking large photos (e.g. to 1920 px) saves the most. Camera and location data are removed.",
+    "invalidMax": "Enter a whole number between 1 and {{max}} px, or leave it empty.",
+    "submit": "Compress image",
+    "processing": "Compressing {{fileName}}",
+    "errorTitle": "The image couldn't be compressed",
+    "doneTitle": "{{percent}}% smaller",
+    "doneDescription": "From {{from}} to {{to}}.",
+    "noGainTitle": "This image is already well compressed",
+    "noGainDescription": "It couldn't be made smaller with these settings. Try a lower quality, WEBP, or a smaller longest side.",
+    "another": "Compress another image"
+  }
+}

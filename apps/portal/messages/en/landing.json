@@ -127,7 +127,7 @@
   "tools": {
     "eyebrow": "Tools",
     "title": "One place for everyday document work",
-    "description": "Each tool does one job well. The Document Translator is ready today — more tools for documents, files, and images are on the way.",
+    "description": "Each tool does one job well: translate, summarize and extract from documents, convert and split files, and resize or compress images.",
     "available": "Available now",
     "comingSoon": "Coming soon",
     "useTool": "Use tool",
@@ -154,7 +154,7 @@
           "PDF",
           "DOCX"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "extractor",
@@ -165,7 +165,7 @@
           "PDF",
           "DOCX"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "converter",
@@ -176,7 +176,7 @@
           "PDF",
           "DOCX"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "pdf",
@@ -186,7 +186,7 @@
         "formats": [
           "PDF"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "resizer",
@@ -198,7 +198,7 @@
           "PNG",
           "WEBP"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "compressor",
@@ -210,7 +210,7 @@
           "PNG",
           "WEBP"
         ],
-        "available": false
+        "available": true
       }
     ]
   },
@@ -442,11 +442,11 @@
     "items": [
       {
         "question": "What is Document Doctor?",
-        "answer": "Document Doctor is a collection of simple AI-powered tools for working with documents and digital files. Each tool handles one job, and they all live in one web app. The Document Translator is the first tool available."
+        "answer": "Document Doctor is a collection of simple AI-powered tools for working with documents and digital files. Each tool handles one job, and they all live in one web app."
       },
       {
         "question": "Which tools can I use today?",
-        "answer": "The Document Translator is available now. A summarizer, extractor, document converter, PDF tools, and image tools are planned and will be added as separate tools."
+        "answer": "All of them: the Document Translator, Summarizer and Extractor, the Document Converter (PDF ⇄ Word), PDF Merge & Split, and the Image Resizer and Compressor."
       },
       {
         "question": "Which file types can the translator handle?",

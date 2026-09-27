@@ -16,6 +16,7 @@ export const namespaces = [
   "onboarding",
   "landing",
   "translator",
+  "tools",
 ] as const;
 
 export type AppNamespace = (typeof namespaces)[number];

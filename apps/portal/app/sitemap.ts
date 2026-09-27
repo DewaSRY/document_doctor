@@ -3,7 +3,16 @@ import { locales } from "@/i18n/settings";
 import { canonicalFor, buildLanguageAlternates } from "@/lib/seo/metadata";
 
 // Only list routes that actually exist and should be indexed.
-const PUBLIC_PATHS = ["", "/translate"];
+const PUBLIC_PATHS = [
+  "",
+  "/translate",
+  "/summarize",
+  "/extract",
+  "/convert",
+  "/pdf",
+  "/resize-image",
+  "/compress-image",
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return locales.flatMap((locale) =>

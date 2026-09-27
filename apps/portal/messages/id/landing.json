@@ -127,7 +127,7 @@
   "tools": {
     "eyebrow": "Alat",
     "title": "Satu tempat untuk pekerjaan dokumen sehari-hari",
-    "description": "Setiap alat mengerjakan satu tugas dengan baik. Penerjemah Dokumen sudah siap dipakai — alat lain untuk dokumen, file, dan gambar segera hadir.",
+    "description": "Setiap alat mengerjakan satu tugas dengan baik: menerjemahkan, meringkas, dan mengekstrak dokumen, mengonversi dan memisah file, serta mengubah ukuran atau mengompres gambar.",
     "available": "Tersedia",
     "comingSoon": "Segera hadir",
     "useTool": "Gunakan alat",
@@ -154,7 +154,7 @@
           "PDF",
           "DOCX"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "extractor",
@@ -165,7 +165,7 @@
           "PDF",
           "DOCX"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "converter",
@@ -176,7 +176,7 @@
           "PDF",
           "DOCX"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "pdf",
@@ -186,7 +186,7 @@
         "formats": [
           "PDF"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "resizer",
@@ -198,7 +198,7 @@
           "PNG",
           "WEBP"
         ],
-        "available": false
+        "available": true
       },
       {
         "icon": "compressor",
@@ -210,7 +210,7 @@
           "PNG",
           "WEBP"
         ],
-        "available": false
+        "available": true
       }
     ]
   },
@@ -442,11 +442,11 @@
     "items": [
       {
         "question": "Apa itu Document Doctor?",
-        "answer": "Document Doctor adalah kumpulan alat AI sederhana untuk mengolah dokumen dan file digital. Setiap alat mengerjakan satu tugas, dan semuanya ada dalam satu aplikasi web. Penerjemah Dokumen adalah alat pertama yang tersedia."
+        "answer": "Document Doctor adalah kumpulan alat AI sederhana untuk mengolah dokumen dan file digital. Setiap alat mengerjakan satu tugas, dan semuanya ada dalam satu aplikasi web."
       },
       {
         "question": "Alat apa saja yang bisa dipakai sekarang?",
-        "answer": "Penerjemah Dokumen sudah tersedia. Peringkas, ekstraktor, konverter dokumen, alat PDF, dan alat gambar sedang direncanakan dan akan ditambahkan sebagai alat terpisah."
+        "answer": "Semuanya: Penerjemah, Peringkas, dan Ekstraktor Dokumen, Konverter Dokumen (PDF ⇄ Word), Gabung & Pisah PDF, serta Pengubah Ukuran dan Kompresor Gambar."
       },
       {
         "question": "Jenis file apa yang bisa diterjemahkan?",

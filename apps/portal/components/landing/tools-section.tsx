@@ -12,6 +12,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { TOOL_HREFS } from "@/feature/tools/constants";
 import { SectionHeading } from "./section-heading";
 import {
   DOCS_HREF,
@@ -52,16 +53,18 @@ export function ToolsSection({ t }: { t: LandingT }) {
       className="mx-auto w-full max-w-7xl mb-4  "
     >
       <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {tools.map((tool) => {
+        {tools.map((tool, index) => {
           const Icon = ICONS[tool.icon] ?? FileText;
+          // The first tool (the translator) is the featured, wide card.
+          const featured = index === 0;
           return (
             <li
               key={tool.name}
               className={cn(
                 "flex flex-col rounded-xl border bg-card p-5",
-                tool.available
-                  ? "border-brand/40 shadow-md shadow-brand/5 ring-1 ring-brand/10 sm:col-span-2 lg:col-span-2"
-                  : "bg-card/60",
+                !tool.available && "bg-card/60",
+                featured &&
+                  "border-brand/40 shadow-md shadow-brand/5 ring-1 ring-brand/10 sm:col-span-2 lg:col-span-2",
               )}
             >
               <div className="flex items-start justify-between gap-3">
@@ -114,7 +117,7 @@ export function ToolsSection({ t }: { t: LandingT }) {
               {tool.available && (
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Link
-                    href={START_HREF}
+                    href={TOOL_HREFS[tool.icon] ?? START_HREF}
                     className={cn(
                       buttonVariants(),
                       "group h-9 rounded-lg px-4",

@@ -1,0 +1,245 @@
+{
+  "common": {
+    "pick": "Pilih file",
+    "pickMany": "Pilih file",
+    "drop": "atau letakkan di sini",
+    "dropMany": "atau letakkan di sini",
+    "tooLarge": "{{name}} lebih besar dari {{size}} MB. Pilih file yang lebih kecil.",
+    "empty": "{{name}} kosong. Pilih file lain.",
+    "documentType": "Jenis file ini tidak didukung. Pilih file PDF atau DOCX.",
+    "pdfType": "Hanya file PDF yang bisa dipakai di sini.",
+    "imageType": "Jenis file ini tidak didukung. Pilih gambar JPG, PNG, atau WEBP.",
+    "documentHint": "PDF atau DOCX, maksimal {{size}} MB",
+    "pdfHint": "PDF, maksimal {{size}} MB",
+    "imageHint": "JPG, PNG, atau WEBP, maksimal {{size}} MB",
+    "changeFile": "Ganti file",
+    "errorDescription": "Terjadi kesalahan. Coba lagi, atau pilih file lain.",
+    "retry": "Coba lagi",
+    "download": "Unduh",
+    "processing": "Biasanya hanya butuh beberapa detik.",
+    "processingSlow": "AI membaca seluruh dokumen, jadi ini bisa memakan waktu beberapa menit. Biarkan halaman ini tetap terbuka.",
+    "truncated": "Dokumen ini panjang, jadi hanya bagian awalnya yang dipakai.",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "outputFormat": "Format hasil",
+    "keepFormat": "Sama dengan aslinya",
+    "previewAlt": "Pratinjau {{name}}",
+    "resultAlt": "Pratinjau hasil"
+  },
+  "categories": {
+    "documentAi": "AI Dokumen",
+    "fileTools": "Alat file",
+    "imageTools": "Alat gambar"
+  },
+  "languages": {
+    "id": "Indonesia",
+    "en": "Inggris",
+    "zh": "Mandarin",
+    "ja": "Jepang",
+    "ko": "Korea",
+    "fr": "Prancis",
+    "de": "Jerman",
+    "es": "Spanyol"
+  },
+  "summarizer": {
+    "meta": {
+      "title": "Ringkas dokumen",
+      "description": "Unggah dokumen PDF atau Word dan dapatkan gambaran singkat serta poin pentingnya, dalam bahasa pilihan Anda."
+    },
+    "title": "Ringkas dokumen",
+    "description": "Dapatkan gambaran singkat dan poin penting dari dokumen PDF atau Word.",
+    "length": "Panjang ringkasan",
+    "lengths": {
+      "short": "Singkat",
+      "medium": "Sedang",
+      "detailed": "Rinci"
+    },
+    "lengthDescriptions": {
+      "short": "3 poin penting",
+      "medium": "5 poin penting",
+      "detailed": "8 poin penting"
+    },
+    "language": "Bahasa ringkasan",
+    "sameLanguage": "Sama dengan dokumen",
+    "submit": "Ringkas dokumen",
+    "processing": "Meringkas {{fileName}}",
+    "errorTitle": "Dokumen tidak dapat diringkas",
+    "overview": "Gambaran umum",
+    "keyPoints": "Poin penting",
+    "downloadText": "Unduh sebagai teks",
+    "another": "Ringkas dokumen lain"
+  },
+  "extractor": {
+    "meta": {
+      "title": "Ekstrak informasi dari dokumen",
+      "description": "Ambil nama, organisasi, tanggal, jumlah, tempat, dan kontak dari dokumen PDF atau Word."
+    },
+    "title": "Ekstrak informasi",
+    "description": "Ambil nama, tanggal, jumlah, dan detail lain dari dokumen PDF atau Word.",
+    "looksFor": "Ekstraktor mencari:",
+    "fields": {
+      "people": "Orang",
+      "organizations": "Organisasi",
+      "dates": "Tanggal",
+      "amounts": "Jumlah",
+      "locations": "Tempat",
+      "emails": "Alamat e-mail",
+      "phone_numbers": "Nomor telepon",
+      "urls": "Tautan"
+    },
+    "submit": "Ekstrak informasi",
+    "processing": "Membaca {{fileName}}",
+    "errorTitle": "Informasi tidak dapat diekstrak",
+    "resultTitle": "Yang kami temukan",
+    "nothingFound": "Tidak ada yang ditemukan di dokumen ini",
+    "notFound": "Tidak ditemukan: {{fields}}.",
+    "reviewHint": "Ditemukan oleh AI — periksa detail penting dengan dokumennya.",
+    "csvField": "Kolom",
+    "csvValue": "Nilai",
+    "another": "Pakai dokumen lain"
+  },
+  "converter": {
+    "meta": {
+      "title": "Ubah PDF ke Word dan Word ke PDF",
+      "description": "Ubah PDF menjadi dokumen Word yang bisa diedit, atau dokumen Word menjadi PDF."
+    },
+    "title": "Konversi dokumen",
+    "description": "Ubah PDF menjadi file Word yang bisa diedit, atau file Word menjadi PDF. Arahnya ditentukan dari file yang Anda unggah.",
+    "formats": {
+      "pdf": "PDF",
+      "docx": "Word (DOCX)"
+    },
+    "notes": {
+      "pdf": "Teks, tabel, dan gambar disusun ulang menjadi konten Word yang bisa diedit. PDF hasil pindaian tanpa teks yang bisa dipilih akan menjadi gambar.",
+      "docx": "Judul, gaya teks, daftar, tabel, dan gambar ditata di halaman A4."
+    },
+    "submit": {
+      "docx": "Ubah ke Word",
+      "pdf": "Ubah ke PDF"
+    },
+    "processing": "Mengonversi {{fileName}}",
+    "errorTitle": "Dokumen tidak dapat dikonversi",
+    "doneTitle": "Dokumen Anda sudah dikonversi",
+    "doneDescription": {
+      "docx": "Buka di Word, Google Docs, atau LibreOffice untuk mengeditnya.",
+      "pdf": "PDF Anda siap dibagikan atau dicetak."
+    },
+    "another": "Konversi dokumen lain"
+  },
+  "pdf": {
+    "meta": {
+      "title": "Gabung dan pisah file PDF",
+      "description": "Gabungkan beberapa file PDF menjadi satu, atau pisahkan PDF berdasarkan rentang halaman."
+    },
+    "title": "Gabung & pisah PDF",
+    "description": "Gabungkan beberapa PDF menjadi satu, atau pisahkan satu PDF menjadi beberapa bagian.",
+    "merge": {
+      "tab": "Gabung PDF",
+      "intro": "Tambahkan PDF sesuai urutan yang diinginkan. Urutannya bisa diubah sebelum digabung.",
+      "hint": "File PDF, maksimal {{size}} MB per file, hingga {{count}} file",
+      "order": "File yang akan digabung, sesuai urutan",
+      "moveUp": "Pindahkan {{name}} ke atas",
+      "moveDown": "Pindahkan {{name}} ke bawah",
+      "remove": "Hapus {{name}}",
+      "tooMany": "Anda bisa menggabungkan hingga {{count}} file sekaligus.",
+      "needTwo": "Tambahkan minimal satu PDF lagi untuk digabung.",
+      "submit": "Gabungkan {{count}} PDF",
+      "processing": "Menggabungkan {{count}} PDF",
+      "errorTitle": "PDF tidak dapat digabung",
+      "doneTitle": "PDF Anda sudah digabung",
+      "doneDescription": "{{count}} file digabung menjadi satu PDF.",
+      "another": "Gabungkan PDF lain"
+    },
+    "split": {
+      "tab": "Pisah PDF",
+      "intro": "Pilih PDF, lalu tentukan halaman yang Anda perlukan.",
+      "pages_other": "{{count}} halaman",
+      "readError": "PDF ini tidak dapat dibaca",
+      "how": "Cara memisah",
+      "modes": {
+        "ranges": "Per rentang halaman",
+        "every": "Setiap halaman"
+      },
+      "modeDescriptions": {
+        "ranges": "Tentukan halaman untuk setiap bagian",
+        "every": "Setiap halaman menjadi PDF sendiri"
+      },
+      "ranges": "Rentang halaman",
+      "rangesPlaceholder": "mis. 1-3, 5, 8-10",
+      "rangesHint": "Pisahkan bagian dengan koma. Setiap rentang menjadi PDF sendiri.",
+      "rangesHintCount": "Halaman 1 sampai {{count}}. Pisahkan bagian dengan koma. Setiap rentang menjadi PDF sendiri.",
+      "singleFile": "Satukan halaman terpilih dalam satu PDF",
+      "singleFileDescription": "Pakai ini untuk mengambil atau membuang halaman, bukan memisah.",
+      "submit": "Pisah PDF",
+      "processing": "Memisah {{fileName}}",
+      "errorTitle": "PDF tidak dapat dipisah",
+      "doneTitle": "PDF Anda sudah dipisah",
+      "doneZip": "Bagian-bagiannya dikemas dalam satu file ZIP.",
+      "donePdf": "Halaman terpilih ada dalam satu PDF.",
+      "another": "Pisah PDF lain"
+    }
+  },
+  "resizer": {
+    "meta": {
+      "title": "Ubah ukuran gambar",
+      "description": "Ubah ukuran gambar JPG, PNG, dan WEBP ke dimensi tepat seperti 1200 × 630 px."
+    },
+    "title": "Ubah ukuran gambar",
+    "description": "Ubah ukuran gambar JPG, PNG, atau WEBP ke dimensi yang tepat, misalnya 1200 × 630 px.",
+    "presets": "Ukuran umum",
+    "presetNames": {
+      "og": "Berbagi di media sosial",
+      "square": "Postingan persegi",
+      "story": "Story",
+      "hd": "Full HD",
+      "thumbnail": "Thumbnail"
+    },
+    "width": "Lebar",
+    "height": "Tinggi",
+    "lockRatio": "Pertahankan rasio aspek",
+    "unlockRatio": "Izinkan rasio aspek berbeda",
+    "ratioLocked": "Rasio aspek dipertahankan. Isi lebar atau tinggi.",
+    "ratioUnlocked": "Isi kedua sisi untuk ukuran yang tepat.",
+    "fit": "Saat bentuknya berubah",
+    "fitModes": {
+      "cover": "Potong",
+      "contain": "Muat di dalam",
+      "stretch": "Regangkan"
+    },
+    "fitDescriptions": {
+      "cover": "Isi ukuran tepat, tepi dipotong",
+      "contain": "Semua terlihat, bisa lebih kecil",
+      "stretch": "Ukuran tepat, bisa terdistorsi"
+    },
+    "invalidSize": "Isi bilangan bulat antara 1 dan {{max}} px.",
+    "submit": "Ubah ukuran",
+    "processing": "Mengubah ukuran {{fileName}}",
+    "errorTitle": "Ukuran gambar tidak dapat diubah",
+    "doneTitle": "Ukuran gambar sudah diubah",
+    "doneDescription": "Ukuran barunya {{width}} × {{height}} px.",
+    "another": "Ubah ukuran gambar lain"
+  },
+  "compressor": {
+    "meta": {
+      "title": "Kompres gambar",
+      "description": "Perkecil gambar JPG, PNG, dan WEBP tanpa penurunan kualitas yang terlihat. Data lokasi dan kamera dihapus."
+    },
+    "title": "Kompres gambar",
+    "description": "Perkecil gambar JPG, PNG, atau WEBP tanpa penurunan kualitas yang terlihat.",
+    "quality": "Kualitas",
+    "smaller": "File lebih kecil",
+    "sharper": "Gambar lebih tajam",
+    "maxDimension": "Sisi terpanjang (opsional)",
+    "maxDimensionPlaceholder": "Pertahankan ukuran",
+    "hint": "Memperkecil foto besar (mis. ke 1920 px) paling banyak menghemat. Data kamera dan lokasi dihapus.",
+    "invalidMax": "Isi bilangan bulat antara 1 dan {{max}} px, atau kosongkan.",
+    "submit": "Kompres gambar",
+    "processing": "Mengompres {{fileName}}",
+    "errorTitle": "Gambar tidak dapat dikompres",
+    "doneTitle": "{{percent}}% lebih kecil",
+    "doneDescription": "Dari {{from}} menjadi {{to}}.",
+    "noGainTitle": "Gambar ini sudah terkompres dengan baik",
+    "noGainDescription": "Gambar tidak bisa diperkecil dengan pengaturan ini. Coba kualitas lebih rendah, WEBP, atau sisi terpanjang yang lebih kecil.",
+    "another": "Kompres gambar lain"
+  }
+}
