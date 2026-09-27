@@ -4,6 +4,17 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, Copy, Download, FileSearch, RotateCcw } from "lucide-react";
 
+import {
+  ErrorAlert,
+  FieldError,
+  FileChip,
+  FileDropzone,
+  Processing,
+  saveBlob,
+  SubmitButton,
+  ToolIntro,
+  useFileValidator,
+} from "@/components/file-tools";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -14,17 +25,7 @@ import {
 } from "../constants";
 import { useExtractDocument } from "../hooks/query";
 import type { DocumentExtraction } from "../type";
-import { fileStem, saveBlob } from "../utils";
-import {
-  ErrorAlert,
-  FieldError,
-  FileChip,
-  FileDropzone,
-  Processing,
-  SubmitButton,
-  ToolIntro,
-  useFileValidator,
-} from "./shared";
+import { fileStem } from "../utils";
 
 const MAX_SIZE_MB = DOCUMENT_AI_MAX_SIZE / 1024 / 1024;
 

@@ -2,6 +2,20 @@
 
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  ErrorAlert,
+  FieldError,
+  FileChip,
+  FileDropzone,
+  FileResult,
+  formatFileSize,
+  NumberField,
+  Processing,
+  SelectField,
+  SubmitButton,
+  ToolIntro,
+  useFileValidator,
+} from "@/components/file-tools";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon, Minimize2 } from "lucide-react";
 
@@ -15,20 +29,7 @@ import {
 } from "../constants";
 import { useFileTool } from "../hooks/query";
 import { useImagePreview } from "../hooks/use-image-preview";
-import { fileStem, formatFileSize } from "../utils";
-import {
-  ErrorAlert,
-  FieldError,
-  FileChip,
-  FileDropzone,
-  FileResult,
-  NumberField,
-  Processing,
-  SelectField,
-  SubmitButton,
-  ToolIntro,
-  useFileValidator,
-} from "./shared";
+import { fileStem } from "../utils";
 
 const MAX_SIZE_MB = IMAGE_MAX_SIZE / 1024 / 1024;
 const KEEP_FORMAT = "original";

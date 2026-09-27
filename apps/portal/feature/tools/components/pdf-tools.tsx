@@ -4,12 +4,6 @@ import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, Combine, FileText, X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { FILE_TOOL_MAX_SIZE, MAX_MERGE_FILES, PDF_ACCEPT, PDF_EXTENSIONS } from "../constants";
-import { useFileTool, usePdfInfo } from "../hooks/query";
-import { fileStem } from "../utils";
 import {
   ErrorAlert,
   FieldError,
@@ -21,7 +15,13 @@ import {
   SubmitButton,
   ToolIntro,
   useFileValidator,
-} from "./shared";
+} from "@/components/file-tools";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { FILE_TOOL_MAX_SIZE, MAX_MERGE_FILES, PDF_ACCEPT, PDF_EXTENSIONS } from "../constants";
+import { useFileTool, usePdfInfo } from "../hooks/query";
+import { fileStem } from "../utils";
 
 const MAX_SIZE_MB = FILE_TOOL_MAX_SIZE / 1024 / 1024;
 

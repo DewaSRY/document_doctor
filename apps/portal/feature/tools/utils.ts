@@ -1,4 +1,3 @@
-import { getTranslatorErrorMessage } from "@/feature/translator/utils";
 import { RESULT_HEADERS, type ProxiedTool } from "./constants";
 import type { ToolFileResult } from "./type";
 
@@ -12,8 +11,6 @@ export class ToolRequestError extends Error {
     this.response = { status, data };
   }
 }
-
-export const getToolErrorMessage = getTranslatorErrorMessage;
 
 function fileNameFromDisposition(header: string | null): string | undefined {
   if (!header) return undefined;
@@ -68,26 +65,7 @@ export async function runJsonTool<T>(tool: ProxiedTool, body: FormData): Promise
   return json.data;
 }
 
-export function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
 export function fileStem(fileName: string): string {
   const index = fileName.lastIndexOf(".");
   return index > 0 ? fileName.slice(0, index) : fileName || "document";
-}
-
-/** Saves a Blob as a file from the browser. */
-export function saveBlob(blob: Blob, fileName: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Give the browser time to start the download before releasing the URL.
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }

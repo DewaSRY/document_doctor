@@ -4,6 +4,19 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, Copy, Download, FileText, RotateCcw } from "lucide-react";
 
+import {
+  ErrorAlert,
+  FieldError,
+  FileChip,
+  FileDropzone,
+  Processing,
+  saveBlob,
+  Segmented,
+  SelectField,
+  SubmitButton,
+  ToolIntro,
+  useFileValidator,
+} from "@/components/file-tools";
 import { Button } from "@/components/ui/button";
 import { LANGUAGE_CODES, type LanguageCode } from "@/feature/translator/constants";
 
@@ -16,19 +29,7 @@ import {
 } from "../constants";
 import { useSummarizeDocument } from "../hooks/query";
 import type { DocumentSummary } from "../type";
-import { fileStem, saveBlob } from "../utils";
-import {
-  ErrorAlert,
-  FieldError,
-  FileChip,
-  FileDropzone,
-  Processing,
-  Segmented,
-  SelectField,
-  SubmitButton,
-  ToolIntro,
-  useFileValidator,
-} from "./shared";
+import { fileStem } from "../utils";
 
 const SAME_LANGUAGE = "same";
 const MAX_SIZE_MB = DOCUMENT_AI_MAX_SIZE / 1024 / 1024;

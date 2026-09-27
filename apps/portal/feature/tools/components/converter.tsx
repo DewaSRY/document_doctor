@@ -4,16 +4,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Repeat2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-
-import {
-  DOCUMENT_ACCEPT,
-  DOCUMENT_EXTENSIONS,
-  FILE_TOOL_MAX_SIZE,
-  getFileExtension,
-} from "../constants";
-import { useFileTool } from "../hooks/query";
-import { fileStem } from "../utils";
 import {
   DocumentPreview,
   ErrorAlert,
@@ -25,7 +15,17 @@ import {
   SubmitButton,
   ToolIntro,
   useFileValidator,
-} from "./shared";
+} from "@/components/file-tools";
+import { Button } from "@/components/ui/button";
+
+import {
+  DOCUMENT_ACCEPT,
+  DOCUMENT_EXTENSIONS,
+  FILE_TOOL_MAX_SIZE,
+  getFileExtension,
+} from "../constants";
+import { useFileTool } from "../hooks/query";
+import { fileStem } from "../utils";
 
 const MAX_SIZE_MB = FILE_TOOL_MAX_SIZE / 1024 / 1024;
 

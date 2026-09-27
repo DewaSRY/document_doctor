@@ -16,8 +16,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import { getFileExtension } from "../constants";
-import { formatFileSize, getToolErrorMessage, saveBlob } from "../utils";
+import { getFileExtension } from "@/feature/tools/constants";
+
+import { formatFileSize, getServiceErrorMessage, saveBlob } from "./utils";
 
 /** Checks a picked file against a tool's rules; returns an error text or null. */
 export function useFileValidator({
@@ -254,7 +255,7 @@ export function ErrorAlert({ title, error }: { title: string; error: unknown }) 
       <div>
         <p className="font-medium">{title}</p>
         <p className="mt-1 text-muted-foreground">
-          {getToolErrorMessage(error) ?? t("common.errorDescription")}
+          {getServiceErrorMessage(error) ?? t("common.errorDescription")}
         </p>
       </div>
     </div>
