@@ -26,8 +26,15 @@ from docx.text.paragraph import Paragraph
 from docx.text.run import Run
 from pdf2docx import Converter
 
+from .pdf_columns import columns_to_tables, merge_sections
 from .pdf_links import PdfLinks
 from .pdf_shapes import add_lines, page_lines
+from .pdf_text import (
+    loosen_right_indents,
+    match_char_scaling,
+    match_char_spacing,
+    restore_spaces,
+)
 from .pdf_tools import PdfToolError
 
 logger = logging.getLogger(__name__)
@@ -54,11 +61,17 @@ def pdf_to_docx(file_content: bytes) -> bytes:
         links = PdfLinks(converter.fitz_doc)
         for page in converter.pages:
             if page.finalized:
+                match_char_spacing(page)
+                restore_spaces(page)
+                loosen_right_indents(page)
                 links.apply(page)
+                # After the links, which split spans: each span needs its own.
+                match_char_scaling(page)
         links.place_bookmarks(converter.pages)
 
         doc = DocxDocument()
         page_starts: dict[int, Paragraph] = {}
+        rebuilt_pages = []
         for page in converter.pages:
             before = list(doc.element.body)
             rebuilt = page.finalized and _make_page(doc, page)
@@ -68,11 +81,18 @@ def pdf_to_docx(file_content: bytes) -> bytes:
             if (start := _first_new_paragraph(doc, before)) is None:
                 continue
             page_starts[page.id] = start
-            # pdf2docx writes no line it does not use as a border or text style.
             if rebuilt:
-                add_lines(start, page_lines(page))
+                rebuilt_pages.append(page)
+
+        # A page's last column ends only once the next page starts, so the
+        # columns are rewritten when every page is in.
+        columns_to_tables(doc.element.body)
+        for page in rebuilt_pages:
+            # pdf2docx writes no line it does not use as a border or text style.
+            add_lines(page_starts[page.id], page_lines(page))
 
         links.finish(doc, page_starts)
+        merge_sections(doc.element.body)
         _make_strictly_valid(doc)
         output = BytesIO()
         doc.save(output)
@@ -89,10 +109,17 @@ _LOGICAL_SIDES = {qn("w:start"): qn("w:left"), qn("w:end"): qn("w:right")}
 def _make_strictly_valid(doc: Document) -> None:
     """
     Fix the markup pdf2docx writes that Word accepts but stricter readers such
-    as Google Docs reject: decimals in whole-number attributes (sizes, widths)
-    and start/end cell margins, which older readers only know as left/right.
+    as Google Docs reject or lay out differently: decimals in whole-number
+    attributes (sizes, widths), run properties out of order, table grids that
+    do not match the cells, and start/end cell margins, which older readers only
+    know as left/right.
     """
     _unicode_bullets(doc)
+    for table in doc.element.body.iter(qn("w:tbl")):
+        _set_table_grid(table)
+    for properties in doc.element.body.iter(qn("w:rPr")):
+        # pdf2docx puts spacing and scaling first, where the schema has them later.
+        properties[:] = sorted(properties, key=lambda child: _RUN_PROPERTY_ORDER.get(child.tag, len(_RUN_PROPERTY_ORDER)))
     for root in (doc.element, doc.styles.element):
         for element in root.iter():
             for name, value in element.attrib.items():
@@ -101,6 +128,58 @@ def _make_strictly_valid(doc: Document) -> None:
             parent = element.getparent()
             if element.tag in _LOGICAL_SIDES and parent is not None and parent.tag in _CELL_MARGINS:
                 element.tag = _LOGICAL_SIDES[element.tag]
+
+
+# The order the schema gives the children of a run's properties.
+_RUN_PROPERTY_ORDER = {
+    qn(f"w:{name}"): index
+    for index, name in enumerate(
+        (
+            "rStyle", "rFonts", "b", "bCs", "i", "iCs", "caps", "smallCaps", "strike", "dstrike", "outline",
+            "shadow", "emboss", "imprint", "noProof", "snapToGrid", "vanish", "webHidden", "color", "spacing",
+            "w", "kern", "position", "sz", "szCs", "highlight", "u", "effect", "bdr", "shd", "fitText",
+            "vertAlign", "rtl", "cs", "em", "lang", "eastAsianLayout", "specVanish", "oMath",
+        )
+    )
+}  # fmt: skip
+
+
+def _set_table_grid(table) -> None:
+    """
+    Size the grid columns of a table after its cells. pdf2docx gives every
+    cell its width but leaves the grid evenly split; Word goes by the cells,
+    LibreOffice and Google Docs by the grid.
+    """
+    grid = table.find(qn("w:tblGrid"))
+    if grid is None:
+        return
+    columns = grid.findall(qn("w:gridCol"))
+    widths: list[float | None] = [None] * len(columns)
+    # Each cell as (first grid column, columns spanned, width).
+    cells: list[tuple[int, int, float]] = []
+    for row in table.iterchildren(qn("w:tr")):
+        start = 0
+        for cell in row.iterchildren(qn("w:tc")):
+            span = cell.find(f"{qn('w:tcPr')}/{qn('w:gridSpan')}")
+            count = int(span.get(qn("w:val"))) if span is not None else 1
+            width = cell.find(f"{qn('w:tcPr')}/{qn('w:tcW')}")
+            if width is not None and width.get(qn("w:type")) == "dxa":
+                cells.append((start, count, float(width.get(qn("w:w")))))
+            start += count
+    # Cells of one column fix it; a merged cell then fixes the column it
+    # spans whose width is still unknown.
+    found = True
+    while found:
+        found = False
+        for start, count, width in cells:
+            spanned = range(start, min(start + count, len(widths)))
+            unknown = [i for i in spanned if widths[i] is None]
+            if len(unknown) == 1:
+                widths[unknown[0]] = max(width - sum(widths[i] or 0 for i in spanned), 0)
+                found = True
+    if all(widths):
+        for column, width in zip(columns, widths):
+            column.set(qn("w:w"), str(round(width or 0)))
 
 
 # Word's bullets are private-use characters of the Symbol and Wingdings fonts,
@@ -118,14 +197,26 @@ _SYMBOL_BULLETS = str.maketrans(
 )
 
 
+# Fonts that map their own codes, not Unicode, to their glyphs.
+_SYMBOL_FONTS = {"symbol", "wingdings", "wingdings 2", "wingdings 3", "webdings", "zapfdingbats"}
+
+
 def _unicode_bullets(doc: Document) -> None:
     for text in doc.element.body.iter(qn("w:t")):
-        if text.text and (converted := text.text.translate(_SYMBOL_BULLETS)) != text.text:
-            text.text = converted
-            # Let the bullet take the document font, which has these characters.
-            fonts = text.getparent().find(f"{qn('w:rPr')}/{qn('w:rFonts')}")
-            if fonts is not None:
-                fonts.getparent().remove(fonts)
+        if not text.text:
+            continue
+        converted = text.text.translate(_SYMBOL_BULLETS)
+        fonts = text.getparent().find(f"{qn('w:rPr')}/{qn('w:rFonts')}")
+        # A symbol font shows Unicode text, such as a bullet PyMuPDF already
+        # read as "•", with the wrong glyphs.
+        symbol_font = fonts is not None and (fonts.get(qn("w:ascii")) or "").lower() in _SYMBOL_FONTS
+        unicode_in_symbol_font = symbol_font and not any("\uf000" <= c <= "\uf0ff" for c in converted)
+        if converted == text.text and not unicode_in_symbol_font:
+            continue
+        text.text = converted
+        # Let the bullet take the document font, which has these characters.
+        if fonts is not None:
+            fonts.getparent().remove(fonts)
 
 
 def _first_new_paragraph(doc: Document, before: list) -> Paragraph | None:
