@@ -64,10 +64,17 @@ IMAGE_TAG := latest
 CONTAINER_NAME := ai-translation
 PORT := 8000
 MODEL_CACHE_VOLUME := ai-translation-model-cache
+# EC2 is x86_64; an image built natively on an Apple Silicon Mac is arm64
+# and fails there with "exec format error".
+DEPLOY_PLATFORM := linux/amd64
 
 .PHONY: docker-build
 docker-build: ## Build the Docker image
 	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
+
+.PHONY: docker-push
+docker-push: ## Build the linux/amd64 image for EC2 and push it to Docker Hub
+	docker buildx build --platform $(DEPLOY_PLATFORM) -t $(IMAGE_NAME):$(IMAGE_TAG) --push .
 
 .PHONY: docker-run
 docker-run: ## Run the Docker image (model cache persisted in a named volume, see docs/MODEL_STORAGE.md)
