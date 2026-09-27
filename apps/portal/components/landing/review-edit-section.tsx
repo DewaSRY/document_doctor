@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   Bold,
   Check,
   Download,
@@ -12,11 +13,14 @@ import {
   Underline,
   Undo2,
 } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SectionHeading } from "./section-heading";
-import { tList, type LandingT } from "./types";
+import { START_HREF, tList, type LandingT } from "./types";
 
 type Step = { label: string; state: "done" | "active" | "pending" };
+type Language = { code: string; name: string; native: string };
 
 const TOOLBAR = [
   [Bold, Italic, Underline],
@@ -24,19 +28,18 @@ const TOOLBAR = [
   [Undo2, Redo2],
 ];
 
-/** Mirrors the PRD's processing screen (§10) and the Tiptap review editor
- *  (§12): the user sees progress, then gets to fix the result before download. */
+/** Spotlight on the translator, the deepest tool. Mirrors the PRD's processing
+ *  screen (§10) and the Tiptap review editor (§12): the user sees progress,
+ *  then gets to fix the result before download. */
 export function ReviewEditSection({ t }: { t: LandingT }) {
   const points = tList<{ title: string; body: string }>(t, "review.points");
   const steps = tList<Step>(t, "review.progress.steps");
   const paragraphs = tList<string>(t, "review.editor.paragraphs");
+  const languages = tList<Language>(t, "languages.items");
 
   return (
-    <section
-      aria-labelledby="review-title"
-      className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28"
-    >
-      <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.15fr]">
+    <section aria-labelledby="review-title" className="border-y bg-muted/30">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1fr_1.15fr]">
         <div>
           <SectionHeading
             id="review-title"
@@ -60,6 +63,43 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
               </li>
             ))}
           </ul>
+
+          <p id="review-languages" className="mt-8 text-sm font-semibold">
+            {t("review.languagesLabel")}
+          </p>
+          <ul
+            aria-labelledby="review-languages"
+            className="mt-3 flex flex-wrap gap-1.5"
+          >
+            {languages.map((lang) => (
+              <li
+                key={lang.code}
+                title={lang.name}
+                className="inline-flex items-center gap-1.5 rounded-full border bg-background px-2.5 py-1 text-xs"
+              >
+                <span className="font-mono font-semibold text-brand uppercase">
+                  {lang.code}
+                </span>
+                <span lang={lang.code} className="text-muted-foreground">
+                  {lang.native}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <Link
+            href={START_HREF}
+            className={cn(
+              buttonVariants({ size: "lg" }),
+              "group mt-8 h-11 rounded-lg px-6 text-base",
+            )}
+          >
+            {t("review.cta")}
+            <ArrowRight
+              className="transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
         </div>
 
         <figure

@@ -17,13 +17,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { SECTION_IDS, START_HREF } from "./types";
+import { SECTION_IDS, TOOLS_HREF } from "./types";
 
 const NAV_LINKS = [
   { id: SECTION_IDS.tools, key: "tools" },
+  { id: SECTION_IDS.useCases, key: "useCases" },
   { id: SECTION_IDS.howItWorks, key: "howItWorks" },
   { id: SECTION_IDS.features, key: "features" },
-  { id: SECTION_IDS.languages, key: "languages" },
   { id: SECTION_IDS.faq, key: "faq" },
 ] as const;
 
@@ -60,15 +60,15 @@ export function LandingNav() {
 
         <div className="flex items-center gap-1.5">
           <LocaleSwitcher />
-          <Link
-            href={START_HREF}
+          <a
+            href={TOOLS_HREF}
             className={cn(
               buttonVariants(),
               "ml-1.5 hidden h-9 rounded-lg px-4 sm:inline-flex",
             )}
           >
             {t("nav.cta")}
-          </Link>
+          </a>
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
@@ -106,13 +106,13 @@ export function LandingNav() {
                 </ul>
               </nav>
               <div className="mt-auto border-t p-4">
-                <Link
-                  href={START_HREF}
+                <a
+                  href={TOOLS_HREF}
                   onClick={() => setOpen(false)}
                   className={cn(buttonVariants(), "h-10 w-full rounded-lg")}
                 >
                   {t("nav.cta")}
-                </Link>
+                </a>
               </div>
             </SheetContent>
           </Sheet>

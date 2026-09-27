@@ -1,22 +1,22 @@
 import {
-  Activity,
-  FileCheck2,
+  Globe,
+  Languages,
+  LayoutGrid,
   LayoutTemplate,
-  ListTree,
-  PencilLine,
-  SlidersHorizontal,
+  ShieldCheck,
+  UserCheck,
   type LucideIcon,
 } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { SECTION_IDS, tList, type LandingT } from "./types";
 
 const ICONS: Record<string, LucideIcon> = {
+  allInOne: LayoutGrid,
+  noInstall: Globe,
+  control: UserCheck,
   layout: LayoutTemplate,
-  structure: ListTree,
-  tone: SlidersHorizontal,
-  format: FileCheck2,
-  progress: Activity,
-  edit: PencilLine,
+  languages: Languages,
+  privacy: ShieldCheck,
 };
 
 type Feature = { icon: string; title: string; body: string };
@@ -39,7 +39,7 @@ export function FeaturesSection({ t }: { t: LandingT }) {
 
       <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => {
-          const Icon = ICONS[item.icon] ?? FileCheck2;
+          const Icon = ICONS[item.icon] ?? LayoutGrid;
           return (
             <li
               key={item.title}

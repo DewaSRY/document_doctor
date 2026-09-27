@@ -10,13 +10,14 @@ import {
 } from "@/lib/seo/metadata";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { HeroSection } from "@/components/landing/hero-section";
-import { PrinciplesStrip } from "@/components/landing/principles-strip";
-import { ToolsSection } from "@/components/landing/tools-section";
+import {
+  ToolsSection,
+  type ToolGroup,
+} from "@/components/landing/tools-section";
+import { UseCasesSection } from "@/components/landing/use-cases-section";
 import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { ReviewEditSection } from "@/components/landing/review-edit-section";
 import { FeaturesSection } from "@/components/landing/features-section";
-import { LanguagesSection } from "@/components/landing/languages-section";
-import { AudienceSection } from "@/components/landing/audience-section";
 import { FaqSection, type FaqItem } from "@/components/landing/faq-section";
 import { FinalCtaSection } from "@/components/landing/final-cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
@@ -78,6 +79,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
   const pageUrl = canonicalFor(locale, "");
   const faqs = tList<FaqItem>(t, "faq.items");
   const languages = tList<{ name: string }>(t, "languages.items");
+  const tools = tList<ToolGroup>(t, "tools.groups").flatMap((g) => g.items);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -105,9 +107,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
         applicationCategory: "ProductivityApplication",
         operatingSystem: "Web",
         inLanguage: locale,
-        featureList: tList<{ title: string }>(t, "features.items").map(
-          (f) => f.title,
-        ),
+        featureList: tools.map((tool) => tool.name),
         availableLanguage: languages.map((l) => l.name),
         publisher: { "@id": `${SITE_URL}/#organization` },
       },
@@ -139,7 +139,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       </a>
       <LandingNav />
       <main id="main" className="flex w-full flex-1 flex-col">
-        <div>
+        <div className="relative isolate">
           {/* Faint grid + a soft red wash at the top — texture, not decoration. */}
           <div
             aria-hidden
@@ -153,12 +153,10 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
           <ToolsSection t={t} />
         </div>
 
+        <UseCasesSection t={t} />
         <HowItWorksSection t={t} />
         <ReviewEditSection t={t} />
         <FeaturesSection t={t} />
-        <PrinciplesStrip t={t} />
-        <LanguagesSection t={t} />
-        <AudienceSection t={t} />
         <FaqSection t={t} />
         <FinalCtaSection t={t} />
       </main>

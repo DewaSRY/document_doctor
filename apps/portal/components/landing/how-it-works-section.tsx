@@ -1,14 +1,8 @@
-import {
-  Download,
-  Languages,
-  PencilLine,
-  SlidersHorizontal,
-  Upload,
-} from "lucide-react";
+import { Download, LayoutGrid, Upload } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { SECTION_IDS, tList, type LandingT } from "./types";
 
-const STEP_ICONS = [Upload, SlidersHorizontal, Languages, PencilLine, Download];
+const STEP_ICONS = [LayoutGrid, Upload, Download];
 
 export function HowItWorksSection({ t }: { t: LandingT }) {
   const steps = tList<{ title: string; body: string }>(t, "howItWorks.steps");
@@ -17,7 +11,7 @@ export function HowItWorksSection({ t }: { t: LandingT }) {
     <section
       id={SECTION_IDS.howItWorks}
       aria-labelledby="how-it-works-title"
-      className="scroll-mt-20 border-y bg-muted/30"
+      className="scroll-mt-20"
     >
       <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
         <SectionHeading
@@ -27,11 +21,11 @@ export function HowItWorksSection({ t }: { t: LandingT }) {
           description={t("howItWorks.description")}
         />
 
-        <ol className="relative mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4">
+        <ol className="relative mt-14 grid gap-10 sm:grid-cols-3 sm:gap-6">
           {/* Connector line between the step markers on wide screens. */}
           <div
             aria-hidden
-            className="absolute top-6 right-[10%] left-[10%] hidden h-px bg-linear-to-r from-brand/0 via-brand/40 to-brand/0 lg:block"
+            className="absolute top-6 right-[16%] left-[16%] hidden h-px bg-linear-to-r from-brand/0 via-brand/40 to-brand/0 sm:block"
           />
           {steps.map((step, index) => {
             const Icon = STEP_ICONS[index] ?? Upload;

@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { START_HREF, type LandingT } from "./types";
+import { START_HREF, TOOLS_HREF, type LandingT } from "./types";
 
 export function FinalCtaSection({ t }: { t: LandingT }) {
   return (
@@ -24,19 +24,30 @@ export function FinalCtaSection({ t }: { t: LandingT }) {
         <p className="mx-auto mt-4 max-w-xl text-base text-pretty opacity-75 sm:text-lg">
           {t("finalCta.description")}
         </p>
-        <Link
-          href={START_HREF}
-          className={cn(
-            buttonVariants({ size: "lg" }),
-            "group mt-8 h-11 rounded-lg px-6 text-base",
-          )}
-        >
-          {t("finalCta.cta")}
-          <ArrowRight
-            className="transition-transform group-hover:translate-x-0.5"
-            aria-hidden
-          />
-        </Link>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <a
+            href={TOOLS_HREF}
+            className={cn(
+              buttonVariants({ size: "lg" }),
+              "group h-11 rounded-lg px-6 text-base",
+            )}
+          >
+            {t("finalCta.cta")}
+            <ArrowRight
+              className="transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </a>
+          <Link
+            href={START_HREF}
+            className={cn(
+              buttonVariants({ size: "lg", variant: "outline" }),
+              "h-11 rounded-lg border-background/25 bg-transparent px-6 text-base text-background hover:bg-background/10 hover:text-background",
+            )}
+          >
+            {t("finalCta.ctaSecondary")}
+          </Link>
+        </div>
       </div>
     </section>
   );

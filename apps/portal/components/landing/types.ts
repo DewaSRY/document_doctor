@@ -8,18 +8,17 @@ export function tList<T>(t: LandingT, key: string): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
 }
 
-/** Where the landing page's "Translate a document" / "Use tool" CTAs point.
+/** Where the landing page's "Translate a document" CTAs point.
  *  Locale-less: render it with the `Link` from `@/i18n/navigation`. */
 export const START_HREF = "/translate";
 
-/** Where a tool card's "Documentation" button points until per-tool docs
- *  pages exist (PRD §19). */
-export const DOCS_HREF = "#features";
-
 export const SECTION_IDS = {
   tools: "tools",
+  useCases: "use-cases",
   howItWorks: "how-it-works",
   features: "features",
-  languages: "languages",
   faq: "faq",
 } as const;
+
+/** The toolkit is the product, so the generic CTAs lead to it. */
+export const TOOLS_HREF = `#${SECTION_IDS.tools}`;
