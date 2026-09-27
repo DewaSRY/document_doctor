@@ -15,6 +15,9 @@ from ai_translation.infrastructure.rest.routes import (
     health_router,
     translation_router,
     documents_router,
+    document_ai_router,
+    file_tools_router,
+    image_tools_router,
 )
 from ai_translation.infrastructure.rest.error_handlers import register_exception_handlers
 from ai_translation.infrastructure.middleware import (
@@ -37,7 +40,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(
         title="AI Translation Service",
-        description="Translation service powered by Qwen",
+        description="Document, file and image tools; AI features powered by Qwen",
         version="0.1.0",
         lifespan=lifespan,
         debug=settings.debug,
@@ -52,6 +55,9 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(translation_router)
     app.include_router(documents_router)
+    app.include_router(document_ai_router)
+    app.include_router(file_tools_router)
+    app.include_router(image_tools_router)
 
     # Register exception handlers
     register_exception_handlers(app)

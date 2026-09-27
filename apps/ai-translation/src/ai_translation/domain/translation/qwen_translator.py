@@ -197,7 +197,36 @@ class QwenTranslatorModel:
 
         return results
 
-    @torch.inference_mode()
+    def chat_batch(
+        self,
+        conversations: list[list[dict[str, str]]],
+        *,
+        max_new_tokens: int = 512,
+    ) -> list[str]:
+        """
+        Run free-form chat completions (summaries, extraction, ...) on the
+        loaded model, in batches; results are returned in the input order.
+        """
+        prompts = [
+            self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            for messages in conversations
+        ]
+        results: list[str] = []
+        for start in range(0, len(prompts), self.batch_size):
+            results.extend(
+                self._generate_prompts(
+                    prompts[start:start + self.batch_size],
+                    max_new_tokens=max_new_tokens,
+                    temperature=0.2,
+                    do_sample=False,
+                )
+            )
+        return results
+
     def _generate(
         self,
         params_list: list[TranslationParams],
@@ -206,8 +235,22 @@ class QwenTranslatorModel:
         temperature: float,
         do_sample: bool,
     ) -> list[str]:
-        prompts = [self._build_prompt(params) for params in params_list]
+        return self._generate_prompts(
+            [self._build_prompt(params) for params in params_list],
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            do_sample=do_sample,
+        )
 
+    @torch.inference_mode()
+    def _generate_prompts(
+        self,
+        prompts: list[str],
+        *,
+        max_new_tokens: int,
+        temperature: float,
+        do_sample: bool,
+    ) -> list[str]:
         inputs = self.tokenizer(
             prompts,
             return_tensors="pt",

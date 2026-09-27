@@ -1,6 +1,5 @@
 import asyncio
 import uuid
-from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, UploadFile, File, Request, Query
 from fastapi.responses import Response
@@ -18,6 +17,7 @@ from ai_translation.domain.translation import (
 from ai_translation.domain.document import DocumentHandler, PDFHandler, DOCXHandler
 from ai_translation.infrastructure.rest.response_normalizer import normalize_success_response
 from ai_translation.infrastructure.rest.schemas import UpdateSegmentsRequest
+from ai_translation.infrastructure.rest.uploads import content_disposition
 from ai_translation.infrastructure.rest.exceptions import (
     APIException,
     ValidationError,
@@ -39,13 +39,6 @@ router = APIRouter(prefix="/v1", tags=["documents"])
 
 def _get_handler(document_type: str) -> DocumentHandler:
     return PDFHandler() if document_type == "pdf" else DOCXHandler()
-
-
-def _content_disposition(filename: str) -> str:
-    """Attachment header that survives non-ASCII file names (RFC 6266)."""
-    ascii_name = filename.encode("ascii", "ignore").decode() or "document"
-    ascii_name = ascii_name.replace('"', "")
-    return f'attachment; filename="{ascii_name}"; filename*=UTF-8\'\'{quote(filename)}'
 
 
 @router.post("/translate-document")
@@ -214,7 +207,7 @@ async def download_translated_document(
         return Response(
             content=document.translated_document,
             media_type=media_type,
-            headers={"Content-Disposition": _content_disposition(filename)},
+            headers={"Content-Disposition": content_disposition(filename)},
         )
     except APIException:
         raise
