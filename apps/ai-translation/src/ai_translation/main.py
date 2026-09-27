@@ -1,3 +1,10 @@
+"""
+Main entry point for the AI Translation Service application.
+
+- Author: Dewasurya Ariesta
+There are improvements needed for production.
+"""
+
 import asyncio
 import os
 from contextlib import asynccontextmanager
