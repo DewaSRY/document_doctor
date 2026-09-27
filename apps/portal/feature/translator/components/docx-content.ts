@@ -24,7 +24,12 @@ export type InlinePart =
       height: number;
       alt: string;
       /** Paragraph-relative placement of a floating image. */
-      float: { mode: "left" | "right" | "absolute"; x: number; y: number; behind: boolean } | null;
+      float: {
+        mode: "left" | "right" | "absolute";
+        x: number;
+        y: number;
+        behind: boolean;
+      } | null;
     };
 
 export interface DocxMarker {
@@ -43,13 +48,21 @@ export interface Inset {
 
 /** Page geometry the pagination needs, per section. */
 export interface DocxSetup {
-  sections: Pick<DocxSection, "page" | "margin" | "break" | "title_page" | "header" | "footer">[];
+  sections: Pick<
+    DocxSection,
+    "page" | "margin" | "break" | "title_page" | "header" | "footer"
+  >[];
   regions: { id: string; kind: "header" | "footer" }[];
   defaultTab: number;
 }
 
 export function baseRunOf(run: DocxRunStyle): BaseRun {
-  return { bold: run.bold, italic: run.italic, underline: run.underline, strike: run.strike };
+  return {
+    bold: run.bold,
+    italic: run.italic,
+    underline: run.underline,
+    strike: run.strike,
+  };
 }
 
 /**
@@ -67,7 +80,11 @@ export function docxToContent(
   const runs = layout.run_styles;
   const run = (index: number) => runs[index] ?? runs[0];
 
-  function segmentNode(key: string, runStyle: DocxRunStyle, prefix: InlinePart[]): JSONContent | null {
+  function segmentNode(
+    key: string,
+    runStyle: DocxRunStyle,
+    prefix: InlinePart[],
+  ): JSONContent | null {
     const segment = byKey.get(key);
     if (!segment || placed.has(key)) return null;
     placed.add(key);
@@ -87,12 +104,22 @@ export function docxToContent(
     };
   }
 
-  function anchor(position: DocxAnchor | null, margin: { left: number; top: number }) {
+  function anchor(
+    position: DocxAnchor | null,
+    margin: { left: number; top: number },
+  ) {
     if (!position || position.wrap === "topandbottom") return null;
     const { x, y } = position;
-    if ((position.wrap === "square" || position.wrap === "tight" || position.wrap === "through") && x.align) {
-      if (x.align === "right" || x.align === "outside") return { mode: "right" as const, x: 0, y: 0, behind: false };
-      if (x.align === "left" || x.align === "inside") return { mode: "left" as const, x: 0, y: 0, behind: false };
+    if (
+      (position.wrap === "square" ||
+        position.wrap === "tight" ||
+        position.wrap === "through") &&
+      x.align
+    ) {
+      if (x.align === "right" || x.align === "outside")
+        return { mode: "right" as const, x: 0, y: 0, behind: false };
+      if (x.align === "left" || x.align === "inside")
+        return { mode: "left" as const, x: 0, y: 0, behind: false };
     }
     // Positions are relative to the page, the margin or the paragraph; the
     // paragraph starts at the left margin.
@@ -103,10 +130,20 @@ export function docxToContent(
         : y.relative === "page"
           ? y.offset - margin.top
           : y.offset;
-    return { mode: "absolute" as const, x: left, y: top, behind: position.behind };
+    return {
+      mode: "absolute" as const,
+      x: left,
+      y: top,
+      behind: position.behind,
+    };
   }
 
-  function paragraph(block: DocxParagraph, inset: Inset | null, section: number, margin: { left: number; top: number }): JSONContent {
+  function paragraph(
+    block: DocxParagraph,
+    inset: Inset | null,
+    section: number,
+    margin: { left: number; top: number },
+  ): JSONContent {
     let tabs = 0;
     let prefix: InlinePart[] = [];
     const content: JSONContent[] = [];
@@ -173,7 +210,12 @@ export function docxToContent(
     };
   }
 
-  function blocks(items: DocxBlock[], inset: Inset | null, section: number, margin: { left: number; top: number }): JSONContent[] {
+  function blocks(
+    items: DocxBlock[],
+    inset: Inset | null,
+    section: number,
+    margin: { left: number; top: number },
+  ): JSONContent[] {
     const result: JSONContent[] = [];
     const paragraphs = applyContextualSpacing(items);
     for (const block of paragraphs) {
@@ -194,7 +236,11 @@ export function docxToContent(
             columns: block.columns,
             rows: block.rows.map((row) => row.height),
             section,
-            inset: { left: (inset?.left ?? 0) + Math.max(offset, inset ? -inset.left : 0), width },
+            inset: {
+              left:
+                (inset?.left ?? 0) + Math.max(offset, inset ? -inset.left : 0),
+              width,
+            },
           },
           content: block.rows.map((row, index) => ({
             type: "docxRow",
@@ -228,7 +274,20 @@ export function docxToContent(
             fill: block.fill,
             border: block.border,
             section,
-            inset: inset ? { left: inset.left + Math.max(0, Math.min(anchorLeft(block.position, margin), inset.width - block.width)), width: Math.min(block.width, inset.width) } : null,
+            inset: inset
+              ? {
+                  left:
+                    inset.left +
+                    Math.max(
+                      0,
+                      Math.min(
+                        anchorLeft(block.position, margin),
+                        inset.width - block.width,
+                      ),
+                    ),
+                  width: Math.min(block.width, inset.width),
+                }
+              : null,
           },
           content: blocks(block.blocks, null, section, margin),
         });
@@ -240,20 +299,31 @@ export function docxToContent(
   const regions: DocxSetup["regions"] = [];
   const kinds = new Map<string, "header" | "footer">();
   for (const section of layout.sections) {
-    for (const id of [section.header.default, section.header.first]) if (id) kinds.set(id, "header");
-    for (const id of [section.footer.default, section.footer.first]) if (id) kinds.set(id, "footer");
+    for (const id of [section.header.default, section.header.first])
+      if (id) kinds.set(id, "header");
+    for (const id of [section.footer.default, section.footer.first])
+      if (id) kinds.set(id, "footer");
   }
   const regionContent: JSONContent[] = [];
   for (const [id, items] of Object.entries(layout.headers)) {
     const kind = kinds.get(id) ?? (id.includes("footer") ? "footer" : "header");
-    const section = layout.sections.find(
-      (s) => [s.header.default, s.header.first, s.footer.default, s.footer.first].includes(id),
-    ) ?? layout.sections[0];
+    const section =
+      layout.sections.find((s) =>
+        [
+          s.header.default,
+          s.header.first,
+          s.footer.default,
+          s.footer.first,
+        ].includes(id),
+      ) ?? layout.sections[0];
     regions.push({ id, kind });
     regionContent.push({
       type: "docxRegion",
       attrs: { id, kind },
-      content: blocks(items, null, 0, { left: section.margin.left, top: section.margin.header }),
+      content: blocks(items, null, 0, {
+        left: section.margin.left,
+        top: section.margin.header,
+      }),
     });
   }
 
@@ -263,13 +333,21 @@ export function docxToContent(
       left: section.margin.left,
       width: section.page.width - section.margin.left - section.margin.right,
     };
-    body.push(...blocks(section.blocks, inset, index, { left: section.margin.left, top: section.margin.top }));
+    body.push(
+      ...blocks(section.blocks, inset, index, {
+        left: section.margin.left,
+        top: section.margin.top,
+      }),
+    );
   });
   if (!body.length) return null;
 
   // Text the layout does not place (it should place all of it) stays editable at the end.
   const last = layout.sections.at(-1)!;
-  const lastInset = { left: last.margin.left, width: last.page.width - last.margin.left - last.margin.right };
+  const lastInset = {
+    left: last.margin.left,
+    width: last.page.width - last.margin.left - last.margin.right,
+  };
   for (const segment of segments) {
     if (placed.has(segment.key)) continue;
     const mark = layout.run_styles[0];
@@ -296,23 +374,30 @@ export function docxToContent(
   return {
     content: { type: "doc", content: [...regionContent, ...body] },
     setup: {
-      sections: layout.sections.map(({ page, margin, break: kind, title_page, header, footer }) => ({
-        page,
-        margin,
-        break: kind,
-        title_page,
-        header,
-        footer,
-      })),
+      sections: layout.sections.map(
+        ({ page, margin, break: kind, title_page, header, footer }) => ({
+          page,
+          margin,
+          break: kind,
+          title_page,
+          header,
+          footer,
+        }),
+      ),
       regions,
       defaultTab: layout.default_tab,
     },
   };
 }
 
-function anchorLeft(position: DocxAnchor | null, margin: { left: number }): number {
+function anchorLeft(
+  position: DocxAnchor | null,
+  margin: { left: number },
+): number {
   if (!position) return 0;
-  return position.x.relative === "page" ? position.x.offset - margin.left : position.x.offset;
+  return position.x.relative === "page"
+    ? position.x.offset - margin.left
+    : position.x.offset;
 }
 
 const EMPTY_PARAGRAPH = {
@@ -332,7 +417,9 @@ const EMPTY_PARAGRAPH = {
 /** Word ignores the spacing between paragraphs of one style that ask for "contextual" spacing. */
 function applyContextualSpacing(blocks: DocxBlock[]): DocxBlock[] {
   const result = blocks.map((block) =>
-    block.type === "paragraph" ? { ...block, style: { ...block.style } } : block,
+    block.type === "paragraph"
+      ? { ...block, style: { ...block.style } }
+      : block,
   );
   for (let index = 1; index < result.length; index++) {
     const previous = result[index - 1];

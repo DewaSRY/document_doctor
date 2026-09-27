@@ -334,6 +334,9 @@ function LoadedEditor({
   const [showSource, setShowSource] = useState(false);
   const [fits] = useState(() => new FitStore());
   const [pagination] = useState(() => new PaginationStore());
+  // Keeps the page scaled to fit the viewport (no horizontal overflow) until
+  // the user picks a zoom level themselves.
+  const autoFit = useRef(paged);
   const [pixelRatio] = useState(() => window.devicePixelRatio || 1);
   const canvasRef = useRef<HTMLDivElement>(null);
   const pagedDocx = useSyncExternalStore(
@@ -512,6 +515,7 @@ function LoadedEditor({
   }, [paged]);
 
   function setZoomPercent(percent: number) {
+    autoFit.current = false;
     setZoomPercentState(
       Math.round(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, percent))),
     );
@@ -522,6 +526,26 @@ function LoadedEditor({
       canvasRef.current?.parentElement?.clientWidth ?? window.innerWidth;
     return fitPercent(prepared.pageWidths, width, sideBySide);
   }
+
+  // Rescale on viewport changes (rotating a device, resizing the window) so
+  // the page keeps its A4 proportions without overflowing the screen.
+  useEffect(() => {
+    if (!paged) return;
+    let frame = 0;
+    const onResize = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (!autoFit.current) return;
+        const fit = fitWidthPercent(mode === "pdf" && compare);
+        setZoomPercentState(Math.max(MIN_ZOOM, Math.min(100, fit)));
+      });
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [paged, mode, compare]);
 
   function fitWidth() {
     setZoomPercent(fitWidthPercent(mode === "pdf" && compare));

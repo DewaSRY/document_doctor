@@ -63,7 +63,9 @@ export const DocxParagraph = Node.create<{ docx: DocxStyles }>({
       },
       ...(marker ? markerSpec(marker) : []),
       ["span", { class: "docx-p-content" }, 0],
-      ...(node.attrs.suffix as InlinePart[]).map((part) => partSpec(part, docx)),
+      ...(node.attrs.suffix as InlinePart[]).map((part) =>
+        partSpec(part, docx),
+      ),
     ];
   },
 });
@@ -138,7 +140,10 @@ export const DocxCell = Node.create({
       rowSpan: { default: 1, rendered: false },
       shading: { default: null, rendered: false },
       valign: { default: "top", rendered: false },
-      margin: { default: { top: 0, right: 5.4, bottom: 0, left: 5.4 }, rendered: false },
+      margin: {
+        default: { top: 0, right: 5.4, bottom: 0, left: 5.4 },
+        rendered: false,
+      },
       borders: { default: {}, rendered: false },
       last: { default: { right: false, bottom: false }, rendered: false },
     };
@@ -149,7 +154,8 @@ export const DocxCell = Node.create({
   },
 
   renderHTML({ node }) {
-    const { row, col, span, rowSpan, shading, valign, margin, last } = node.attrs;
+    const { row, col, span, rowSpan, shading, valign, margin, last } =
+      node.attrs;
     const borders = node.attrs.borders as Record<string, DocxBorder | null>;
     // Neighbouring cells share an edge; each cell draws its top and left one.
     const edges =
@@ -208,7 +214,9 @@ export const DocxFrame = Node.create({
           (inset ? insetCss(inset) : `width: ${pt(width)};`) +
           ` min-height: ${pt(height)}; padding: ${pt(3.6)} ${pt(7.2)};` +
           (fill ? ` background-color: ${fill};` : "") +
-          (border ? ` ${borderCss("top", border)}${borderCss("right", border)}${borderCss("bottom", border)}${borderCss("left", border)}` : ""),
+          (border
+            ? ` ${borderCss("top", border)}${borderCss("right", border)}${borderCss("bottom", border)}${borderCss("left", border)}`
+            : ""),
       },
       0,
     ];
@@ -236,7 +244,11 @@ export const DocxRegion = Node.create({
   renderHTML({ node }) {
     return [
       "div",
-      { "data-docx-region": node.attrs.id, "data-kind": node.attrs.kind, class: "docx-region" },
+      {
+        "data-docx-region": node.attrs.id,
+        "data-kind": node.attrs.kind,
+        class: "docx-region",
+      },
       0,
     ];
   },

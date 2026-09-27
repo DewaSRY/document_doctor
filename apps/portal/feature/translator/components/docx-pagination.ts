@@ -46,7 +46,12 @@ export interface PaginationSnapshot {
   width: number;
 }
 
-const EMPTY: PaginationSnapshot = { pages: [], copies: [], height: 0, width: 0 };
+const EMPTY: PaginationSnapshot = {
+  pages: [],
+  copies: [],
+  height: 0,
+  width: 0,
+};
 
 /** Shares the pages with React and lets it ask for a new layout (zoom, print). */
 export class PaginationStore {
@@ -133,7 +138,10 @@ class PaginationView {
   private signature = "";
   private tabSignature = "";
   private snapshotKey = "";
-  private heights = new WeakMap<ProseMirrorNode, { zoom: number; height: number }>();
+  private heights = new WeakMap<
+    ProseMirrorNode,
+    { zoom: number; height: number }
+  >();
 
   constructor(
     private view: EditorView,
@@ -183,7 +191,9 @@ class PaginationView {
     // Tab widths first: they change where text wraps, and so the heights.
     const tabs = this.measureTabs(zoom);
     // By order, not position: typing moves paragraphs without changing their tabs.
-    const tabSignature = tabs.map(([, style], index) => `${index}:${style}`).join("|");
+    const tabSignature = tabs
+      .map(([, style], index) => `${index}:${style}`)
+      .join("|");
     const tabDecorations = tabs.map(([pos, style, size]) =>
       Decoration.node(pos, pos + size, { style }, { kind: "tabs" }),
     );
@@ -192,7 +202,11 @@ class PaginationView {
       // Apply the tabs (keeping the pages as they are), then measure the pages
       // once the text has reflowed.
       const current = paginationKey.getState(view.state) ?? DecorationSet.empty;
-      const pageDecorations = current.find(undefined, undefined, (spec) => spec.kind === "page");
+      const pageDecorations = current.find(
+        undefined,
+        undefined,
+        (spec) => spec.kind === "page",
+      );
       this.apply([...tabDecorations, ...pageDecorations]);
       this.heights = new WeakMap();
       this.schedule();
@@ -214,7 +228,9 @@ class PaginationView {
   private apply(decorations: Decoration[]) {
     const { state } = this.view;
     const set = DecorationSet.create(state.doc, decorations);
-    this.view.dispatch(state.tr.setMeta(paginationKey, set).setMeta("addToHistory", false));
+    this.view.dispatch(
+      state.tr.setMeta(paginationKey, set).setMeta("addToHistory", false),
+    );
   }
 
   // ---------------------------------------------------------------- tabs
@@ -231,11 +247,18 @@ class PaginationView {
       const element = view.nodeDOM(pos) as HTMLElement | null;
       if (!element) return false;
       const { paragraph } = paragraphStyleOf(node, docx);
-      const widths = measureParagraphTabs(element, paragraph, this.options.setup.defaultTab, zoom);
+      const widths = measureParagraphTabs(
+        element,
+        paragraph,
+        this.options.setup.defaultTab,
+        zoom,
+      );
       if (widths.length) {
         const style = widths
-          .map(({ width, leader }, index) =>
-            `--t${index}: ${width}px;` + (leader ? ` --l${index}: var(--leader-${leader});` : ""),
+          .map(
+            ({ width, leader }, index) =>
+              `--t${index}: ${width}px;` +
+              (leader ? ` --l${index}: var(--leader-${leader});` : ""),
           )
           .join(" ");
         result.push([pos, style, node.nodeSize]);
@@ -272,7 +295,8 @@ class PaginationView {
     const addPage = (section: number) => {
       const previous = pages.at(-1);
       const sectionOf = setup.sections[section] ?? setup.sections[0];
-      pageInSection = previous && previous.section === section ? pageInSection + 1 : 0;
+      pageInSection =
+        previous && previous.section === section ? pageInSection + 1 : 0;
       const first = sectionOf.title_page && pageInSection === 0;
       const { width, height } = geometry(section);
       pages.push({
@@ -305,13 +329,16 @@ class PaginationView {
       const area = geometry(current.section);
 
       const newSection =
-        section !== previousSection && setup.sections[section]?.break !== "continuous";
-      const forced = breakAfter || newSection || (node.attrs.breakBefore && used > 0);
+        section !== previousSection &&
+        setup.sections[section]?.break !== "continuous";
+      const forced =
+        breakAfter || newSection || (node.attrs.breakBefore && used > 0);
       const overflows = used > 0 && used + height > area.content + 0.5;
 
       if (forced || overflows) {
         const next = geometry(section);
-        const spacer = Math.max(0, area.content - used) + area.bottom + gap + next.top;
+        const spacer =
+          Math.max(0, area.content - used) + area.bottom + gap + next.top;
         decorations.push(
           Decoration.widget(pos, () => gapElement(spacer), {
             side: -1,
@@ -348,10 +375,17 @@ class PaginationView {
       const element = view.nodeDOM(pos) as HTMLElement | null;
       const shownOn = pages
         .map((page, index) => ({ page, index }))
-        .filter(({ page }) => (kind === "header" ? page.header : page.footer) === id);
+        .filter(
+          ({ page }) => (kind === "header" ? page.header : page.footer) === id,
+        );
       if (!element || !shownOn.length) {
         decorations.push(
-          Decoration.node(pos, pos + node.nodeSize, { style: "display: none;" }, { kind: "page" }),
+          Decoration.node(
+            pos,
+            pos + node.nodeSize,
+            { style: "display: none;" },
+            { kind: "page" },
+          ),
         );
         regionSignature.push(`${id}:hidden`);
         continue;
@@ -359,7 +393,8 @@ class PaginationView {
       const height = element.offsetHeight;
       const html = element.innerHTML;
       const place = (page: PageBox) => {
-        const { margin, page: size } = setup.sections[page.section] ?? setup.sections[0];
+        const { margin, page: size } =
+          setup.sections[page.section] ?? setup.sections[0];
         const top =
           kind === "header"
             ? page.top + margin.header * zoom
@@ -382,7 +417,9 @@ class PaginationView {
           { kind: "page" },
         ),
       );
-      regionSignature.push(`${id}:${Math.round(at.top)}:${Math.round(at.width)}`);
+      regionSignature.push(
+        `${id}:${Math.round(at.top)}:${Math.round(at.width)}`,
+      );
       for (const { page, index } of shownOn.slice(1)) {
         copies.push({ id, page: index, html, ...place(page) });
       }
@@ -444,7 +481,9 @@ function measureParagraphTabs(
     const current = rect.width;
     // Earlier tabs on this line that grow or shrink move this one along.
     const shift = shifts
-      .filter((item) => item.top < rect.bottom + 1 && item.bottom > rect.top - 1)
+      .filter(
+        (item) => item.top < rect.bottom + 1 && item.bottom > rect.top - 1,
+      )
       .reduce((sum, item) => sum + item.shift, 0);
     const x = (rect.left - origin + shift) / zoom;
 
@@ -455,7 +494,8 @@ function measureParagraphTabs(
     let left = Infinity;
     let right = -Infinity;
     for (const box of range.getClientRects()) {
-      if (!box.width || box.top > rect.bottom + 1 || box.bottom < rect.top - 1) continue;
+      if (!box.width || box.top > rect.bottom + 1 || box.bottom < rect.top - 1)
+        continue;
       left = Math.min(left, box.left);
       right = Math.max(right, box.right);
     }
@@ -474,7 +514,10 @@ function measureParagraphTabs(
       width = (Math.floor(x / defaultTab + 1e-6) + 1) * defaultTab - x;
     }
     const px = Math.max(0, Math.round(width * zoom * 10) / 10);
-    widths.push({ width: px, leader: stop && stop.leader !== "none" ? stop.leader : null });
+    widths.push({
+      width: px,
+      leader: stop && stop.leader !== "none" ? stop.leader : null,
+    });
     shifts.push({ top: rect.top, bottom: rect.bottom, shift: px - current });
   });
   return widths;
