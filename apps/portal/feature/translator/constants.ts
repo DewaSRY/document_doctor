@@ -29,6 +29,18 @@ export function getFileExtension(fileName: string): string {
   return fileName.split(".").pop()?.toLowerCase() ?? "";
 }
 
+/** Route handler that renders one page of the original PDF. By default the
+ *  translatable text is removed, so the editor can draw it on top. */
+export function getPageImageHref(
+  documentId: string,
+  page: number,
+  { scale, original = false }: { scale: number; original?: boolean },
+): string {
+  const params = new URLSearchParams({ scale: String(scale) });
+  if (original) params.set("original", "true");
+  return `/api/documents/${encodeURIComponent(documentId)}/pages/${page}?${params}`;
+}
+
 /** Route handler that streams the translated file from the service. */
 export function getDownloadHref(documentId: string): string {
   return `/api/documents/${encodeURIComponent(documentId)}/download`;

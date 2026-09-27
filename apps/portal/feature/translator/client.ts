@@ -2,6 +2,7 @@ import axios from "axios";
 import { BaseClient } from "@/lib/api/base-client";
 import { AI_TRANSLATION_API_URL } from "./config";
 import type {
+  DocumentLayout,
   DocumentSegments,
   TranslatedDocument,
   TranslatorResponse,
@@ -41,6 +42,13 @@ export class TranslatorClient extends BaseClient {
   getDocumentSegments(documentId: string) {
     return this.get<TranslatorResponse<DocumentSegments>>({
       endpoint: `/translated-document/${encodeURIComponent(documentId)}/segments`,
+    });
+  }
+
+  getDocumentLayout(documentId: string) {
+    return this.get<TranslatorResponse<DocumentLayout>>({
+      endpoint: `/translated-document/${encodeURIComponent(documentId)}/layout`,
+      config: { timeout: 60_000 },
     });
   }
 

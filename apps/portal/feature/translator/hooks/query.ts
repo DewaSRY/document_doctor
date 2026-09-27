@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  getDocumentLayoutAction,
   getDocumentSegmentsAction,
   translateDocumentAction,
   updateDocumentSegmentsAction,
@@ -15,6 +16,8 @@ export const queryKeys = {
   all: ["translator"] as const,
   segments: (documentId: string) =>
     [...queryKeys.all, "segments", documentId] as const,
+  layout: (documentId: string) =>
+    [...queryKeys.all, "layout", documentId] as const,
 };
 
 export interface TranslateDocumentVariables {
@@ -45,6 +48,18 @@ export function useDocumentSegments(documentId: string) {
     queryFn: () =>
       getDocumentSegmentsAction(documentId).then(unpackActionResult),
     // The editor owns the text once loaded; refetching would not update it.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+}
+
+/** Page geometry of a PDF; it comes from the original upload, so it never changes. */
+export function useDocumentLayout(documentId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.layout(documentId),
+    queryFn: () =>
+      getDocumentLayoutAction(documentId).then(unpackActionResult),
+    enabled,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
   });

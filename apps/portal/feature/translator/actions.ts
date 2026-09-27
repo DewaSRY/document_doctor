@@ -49,6 +49,13 @@ export async function getDocumentSegmentsAction(documentId: string) {
   });
 }
 
+export async function getDocumentLayoutAction(documentId: string) {
+  return runMaskingServerAction(async () => {
+    const response = await translatorClient.getDocumentLayout(documentId);
+    return response.data.data;
+  });
+}
+
 export async function updateDocumentSegmentsAction(
   documentId: string,
   body: UpdateSegmentsBody,
