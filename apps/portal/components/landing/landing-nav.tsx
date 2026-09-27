@@ -60,7 +60,7 @@ export function LandingNav() {
 
         <div className="flex items-center gap-1.5">
           <LocaleSwitcher />
-          <a
+          <Link
             href={START_HREF}
             className={cn(
               buttonVariants(),
@@ -68,7 +68,7 @@ export function LandingNav() {
             )}
           >
             {t("nav.cta")}
-          </a>
+          </Link>
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
@@ -106,13 +106,13 @@ export function LandingNav() {
                 </ul>
               </nav>
               <div className="mt-auto border-t p-4">
-                <a
+                <Link
                   href={START_HREF}
                   onClick={() => setOpen(false)}
                   className={cn(buttonVariants(), "h-10 w-full rounded-lg")}
                 >
                   {t("nav.cta")}
-                </a>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

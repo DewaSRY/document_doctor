@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
                 "@/feature/*/*",
                 "!@/feature/auth/constants",
                 "!@/feature/auth/dal",
+                "!@/feature/translator/config",
               ],
               message:
                 "Import from the feature's barrel (@/feature/<name>) instead of its internals.",

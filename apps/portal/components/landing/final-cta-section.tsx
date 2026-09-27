@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { START_HREF, type LandingT } from "./types";
@@ -23,7 +24,7 @@ export function FinalCtaSection({ t }: { t: LandingT }) {
         <p className="mx-auto mt-4 max-w-xl text-base text-pretty opacity-75 sm:text-lg">
           {t("finalCta.description")}
         </p>
-        <a
+        <Link
           href={START_HREF}
           className={cn(
             buttonVariants({ size: "lg" }),
@@ -35,7 +36,7 @@ export function FinalCtaSection({ t }: { t: LandingT }) {
             className="transition-transform group-hover:translate-x-0.5"
             aria-hidden
           />
-        </a>
+        </Link>
       </div>
     </section>
   );

@@ -1,0 +1,63 @@
+"use server";
+
+import { translatorClient } from "./client";
+import {
+  ACCEPTED_EXTENSIONS,
+  MAX_FILE_SIZE,
+  getFileExtension,
+  isLanguageCode,
+} from "./constants";
+import type { UpdateSegmentsBody } from "./type";
+
+// Masking server action for handling API requests with packed results
+import { runMaskingServerAction } from "@/lib/api/pack-server-action";
+
+export async function translateDocumentAction(formData: FormData) {
+  const file = formData.get("file");
+  const sourceLanguage = formData.get("source_language");
+  const targetLanguage = formData.get("target_language");
+
+  // The browser checks these too, but a Server Action is a public endpoint.
+  if (
+    !(file instanceof File) ||
+    file.size === 0 ||
+    file.size > MAX_FILE_SIZE ||
+    !(ACCEPTED_EXTENSIONS as readonly string[]).includes(
+      getFileExtension(file.name),
+    ) ||
+    !isLanguageCode(sourceLanguage) ||
+    !isLanguageCode(targetLanguage) ||
+    sourceLanguage === targetLanguage
+  ) {
+    throw new Error("Invalid translation request");
+  }
+
+  return runMaskingServerAction(async () => {
+    const response = await translatorClient.translateDocument(
+      file,
+      sourceLanguage,
+      targetLanguage,
+    );
+    return response.data.data;
+  });
+}
+
+export async function getDocumentSegmentsAction(documentId: string) {
+  return runMaskingServerAction(async () => {
+    const response = await translatorClient.getDocumentSegments(documentId);
+    return response.data.data;
+  });
+}
+
+export async function updateDocumentSegmentsAction(
+  documentId: string,
+  body: UpdateSegmentsBody,
+) {
+  return runMaskingServerAction(async () => {
+    const response = await translatorClient.updateDocumentSegments(
+      documentId,
+      body,
+    );
+    return response.data.data;
+  });
+}

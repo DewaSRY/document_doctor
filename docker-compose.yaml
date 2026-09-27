@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "8000:8000"
+      - "8081:8000"
 
     volumes:
       - ai-translation-model-cache:/models/huggingface

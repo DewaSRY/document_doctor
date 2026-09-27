@@ -9,9 +9,8 @@ export function tList<T>(t: LandingT, key: string): T[] {
 }
 
 /** Where the landing page's "Translate a document" / "Use tool" CTAs point.
- *  The translator workspace doesn't exist yet, so this scrolls to "How it
- *  works" — swap it for the workspace route once that page lands. */
-export const START_HREF = "#how-it-works";
+ *  Locale-less: render it with the `Link` from `@/i18n/navigation`. */
+export const START_HREF = "/translate";
 
 /** Where a tool card's "Documentation" button points until per-tool docs
  *  pages exist (PRD §19). */

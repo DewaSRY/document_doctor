@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "title": "Translate a document",
+    "description": "Upload a PDF or Word document, choose the languages, and download the translation — or edit it in the browser first.",
+    "editTitle": "Edit translation"
+  },
+  "header": {
+    "home": "Document Doctor home"
+  },
+  "languages": {
+    "id": "Indonesian",
+    "en": "English",
+    "zh": "Chinese",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "fr": "French",
+    "de": "German",
+    "es": "Spanish"
+  },
+  "steps": {
+    "label": "Translation progress",
+    "upload": "Upload",
+    "languages": "Languages",
+    "translate": "Translate",
+    "done": "Download or edit"
+  },
+  "upload": {
+    "title": "Translate a document",
+    "description": "Upload a PDF or Word document. Its layout is kept in the translation.",
+    "pick": "Choose document",
+    "drop": "or drop it here",
+    "hint": "PDF or DOCX, up to {{size}} MB",
+    "invalidType": "This file type isn't supported. Choose a PDF or DOCX file.",
+    "tooLarge": "This file is larger than {{size}} MB. Choose a smaller file.",
+    "empty": "This file is empty. Choose another file."
+  },
+  "languageStep": {
+    "title": "Choose the languages",
+    "description": "Which language is the document in, and which language do you need?",
+    "source": "Document language",
+    "target": "Translate to",
+    "swap": "Swap languages",
+    "sameLanguage": "Choose two different languages.",
+    "changeFile": "Change file",
+    "submit": "Translate document"
+  },
+  "translating": {
+    "title": "Translating {{fileName}}",
+    "description": "From {{source}} to {{target}}. Longer documents can take a few minutes — keep this page open."
+  },
+  "done": {
+    "title": "Your translation is ready",
+    "description": "{{fileName}} was translated from {{source}} to {{target}}.",
+    "download": "Download translation",
+    "downloadDescription": "Get the translated {{type}} as it is.",
+    "edit": "Edit before downloading",
+    "editDescription": "Review the translation next to the original and correct any sentence.",
+    "another": "Translate another document"
+  },
+  "error": {
+    "title": "The document couldn't be translated",
+    "description": "Something went wrong while translating. Try again, or choose another file.",
+    "retry": "Try again"
+  },
+  "editor": {
+    "back": "Back",
+    "loading": "Loading the translation…",
+    "notFoundTitle": "This translation can't be edited",
+    "notFoundDescription": "It doesn't exist, or it was translated before editing was available. Translate the document again to edit it.",
+    "loadErrorTitle": "The translation couldn't be loaded",
+    "loadErrorDescription": "Check your connection and try again.",
+    "translateAgain": "Translate a document",
+    "languagePair": "{{source}} → {{target}}",
+    "original": "Original",
+    "translation": "Translation",
+    "showOriginal": "Show original",
+    "hideOriginal": "Hide original",
+    "undo": "Undo",
+    "redo": "Redo",
+    "unsaved_one": "{{count}} unsaved change",
+    "unsaved_other": "{{count}} unsaved changes",
+    "saved": "All changes saved",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "download": "Download",
+    "saveAndDownload": "Save and download",
+    "saveError": "Your changes couldn't be saved. Try again.",
+    "emptySegment": "Empty — the original text will be kept in the document.",
+    "help": "Edit the translated text. Each box is one paragraph or line of the document, so it keeps its place and formatting when the file is rebuilt."
+  }
+}

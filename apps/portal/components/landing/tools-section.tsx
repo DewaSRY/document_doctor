@@ -9,6 +9,7 @@ import {
   Repeat2,
   type LucideIcon,
 } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SectionHeading } from "./section-heading";
@@ -112,7 +113,7 @@ export function ToolsSection({ t }: { t: LandingT }) {
 
               {tool.available && (
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <a
+                  <Link
                     href={START_HREF}
                     className={cn(
                       buttonVariants(),
@@ -124,7 +125,7 @@ export function ToolsSection({ t }: { t: LandingT }) {
                       className="transition-transform group-hover:translate-x-0.5"
                       aria-hidden
                     />
-                  </a>
+                  </Link>
                   <a
                     href={DOCS_HREF}
                     className={cn(
