@@ -1,7 +1,7 @@
 import type {
   DocumentSegment,
   SegmentEdit,
-} from "@/feature/document-editor/type";
+} from "@/components/document-editor/type";
 
 import type { LanguageCode } from "./constants";
 
@@ -32,7 +32,7 @@ export type {
   DocxLayout,
   DocumentLayout,
   SegmentEdit,
-} from "@/feature/document-editor/type";
+} from "@/components/document-editor/type";
 
 /** The AI service wraps every response as { data, code, message }. */
 export interface TranslatorResponse<T> {

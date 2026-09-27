@@ -15,6 +15,7 @@ import {
 import { useFileTool } from "../hooks/query";
 import { fileStem } from "../utils";
 import {
+  DocumentPreview,
   ErrorAlert,
   FieldError,
   FileChip,
@@ -90,6 +91,8 @@ export function Converter() {
               {t("common.changeFile")}
             </Button>
           </FileChip>
+
+          <DocumentPreview file={file} />
 
           <div className="flex items-center justify-center gap-4 rounded-xl border bg-card p-6">
             <FormatBadge label={t(`converter.formats.${source}`)} />

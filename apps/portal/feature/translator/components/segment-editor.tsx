@@ -7,7 +7,10 @@ import { AlertCircle, Languages, Loader2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import ErrorState from "@/components/ui/error-state";
-import { DocumentEditor, type PageImageHref } from "@/feature/document-editor";
+import {
+  DocumentEditor,
+  type PageImageHref,
+} from "@/components/document-editor";
 import { cn } from "@/lib/utils";
 
 import { getDownloadHref, getMediaHref, getPageImageHref } from "../constants";
