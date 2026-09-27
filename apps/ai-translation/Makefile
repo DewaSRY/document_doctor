@@ -62,7 +62,7 @@ clean-venv: ## Remove the virtual environment entirely
 IMAGE_NAME := sdewa/ai-translation
 IMAGE_TAG := latest
 CONTAINER_NAME := ai-translation
-GRPC_PORT := 50051
+PORT := 8000
 MODEL_CACHE_VOLUME := ai-translation-model-cache
 
 .PHONY: docker-build
@@ -71,8 +71,8 @@ docker-build: ## Build the Docker image
 
 .PHONY: docker-run
 docker-run: ## Run the Docker image (model cache persisted in a named volume, see docs/MODEL_STORAGE.md)
-	docker run --rm --name $(CONTAINER_NAME) -p $(GRPC_PORT):$(GRPC_PORT) \
-		-v $(MODEL_CACHE_VOLUME):/app/.cache/huggingface \
+	docker run --rm --name $(CONTAINER_NAME) -p $(PORT):8000 \
+		-v $(MODEL_CACHE_VOLUME):/models/huggingface \
 		--env-file .env \
 		$(IMAGE_NAME):$(IMAGE_TAG)
 

@@ -48,10 +48,9 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:${PATH}" \
     HF_HOME="/models/huggingface" \
-    TRANSFORMERS_CACHE="/models/huggingface" \
     HF_HUB_DISABLE_TELEMETRY=1 \
-    GRPC_PORT=50051 \
-    MODEL_PATH="" \
+    REST_HOST=0.0.0.0 \
+    REST_PORT=8000 \
     QWEN_MODEL_NAME="Qwen/Qwen2.5-1.5B-Instruct"
 
 # ------------------------------------------------------------
@@ -90,11 +89,11 @@ RUN mkdir -p /models/huggingface \
 USER app
 
 # ------------------------------------------------------------
-# gRPC
+# REST API
 # ------------------------------------------------------------
-EXPOSE 50051
+EXPOSE 8000
 
 # ------------------------------------------------------------
 # Start server
 # ------------------------------------------------------------
-CMD ["ai-translation-serve"]
+CMD ["ai-translation"]
