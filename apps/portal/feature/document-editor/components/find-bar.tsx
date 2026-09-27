@@ -14,7 +14,7 @@ const inputClass =
 
 /** Find and replace across every segment, like Google Docs' (⌘F / ⌘⇧H). */
 export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => void }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   const [query, setQuery] = useState("");
   const [replacement, setReplacement] = useState("");
   const [matchCase, setMatchCase] = useState(false);
@@ -58,8 +58,8 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
         <input
           ref={inputRef}
           value={query}
-          placeholder={t("editor.findPlaceholder")}
-          aria-label={t("editor.findPlaceholder")}
+          placeholder={t("findPlaceholder")}
+          aria-label={t("findPlaceholder")}
           className={inputClass}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -75,15 +75,15 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
         <span aria-live="polite" className="w-16 shrink-0 text-center text-xs text-muted-foreground tabular-nums">
           {query
             ? hasMatches
-              ? t("editor.matchCount", { current: search.index + 1, count: search.count })
-              : t("editor.noMatches")
+              ? t("matchCount", { current: search.index + 1, count: search.count })
+              : t("noMatches")
             : ""}
         </span>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("editor.matchCase")}
-          title={t("editor.matchCase")}
+          aria-label={t("matchCase")}
+          title={t("matchCase")}
           aria-pressed={matchCase}
           className={matchCase ? "bg-muted text-foreground" : undefined}
           onClick={() => {
@@ -97,8 +97,8 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("editor.previousMatch")}
-          title={t("editor.previousMatch")}
+          aria-label={t("previousMatch")}
+          title={t("previousMatch")}
           disabled={!hasMatches}
           onClick={() => editor.commands.findPrevious()}
         >
@@ -107,8 +107,8 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("editor.nextMatch")}
-          title={t("editor.nextMatch")}
+          aria-label={t("nextMatch")}
+          title={t("nextMatch")}
           disabled={!hasMatches}
           onClick={() => editor.commands.findNext()}
         >
@@ -117,8 +117,8 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("editor.closeFind")}
-          title={t("editor.closeFind")}
+          aria-label={t("closeFind")}
+          title={t("closeFind")}
           onClick={close}
         >
           <X aria-hidden />
@@ -127,8 +127,8 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
       <div className="flex items-center gap-1">
         <input
           value={replacement}
-          placeholder={t("editor.replacePlaceholder")}
-          aria-label={t("editor.replacePlaceholder")}
+          placeholder={t("replacePlaceholder")}
+          aria-label={t("replacePlaceholder")}
           className={inputClass}
           onChange={(event) => setReplacement(event.target.value)}
           onKeyDown={(event) => {
@@ -144,7 +144,7 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
           disabled={!hasMatches}
           onClick={() => editor.commands.replaceMatch(replacement)}
         >
-          {t("editor.replace")}
+          {t("replace")}
         </Button>
         <Button
           variant="outline"
@@ -157,7 +157,7 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
             inputRef.current?.focus();
           }}
         >
-          {t("editor.replaceAll")}
+          {t("replaceAll")}
         </Button>
       </div>
     </div>

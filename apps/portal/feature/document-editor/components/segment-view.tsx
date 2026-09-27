@@ -35,7 +35,7 @@ const MIN_FIT = 0.3;
  * that is too long for its box is shrunk to fit.
  */
 function PdfSegmentView({ node, decorations }: NodeViewProps) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   const { zoom, showBoxes, showSource, fits } = usePdfView();
   const layout = node.attrs.layout as SegmentLayout;
   const style = resolveStyle(layout, node.attrs.style);
@@ -118,7 +118,7 @@ function PdfSegmentView({ node, decorations }: NodeViewProps) {
         {isEmpty && (
           <p
             contentEditable={false}
-            title={t("editor.emptySegment")}
+            title={t("emptySegment")}
             className="pointer-events-none absolute inset-0 opacity-40 select-none"
           >
             {node.attrs.source}
@@ -131,7 +131,7 @@ function PdfSegmentView({ node, decorations }: NodeViewProps) {
             className="absolute top-full left-0 z-20 mt-1.5 w-max max-w-[min(28rem,80vw)] rounded-md border bg-popover px-3 py-2 text-left font-sans text-xs leading-5 font-normal text-popover-foreground not-italic shadow-lg select-text"
           >
             <span className="mb-0.5 block text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase">
-              {t("editor.original")}
+              {t("original")}
             </span>
             {node.attrs.source}
           </div>
@@ -144,7 +144,7 @@ function PdfSegmentView({ node, decorations }: NodeViewProps) {
 /** A segment as a Notion-style block: only the translation is shown, with a
  *  hover handle whose menu can reveal the original or reset the text. */
 function BlockSegmentView({ node, editor, getPos, decorations }: NodeViewProps) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   const [showSource, setShowSource] = useState(false);
   const text = node.textContent;
   const isEmpty = node.content.size === 0;
@@ -177,8 +177,8 @@ function BlockSegmentView({ node, editor, getPos, decorations }: NodeViewProps) 
       >
         <DropdownMenu>
           <DropdownMenuTrigger
-            aria-label={t("editor.blockMenu")}
-            title={t("editor.blockMenu")}
+            aria-label={t("blockMenu")}
+            title={t("blockMenu")}
             className="flex size-6 cursor-pointer items-center justify-center rounded-xs text-muted-foreground/70 outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 data-popup-open:bg-muted"
           >
             <GripVertical className="size-4" aria-hidden />
@@ -186,21 +186,21 @@ function BlockSegmentView({ node, editor, getPos, decorations }: NodeViewProps) 
           <DropdownMenuContent align="start" side="left" className="w-56">
             <DropdownMenuItem onClick={() => setShowSource((value) => !value)}>
               {showSource ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
-              {t(showSource ? "editor.hideOriginal" : "editor.showOriginal")}
+              {t(showSource ? "hideOriginal" : "showOriginal")}
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={!isEdited}
               onClick={() => replaceText(node.attrs.initial)}
             >
               <RotateCcw aria-hidden />
-              {t("editor.restore")}
+              {t("restore")}
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={isEmpty}
               onClick={() => navigator.clipboard?.writeText(text)}
             >
               <Copy aria-hidden />
-              {t("editor.copy")}
+              {t("copy")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -209,7 +209,7 @@ function BlockSegmentView({ node, editor, getPos, decorations }: NodeViewProps) 
               onClick={() => replaceText("")}
             >
               <Eraser aria-hidden />
-              {t("editor.clear")}
+              {t("clear")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -222,13 +222,13 @@ function BlockSegmentView({ node, editor, getPos, decorations }: NodeViewProps) 
             contentEditable={false}
             className="pointer-events-none absolute inset-0 text-base leading-7 text-muted-foreground/60 select-none"
           >
-            {t("editor.emptySegment")}
+            {t("emptySegment")}
           </p>
         )}
         {isEdited && (
           <span
             contentEditable={false}
-            title={t("editor.edited")}
+            title={t("edited")}
             className="absolute top-2.5 -right-4 size-1.5 rounded-full bg-primary/70"
           />
         )}
@@ -240,7 +240,7 @@ function BlockSegmentView({ node, editor, getPos, decorations }: NodeViewProps) 
           className="mt-1 mb-1 border-l-2 border-border pl-3 text-sm leading-6 text-muted-foreground select-text"
         >
           <span className="mb-0.5 block text-xs font-medium tracking-wide uppercase">
-            {t("editor.original")}
+            {t("original")}
           </span>
           {node.attrs.source}
         </div>

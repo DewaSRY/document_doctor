@@ -5,14 +5,13 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
-import { getPageImageHref } from "../constants";
 import { usePdfView } from "./pdf-view-context";
 
 /** A PDF page: the original page with its translatable text removed, and the
  *  editable translations placed on top where the rebuilt PDF will have them. */
 export function PageView({ node }: NodeViewProps) {
-  const { t } = useTranslation("translator");
-  const { documentId, pageCount, zoom, imageScale, compare, printing } = usePdfView();
+  const { t } = useTranslation("editor");
+  const { pageImageHref, pageCount, zoom, imageScale, compare, printing } = usePdfView();
   const { number, width, height } = node.attrs as {
     number: number;
     width: number;
@@ -37,14 +36,14 @@ export function PageView({ node }: NodeViewProps) {
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- a rendered PDF page, not an optimisable asset */}
             <img
-              src={getPageImageHref(documentId, number, { scale: imageScale, original: true })}
-              alt={t("editor.originalPage", { page: number + 1 })}
+              src={pageImageHref(number, { scale: imageScale, original: true })}
+              alt={t("originalPage", { page: number + 1 })}
               draggable={false}
               loading="lazy"
               className="pointer-events-none absolute inset-0 size-full"
             />
             <span className="absolute -top-6 left-0 text-xs font-medium text-muted-foreground">
-              {t("editor.original")}
+              {t("original")}
             </span>
           </div>
         )}
@@ -56,7 +55,7 @@ export function PageView({ node }: NodeViewProps) {
           {/* eslint-disable-next-line @next/next/no-img-element -- a rendered PDF page, not an optimisable asset */}
           <img
             contentEditable={false}
-            src={getPageImageHref(documentId, number, { scale: imageScale })}
+            src={pageImageHref(number, { scale: imageScale })}
             alt=""
             draggable={false}
             loading={number < 2 || printing ? "eager" : "lazy"}
@@ -68,14 +67,14 @@ export function PageView({ node }: NodeViewProps) {
               contentEditable={false}
               className="absolute -top-6 left-0 text-xs font-medium text-muted-foreground select-none"
             >
-              {t("editor.translation")}
+              {t("translation")}
             </span>
           )}
         </div>
       </div>
 
       <span contentEditable={false} className="text-xs text-muted-foreground select-none print:hidden">
-        {t("editor.pageOf", { page: number + 1, count: pageCount })}
+        {t("pageOf", { page: number + 1, count: pageCount })}
       </span>
     </NodeViewWrapper>
   );

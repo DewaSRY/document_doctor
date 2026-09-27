@@ -228,7 +228,7 @@
   }
 }
 
-/* Word documents on pages (feature/translator/components/docx-*.ts). Lengths
+/* Word documents on pages (feature/document-editor/components/docx-*.ts). Lengths
    inside the document are in points times --z, set on .docx-canvas. */
 .docx-canvas {
   color: #000;

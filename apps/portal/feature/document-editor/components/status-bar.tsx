@@ -22,12 +22,12 @@ export function StatusBar({
   onWordCount: () => void;
   zoom: ZoomControls | null;
 }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   return (
     <div className="sticky bottom-0 z-30 flex h-9 items-center gap-3 border-t border-border/60 bg-background/95 px-3 text-xs text-muted-foreground backdrop-blur sm:px-4 print:hidden">
       {page !== null && (
         <span aria-live="polite" className="tabular-nums">
-          {t("editor.pageOf", { page: page + 1, count: pageCount })}
+          {t("pageOf", { page: page + 1, count: pageCount })}
         </span>
       )}
       <button
@@ -35,7 +35,7 @@ export function StatusBar({
         onClick={onWordCount}
         className="cursor-pointer rounded-xs px-1 tabular-nums hover:bg-muted hover:text-foreground"
       >
-        {t("editor.wordCount.words", { count: words })}
+        {t("wordCount.words", { count: words })}
       </button>
 
       {zoom && (
@@ -43,8 +43,8 @@ export function StatusBar({
           <Button
             variant="ghost"
             size="icon-xs"
-            aria-label={t("editor.zoomFit")}
-            title={t("editor.zoomFit")}
+            aria-label={t("zoomFit")}
+            title={t("zoomFit")}
             onClick={zoom.fitWidth}
           >
             <Maximize2 aria-hidden />
@@ -52,8 +52,8 @@ export function StatusBar({
           <Button
             variant="ghost"
             size="icon-xs"
-            aria-label={t("editor.zoomOut")}
-            title={t("editor.zoomOut")}
+            aria-label={t("zoomOut")}
+            title={t("zoomOut")}
             disabled={zoom.zoomPercent <= MIN_ZOOM}
             onClick={() => zoom.setZoomPercent(stepZoom(zoom.zoomPercent, -1))}
           >
@@ -63,8 +63,8 @@ export function StatusBar({
           <Button
             variant="ghost"
             size="icon-xs"
-            aria-label={t("editor.zoomIn")}
-            title={t("editor.zoomIn")}
+            aria-label={t("zoomIn")}
+            title={t("zoomIn")}
             disabled={zoom.zoomPercent >= MAX_ZOOM}
             onClick={() => zoom.setZoomPercent(stepZoom(zoom.zoomPercent, 1))}
           >

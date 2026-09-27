@@ -3,8 +3,14 @@
 import { createContext, useContext, useSyncExternalStore } from "react";
 
 /** How PDF pages are drawn; shared by the toolbar and the node views. */
+/** Where the image of a PDF page comes from; `original` keeps its text. */
+export type PageImageHref = (
+  page: number,
+  options: { scale: number; original?: boolean },
+) => string;
+
 export interface PdfViewSettings {
-  documentId: string;
+  pageImageHref: PageImageHref;
   pageCount: number;
   /** CSS px per PDF point. */
   zoom: number;

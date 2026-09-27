@@ -16,6 +16,7 @@ export const namespaces = [
   "onboarding",
   "landing",
   "translator",
+  "editor",
   "tools",
 ] as const;
 

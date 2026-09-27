@@ -62,10 +62,10 @@ export const MIN_ZOOM = 25;
 export const MAX_ZOOM = 300;
 
 const ALIGNMENTS: { value: TextAlign; icon: typeof AlignLeft; label: string }[] = [
-  { value: "left", icon: AlignLeft, label: "editor.alignLeft" },
-  { value: "center", icon: AlignCenter, label: "editor.alignCenter" },
-  { value: "right", icon: AlignRight, label: "editor.alignRight" },
-  { value: "justify", icon: AlignJustify, label: "editor.alignJustify" },
+  { value: "left", icon: AlignLeft, label: "alignLeft" },
+  { value: "center", icon: AlignCenter, label: "alignCenter" },
+  { value: "right", icon: AlignRight, label: "alignRight" },
+  { value: "justify", icon: AlignJustify, label: "alignJustify" },
 ];
 
 export const HEADINGS: HeadingKind[] = ["normal", "title", "subtitle", "h1", "h2", "h3", "h4", "h5", "h6"];
@@ -152,7 +152,7 @@ export function EditorToolbar({
   pdf,
   children,
 }: EditorToolbarProps) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
 
   const state = useEditorState({
     editor,
@@ -179,7 +179,7 @@ export function EditorToolbar({
 
   const fonts =
     mode === "pdf"
-      ? FONT_FAMILIES.map((family) => ({ value: family, label: t(`editor.fonts.${family}`), stack: FONT_STACKS[family] }))
+      ? FONT_FAMILIES.map((family) => ({ value: family, label: t(`fonts.${family}`), stack: FONT_STACKS[family] }))
       : [...new Set([...documentFonts, ...COMMON_FONTS])].map((family) => ({
           value: family,
           label: family,
@@ -190,19 +190,19 @@ export function EditorToolbar({
     <div className="relative bg-background px-2 pb-1.5 sm:px-3">
       <div
         role="toolbar"
-        aria-label={t("editor.toolbar")}
+        aria-label={t("toolbar")}
         className="flex h-10 items-center gap-0.5 overflow-x-auto rounded-full bg-muted/70 px-2 scrollbar-none dark:bg-muted/40"
       >
-        <ToolButton label={t("editor.undoShortcut")} disabled={!state?.canUndo} onClick={actions.undo}>
+        <ToolButton label={t("undoShortcut")} disabled={!state?.canUndo} onClick={actions.undo}>
           <Undo2 />
         </ToolButton>
-        <ToolButton label={t("editor.redoShortcut")} disabled={!state?.canRedo} onClick={actions.redo}>
+        <ToolButton label={t("redoShortcut")} disabled={!state?.canRedo} onClick={actions.redo}>
           <Redo2 />
         </ToolButton>
-        <ToolButton label={t("editor.printShortcut")} onClick={onPrint}>
+        <ToolButton label={t("printShortcut")} onClick={onPrint}>
           <Printer />
         </ToolButton>
-        <ToolButton label={t("editor.find")} pressed={findOpen} onClick={onToggleFind}>
+        <ToolButton label={t("find")} pressed={findOpen} onClick={onToggleFind}>
           <Search />
         </ToolButton>
 
@@ -240,14 +240,14 @@ export function EditorToolbar({
         )}
 
         <Divider />
-        <ToolButton label={t("editor.bold")} disabled={!hasText} pressed={state?.bold} onClick={actions.toggleBold}>
+        <ToolButton label={t("bold")} disabled={!hasText} pressed={state?.bold} onClick={actions.toggleBold}>
           <Bold />
         </ToolButton>
-        <ToolButton label={t("editor.italic")} disabled={!hasText} pressed={state?.italic} onClick={actions.toggleItalic}>
+        <ToolButton label={t("italic")} disabled={!hasText} pressed={state?.italic} onClick={actions.toggleItalic}>
           <Italic />
         </ToolButton>
         <ToolButton
-          label={t("editor.underline")}
+          label={t("underline")}
           disabled={!hasText}
           pressed={state?.underline}
           onClick={actions.toggleUnderline}
@@ -255,7 +255,7 @@ export function EditorToolbar({
           <Underline />
         </ToolButton>
         <ToolButton
-          label={t("editor.strike")}
+          label={t("strike")}
           disabled={!hasText}
           pressed={state?.strike}
           onClick={actions.toggleStrike}
@@ -263,19 +263,19 @@ export function EditorToolbar({
           <Strikethrough />
         </ToolButton>
         <ColorMenu
-          label={t("editor.textColor")}
+          label={t("textColor")}
           icon={Baseline}
           value={state?.color ?? active?.color ?? null}
           disabled={!hasText}
-          resetLabel={t("editor.colorReset")}
+          resetLabel={t("colorReset")}
           onSelect={actions.setColor}
         />
         <ColorMenu
-          label={t("editor.highlightColor")}
+          label={t("highlightColor")}
           icon={Highlighter}
           value={state?.highlight ?? null}
           disabled={!hasText}
-          resetLabel={t("editor.highlightNone")}
+          resetLabel={t("highlightNone")}
           onSelect={actions.setHighlight}
         />
 
@@ -306,44 +306,44 @@ export function EditorToolbar({
               actions={actions}
             />
             <ToolButton
-              label={t("editor.indentDecrease")}
+              label={t("indentDecrease")}
               disabled={!hasText || !active?.indentLeft}
               onClick={() => actions.indent(-1)}
             >
               <IndentDecrease />
             </ToolButton>
-            <ToolButton label={t("editor.indentIncrease")} disabled={!hasText} onClick={() => actions.indent(1)}>
+            <ToolButton label={t("indentIncrease")} disabled={!hasText} onClick={() => actions.indent(1)}>
               <IndentIncrease />
             </ToolButton>
           </>
         )}
 
         <Divider />
-        <ToolButton label={t("editor.clearFormatting")} disabled={!hasText} onClick={actions.clearFormatting}>
+        <ToolButton label={t("clearFormatting")} disabled={!hasText} onClick={actions.clearFormatting}>
           <RemoveFormatting />
         </ToolButton>
         <SpecialCharactersMenu disabled={!hasText} onSelect={actions.insertText} />
 
         <Divider />
-        <ToolButton label={t("editor.restore")} disabled={!active?.isEdited} onClick={actions.restore}>
+        <ToolButton label={t("restore")} disabled={!active?.isEdited} onClick={actions.restore}>
           <RotateCcw />
         </ToolButton>
-        <ToolButton label={t("editor.clear")} disabled={!active || active.isEmpty} onClick={actions.clearText}>
+        <ToolButton label={t("clear")} disabled={!active || active.isEmpty} onClick={actions.clearText}>
           <Eraser />
         </ToolButton>
 
         {pdf && fit < 1 && (
           <span
-            title={t("editor.shrunkHelp")}
+            title={t("shrunkHelp")}
             className="ml-1 shrink-0 rounded-xs bg-rose-500/10 px-1.5 py-0.5 text-xs whitespace-nowrap text-rose-600 dark:text-rose-400"
           >
-            {t("editor.shrunk", { percent: Math.round(fit * 100) })}
+            {t("shrunk", { percent: Math.round(fit * 100) })}
           </span>
         )}
 
         <div className="ml-auto flex shrink-0 items-center gap-0.5 pl-2">
           <ToolButton
-            label={t("editor.sourceText")}
+            label={t("sourceText")}
             pressed={pdf ? pdf.showSource : showSource}
             onClick={pdf ? () => pdf.setShowSource(!pdf.showSource) : onToggleSource}
           >
@@ -351,11 +351,11 @@ export function EditorToolbar({
           </ToolButton>
           {pdf && (
             <>
-              <ToolButton label={t("editor.compare")} pressed={pdf.compare} onClick={() => pdf.setCompare(!pdf.compare)}>
+              <ToolButton label={t("compare")} pressed={pdf.compare} onClick={() => pdf.setCompare(!pdf.compare)}>
                 <Columns2 />
               </ToolButton>
               <ToolButton
-                label={t("editor.showBoxes")}
+                label={t("showBoxes")}
                 pressed={pdf.showBoxes}
                 onClick={() => pdf.setShowBoxes(!pdf.showBoxes)}
               >
@@ -420,15 +420,15 @@ const triggerClass =
   "flex h-7 shrink-0 cursor-pointer items-center gap-1 rounded-sm px-1.5 text-sm outline-none hover:bg-foreground/8 focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent data-popup-open:bg-foreground/8";
 
 function ZoomMenu({ zoom }: { zoom: ZoomControls }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label={t("editor.zoomLevel")} title={t("editor.zoomLevel")} className={cn(triggerClass, "w-17 justify-between tabular-nums")}>
+      <DropdownMenuTrigger aria-label={t("zoomLevel")} title={t("zoomLevel")} className={cn(triggerClass, "w-17 justify-between tabular-nums")}>
         {zoom.zoomPercent}%
         <ChevronDown className="size-3 text-muted-foreground" aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-40">
-        <DropdownMenuItem onClick={zoom.fitWidth}>{t("editor.zoomFit")}</DropdownMenuItem>
+        <DropdownMenuItem onClick={zoom.fitWidth}>{t("zoomFit")}</DropdownMenuItem>
         <DropdownMenuSeparator />
         {ZOOM_PRESETS.map((preset) => (
           <DropdownMenuItem key={preset} onClick={() => zoom.setZoomPercent(preset)}>
@@ -465,16 +465,16 @@ function StyleMenu({
   docx: DocxStyles | null;
   onSelect: (kind: HeadingKind) => void;
 }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         disabled={disabled}
-        aria-label={t("editor.paragraphStyle")}
-        title={t("editor.paragraphStyle")}
+        aria-label={t("paragraphStyle")}
+        title={t("paragraphStyle")}
         className={cn(triggerClass, "w-32 justify-between")}
       >
-        <span className="truncate">{t(`editor.headings.${value ?? "normal"}`)}</span>
+        <span className="truncate">{t(`headings.${value ?? "normal"}`)}</span>
         <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
@@ -485,7 +485,7 @@ function StyleMenu({
             className={cn("py-1.5", value === kind && "bg-accent/60")}
           >
             <span style={headingPreview(kind, docx)} className="truncate leading-tight">
-              {t(`editor.headings.${kind}`)}
+              {t(`headings.${kind}`)}
             </span>
           </DropdownMenuItem>
         ))}
@@ -505,17 +505,17 @@ function FontMenu({
   disabled: boolean;
   onSelect: (family: string) => void;
 }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   const current = fonts.find((font) => font.value === value);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         disabled={disabled}
-        aria-label={t("editor.fontFamily")}
-        title={t("editor.fontFamily")}
+        aria-label={t("fontFamily")}
+        title={t("fontFamily")}
         className={cn(triggerClass, "w-32 justify-between")}
       >
-        <span className="truncate">{current?.label ?? value ?? t("editor.fontFamily")}</span>
+        <span className="truncate">{current?.label ?? value ?? t("fontFamily")}</span>
         <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="max-h-80 w-56">
@@ -544,7 +544,7 @@ function FontSize({
   onChange: (value: number) => void;
   onStep: (delta: number) => void;
 }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   const shown = value === null ? "" : String(Math.round(value * 10) / 10);
   const [draft, setDraft] = useState<string | null>(null);
 
@@ -555,7 +555,7 @@ function FontSize({
   return (
     <div className="flex shrink-0 items-center">
       <ToolButton
-        label={t("editor.decreaseFontSize")}
+        label={t("decreaseFontSize")}
         disabled={value === null || value <= MIN_FONT_SIZE}
         onClick={() => onStep(-1)}
       >
@@ -567,8 +567,8 @@ function FontSize({
         min={MIN_FONT_SIZE}
         max={MAX_FONT_SIZE}
         step={0.5}
-        aria-label={t("editor.fontSize")}
-        title={t("editor.fontSize")}
+        aria-label={t("fontSize")}
+        title={t("fontSize")}
         disabled={value === null}
         value={draft ?? shown}
         onFocus={() => setDraft(shown)}
@@ -587,7 +587,7 @@ function FontSize({
         className="h-7 w-10 rounded-sm border border-foreground/20 bg-background text-center text-sm tabular-nums outline-none [appearance:textfield] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-40 [&::-webkit-inner-spin-button]:appearance-none"
       />
       <ToolButton
-        label={t("editor.increaseFontSize")}
+        label={t("increaseFontSize")}
         disabled={value === null || value >= MAX_FONT_SIZE}
         onClick={() => onStep(1)}
       >
@@ -612,7 +612,7 @@ function ColorMenu({
   resetLabel: string;
   onSelect: (color: string | null) => void;
 }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   const [open, setOpen] = useState(false);
   const current = value ? normalizeColor(value) : undefined;
   return (
@@ -659,7 +659,7 @@ function ColorMenu({
             className="size-5 rounded-full ring-1 ring-black/15"
             style={{ background: "conic-gradient(red, yellow, lime, aqua, blue, magenta, red)" }}
           />
-          {t("editor.customColor")}
+          {t("customColor")}
           <input
             type="color"
             className="sr-only"
@@ -685,34 +685,34 @@ function LineSpacingMenu({
   spaceAfter: number;
   actions: EditorActions;
 }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         disabled={disabled}
-        aria-label={t("editor.lineSpacing")}
-        title={t("editor.lineSpacing")}
+        aria-label={t("lineSpacing")}
+        title={t("lineSpacing")}
         className={cn(triggerClass, "size-7 justify-center px-0")}
       >
         <ListCollapse className="size-4" aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
-        <DropdownMenuLabel>{t("editor.lineSpacing")}</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("lineSpacing")}</DropdownMenuLabel>
         {LINE_SPACINGS.map((spacing) => (
           <DropdownMenuItem
             key={spacing}
             onClick={() => actions.setLineSpacing(spacing)}
             className={cn(value !== null && Math.abs(value - spacing) < 0.01 && "bg-accent/60")}
           >
-            {t(`editor.spacing.${String(spacing).replace(".", "_")}`)}
+            {t(`spacing.${String(spacing).replace(".", "_")}`)}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => actions.setSpaceBefore(spaceBefore > 0 ? 0 : 10)}>
-          {t(spaceBefore > 0 ? "editor.removeSpaceBefore" : "editor.addSpaceBefore")}
+          {t(spaceBefore > 0 ? "removeSpaceBefore" : "addSpaceBefore")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => actions.setSpaceAfter(spaceAfter > 0 ? 0 : 10)}>
-          {t(spaceAfter > 0 ? "editor.removeSpaceAfter" : "editor.addSpaceAfter")}
+          {t(spaceAfter > 0 ? "removeSpaceAfter" : "addSpaceAfter")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -726,13 +726,13 @@ export function SpecialCharactersMenu({
   disabled: boolean;
   onSelect: (text: string) => void;
 }) {
-  const { t } = useTranslation("translator");
+  const { t } = useTranslation("editor");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         disabled={disabled}
-        aria-label={t("editor.specialCharacters")}
-        title={t("editor.specialCharacters")}
+        aria-label={t("specialCharacters")}
+        title={t("specialCharacters")}
         className={cn(triggerClass, "size-7 justify-center px-0")}
       >
         <Omega className="size-4" aria-hidden />
@@ -741,7 +741,7 @@ export function SpecialCharactersMenu({
         {SPECIAL_CHARACTERS.map(({ group, chars }) => (
           <div key={group} className="mb-2 last:mb-0">
             <p className="mb-1 px-1 text-xs font-medium text-muted-foreground">
-              {t(`editor.characterGroups.${group}`)}
+              {t(`characterGroups.${group}`)}
             </p>
             <div className="grid grid-cols-8 gap-0.5">
               {chars.map((char) => (
