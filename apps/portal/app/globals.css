@@ -227,3 +227,107 @@
     opacity: 0.7;
   }
 }
+
+/* Word documents on pages (feature/translator/components/docx-*.ts). Lengths
+   inside the document are in points times --z, set on .docx-canvas. */
+.docx-canvas {
+  color: #000;
+  color-scheme: light;
+  --leader-dot: radial-gradient(circle, currentColor 0.055em, transparent 0.07em) 0 100% / 0.3em 0.22em repeat-x;
+  --leader-middleDot: radial-gradient(circle, currentColor 0.055em, transparent 0.07em) 0 55% / 0.3em 0.22em repeat-x;
+  --leader-hyphen: linear-gradient(90deg, currentColor 55%, transparent 55%) 0 75% / 0.45em 0.06em repeat-x;
+  --leader-underscore: linear-gradient(currentColor, currentColor) 0 100% / 100% 0.06em no-repeat;
+  --leader-heavy: linear-gradient(currentColor, currentColor) 0 100% / 100% 0.12em no-repeat;
+}
+.docx-sheet {
+  box-shadow: 0 1px 3px rgb(60 64 67 / 0.15), 0 4px 8px 3px rgb(60 64 67 / 0.08);
+}
+.docx-body {
+  position: relative;
+  caret-color: #000;
+  font-kerning: normal;
+}
+.docx-p {
+  position: relative;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+/* An empty paragraph is still one line high. */
+.docx-p::after {
+  content: "\200b";
+}
+.docx-seg-text > br.ProseMirror-trailingBreak {
+  display: none;
+}
+.docx-seg-text.is-empty {
+  display: inline-block;
+  min-width: 1px;
+}
+.docx-seg-text.is-empty::after {
+  content: attr(data-placeholder);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.docx-body.ProseMirror-focused .docx-seg.is-active > .docx-seg-text {
+  background-color: rgb(26 115 232 / 0.07);
+  border-radius: 2px;
+}
+.docx-tab {
+  display: inline-block;
+  height: 0.3em;
+  vertical-align: baseline;
+  text-indent: 0;
+}
+[data-field="page"]::after {
+  content: var(--page-number, "1");
+}
+[data-field="pages"]::after {
+  content: var(--page-count, "1");
+}
+.docx-image {
+  display: inline-block;
+  max-width: none;
+  vertical-align: baseline;
+}
+.docx-image-missing {
+  border: 1px dashed rgb(0 0 0 / 0.25);
+  background: repeating-linear-gradient(45deg, rgb(0 0 0 / 0.03) 0 6px, transparent 6px 12px);
+}
+.docx-table {
+  display: grid;
+}
+.docx-row {
+  display: contents;
+}
+.docx-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+}
+.docx-region {
+  position: absolute;
+}
+.docx-region-copy {
+  pointer-events: none;
+}
+.docx-body > .docx-region:hover {
+  outline: 1px dashed rgb(0 0 0 / 0.18);
+  outline-offset: 3px;
+}
+.docx-page-gap {
+  user-select: none;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  .docx-sheet {
+    box-shadow: none;
+  }
+  .docx-body > .docx-region:hover {
+    outline: none;
+  }
+}

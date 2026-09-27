@@ -8,20 +8,28 @@ import {
   AlignJustify,
   AlignLeft,
   AlignRight,
+  Baseline,
   Bold,
   ChevronDown,
   Columns2,
   Eraser,
-  FileSearch,
+  Highlighter,
+  IndentDecrease,
+  IndentIncrease,
   Italic,
+  ListCollapse,
   Minus,
+  Omega,
   Plus,
+  Printer,
   Redo2,
   RemoveFormatting,
   RotateCcw,
   ScanText,
   Search,
   SquareDashed,
+  Strikethrough,
+  Underline,
   Undo2,
 } from "lucide-react";
 
@@ -30,15 +38,24 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-import type { SegmentLayout, SegmentStyle, TextAlign } from "../type";
+import type { HeadingKind, TextAlign } from "../type";
+import { HEADING_FALLBACKS, fontStack, type DocxStyles } from "./docx-style";
+import {
+  MAX_FONT_SIZE,
+  MIN_FONT_SIZE,
+  activeFormat,
+  type EditorActions,
+  type EditorMode,
+} from "./editor-commands";
+import { normalizeColor } from "./format-marks";
 import { useFit, type FitStore } from "./pdf-view-context";
-import { findActiveSegment } from "./segment-extension";
-import { FONT_FAMILIES, resolveStyle } from "./segment-style";
+import { FONT_FAMILIES, FONT_STACKS } from "./segment-style";
 
 export const ZOOM_PRESETS = [50, 75, 90, 100, 110, 125, 150, 175, 200] as const;
 export const MIN_ZOOM = 25;
@@ -51,178 +68,267 @@ const ALIGNMENTS: { value: TextAlign; icon: typeof AlignLeft; label: string }[] 
   { value: "justify", icon: AlignJustify, label: "editor.alignJustify" },
 ];
 
+export const HEADINGS: HeadingKind[] = ["normal", "title", "subtitle", "h1", "h2", "h3", "h4", "h5", "h6"];
+
+/** Fonts offered for Word documents, besides the ones the document uses. */
+const COMMON_FONTS = [
+  "Arial",
+  "Calibri",
+  "Cambria",
+  "Courier New",
+  "Georgia",
+  "Tahoma",
+  "Times New Roman",
+  "Verdana",
+  "Microsoft YaHei",
+  "SimSun",
+];
+
+export const LINE_SPACINGS = [1, 1.15, 1.5, 2] as const;
+
+// Google Docs' palette: greys, then the saturated colours and two lighter rows.
+const TEXT_COLORS = [
+  "#000000", "#434343", "#666666", "#999999", "#b7b7b7", "#cccccc", "#d9d9d9", "#efefef", "#f3f3f3", "#ffffff",
+  "#980000", "#ff0000", "#ff9900", "#ffff00", "#00ff00", "#00ffff", "#4a86e8", "#0000ff", "#9900ff", "#ff00ff",
+  "#e6b8af", "#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#c9daf8", "#cfe2f3", "#d9d2e9", "#ead1dc",
+  "#cc4125", "#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6d9eeb", "#6fa8dc", "#8e7cc3", "#c27ba0",
+  "#85200c", "#990000", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#1155cc", "#0b5394", "#351c75", "#741b47",
+];
+
+export const SPECIAL_CHARACTERS: { group: string; chars: string[] }[] = [
+  { group: "punctuation", chars: ["—", "–", "…", "•", "·", "¶", "§", "†", "‡", "«", "»", "“", "”", "‘", "’", "「", "」", "『", "』", "、", "。", "，", "：", "；"] },
+  { group: "symbols", chars: ["©", "®", "™", "°", "±", "×", "÷", "≈", "≠", "≤", "≥", "∞", "√", "‰", "µ", "½", "¼", "¾", "²", "³"] },
+  { group: "currency", chars: ["$", "€", "£", "¥", "₩", "₹", "Rp", "¢", "₫", "฿"] },
+  { group: "arrows", chars: ["←", "→", "↑", "↓", "↔", "⇒", "⇔", "✓", "✗", "★", "☐", "☑"] },
+];
+
 export interface PdfToolbarControls {
-  zoomPercent: number;
-  setZoomPercent: (percent: number) => void;
-  fitWidth: () => void;
   compare: boolean;
   setCompare: (value: boolean) => void;
   showBoxes: boolean;
   setShowBoxes: (value: boolean) => void;
   showSource: boolean;
   setShowSource: (value: boolean) => void;
-  pageCount: number;
-  goToPage: (page: number) => void;
   fits: FitStore;
+}
+
+export interface ZoomControls {
+  zoomPercent: number;
+  setZoomPercent: (percent: number) => void;
+  fitWidth: () => void;
 }
 
 interface EditorToolbarProps {
   editor: Editor | null;
+  mode: EditorMode;
+  docx: DocxStyles | null;
+  actions: EditorActions;
   findOpen: boolean;
   onToggleFind: () => void;
+  onPrint: () => void;
+  zoom: ZoomControls;
+  /** Fonts the document uses, offered first. */
+  documentFonts: string[];
+  showSource: boolean;
+  onToggleSource: () => void;
   /** Present for a PDF shown as pages. */
   pdf?: PdfToolbarControls;
   children?: ReactNode;
 }
 
-/** Every editing tool, in one compact row: history, find, formatting of the
- *  selected block, block actions and (for PDFs) the view. */
-export function EditorToolbar({ editor, findOpen, onToggleFind, pdf, children }: EditorToolbarProps) {
+/** The formatting toolbar, in the order Google Docs has it. */
+export function EditorToolbar({
+  editor,
+  mode,
+  docx,
+  actions,
+  findOpen,
+  onToggleFind,
+  onPrint,
+  zoom,
+  documentFonts,
+  showSource,
+  onToggleSource,
+  pdf,
+  children,
+}: EditorToolbarProps) {
   const { t } = useTranslation("translator");
 
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      const found = editor ? findActiveSegment(editor.state) : null;
+      if (!editor) return null;
       return {
-        canUndo: editor?.can().undo() ?? false,
-        canRedo: editor?.can().redo() ?? false,
-        active: found
-          ? {
-              key: found.node.attrs.key as string,
-              layout: found.node.attrs.layout as SegmentLayout | null,
-              style: found.node.attrs.style as SegmentStyle | null,
-              isEdited: found.node.textContent !== found.node.attrs.initial,
-              isEmpty: found.node.content.size === 0,
-            }
-          : null,
+        canUndo: editor.can().undo(),
+        canRedo: editor.can().redo(),
+        bold: editor.isActive("bold"),
+        italic: editor.isActive("italic"),
+        underline: editor.isActive("underline"),
+        strike: editor.isActive("strike"),
+        color: (editor.getAttributes("textStyle").color as string | undefined) ?? null,
+        highlight: (editor.getAttributes("highlight").color as string | undefined) ?? null,
+        active: activeFormat(editor.state, docx),
       };
     },
   });
 
   const active = state?.active ?? null;
-  const layout = active?.layout ?? null;
-  const style = layout ? resolveStyle(layout, active?.style) : null;
   const fit = useFit(pdf?.fits, active?.key);
+  const hasText = !!active;
+  const formatted = mode !== "blocks";
 
-  const run = (command: (chain: ReturnType<Editor["chain"]>) => ReturnType<Editor["chain"]>) =>
-    editor && command(editor.chain().focus()).run();
-  const setStyle = (patch: SegmentStyle | null) => run((chain) => chain.setSegmentStyle(patch));
+  const fonts =
+    mode === "pdf"
+      ? FONT_FAMILIES.map((family) => ({ value: family, label: t(`editor.fonts.${family}`), stack: FONT_STACKS[family] }))
+      : [...new Set([...documentFonts, ...COMMON_FONTS])].map((family) => ({
+          value: family,
+          label: family,
+          stack: fontStack(family),
+        }));
 
   return (
-    <div className="relative border-b border-border/60 bg-background/95 backdrop-blur">
+    <div className="relative bg-background px-2 pb-1.5 sm:px-3">
       <div
         role="toolbar"
         aria-label={t("editor.toolbar")}
-        className="flex h-10 items-center gap-0.5 overflow-x-auto px-2 [scrollbar-width:none] sm:px-3"
+        className="flex h-10 items-center gap-0.5 overflow-x-auto rounded-full bg-muted/70 px-2 scrollbar-none dark:bg-muted/40"
       >
-        <ToolButton label={t("editor.undo")} disabled={!state?.canUndo} onClick={() => run((c) => c.undo())}>
+        <ToolButton label={t("editor.undoShortcut")} disabled={!state?.canUndo} onClick={actions.undo}>
           <Undo2 />
         </ToolButton>
-        <ToolButton label={t("editor.redo")} disabled={!state?.canRedo} onClick={() => run((c) => c.redo())}>
+        <ToolButton label={t("editor.redoShortcut")} disabled={!state?.canRedo} onClick={actions.redo}>
           <Redo2 />
+        </ToolButton>
+        <ToolButton label={t("editor.printShortcut")} onClick={onPrint}>
+          <Printer />
         </ToolButton>
         <ToolButton label={t("editor.find")} pressed={findOpen} onClick={onToggleFind}>
           <Search />
         </ToolButton>
 
-        {pdf && (
+        <Divider />
+        <ZoomMenu zoom={zoom} />
+
+        {mode === "docx" && (
           <>
             <Divider />
-            <select
-              aria-label={t("editor.fontFamily")}
-              title={t("editor.fontFamily")}
-              disabled={!style}
-              value={style?.family ?? ""}
-              onChange={(event) =>
-                setStyle({ family: event.target.value as SegmentStyle["family"] })
-              }
-              className="h-7 w-28 shrink-0 rounded-xs border border-transparent bg-transparent px-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-40"
-            >
-              {!style && <option value="">{t("editor.fontFamily")}</option>}
-              {FONT_FAMILIES.map((family) => (
-                <option key={family} value={family}>
-                  {t(`editor.fonts.${family}`)}
-                </option>
-              ))}
-            </select>
-            <FontSize
-              value={style?.font_size ?? null}
-              onChange={(font_size) => setStyle({ font_size })}
+            <StyleMenu
+              value={active?.heading ?? null}
+              disabled={!hasText}
+              docx={docx}
+              onSelect={actions.setHeading}
+            />
+          </>
+        )}
+
+        {formatted && (
+          <>
+            <Divider />
+            <FontMenu
+              value={active?.family ?? null}
+              fonts={fonts}
+              disabled={!active?.family}
+              onSelect={actions.setFamily}
             />
             <Divider />
-            <ToolButton
-              label={t("editor.bold")}
-              disabled={!style}
-              pressed={style?.bold}
-              onClick={() => run((c) => c.toggleSegmentStyle("bold"))}
-            >
-              <Bold />
-            </ToolButton>
-            <ToolButton
-              label={t("editor.italic")}
-              disabled={!style}
-              pressed={style?.italic}
-              onClick={() => run((c) => c.toggleSegmentStyle("italic"))}
-            >
-              <Italic />
-            </ToolButton>
-            <label
-              title={t("editor.textColor")}
-              className={cn(
-                "relative flex size-7 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xs hover:bg-muted has-focus-visible:ring-2 has-focus-visible:ring-ring/40",
-                !style && "pointer-events-none opacity-40",
-              )}
-            >
-              <span className="text-sm leading-none font-semibold">A</span>
-              <span
-                className="mt-0.5 h-1 w-4 rounded-full ring-1 ring-black/10"
-                style={{ background: style?.color ?? "currentColor" }}
-              />
-              <input
-                type="color"
-                aria-label={t("editor.textColor")}
-                disabled={!style}
-                value={style?.color ?? "#000000"}
-                onChange={(event) => setStyle({ color: event.target.value })}
-                className="absolute inset-0 size-full cursor-pointer opacity-0"
-              />
-            </label>
+            <FontSize
+              value={active?.fontSize ?? null}
+              onChange={actions.setFontSize}
+              onStep={actions.changeFontSize}
+            />
+          </>
+        )}
+
+        <Divider />
+        <ToolButton label={t("editor.bold")} disabled={!hasText} pressed={state?.bold} onClick={actions.toggleBold}>
+          <Bold />
+        </ToolButton>
+        <ToolButton label={t("editor.italic")} disabled={!hasText} pressed={state?.italic} onClick={actions.toggleItalic}>
+          <Italic />
+        </ToolButton>
+        <ToolButton
+          label={t("editor.underline")}
+          disabled={!hasText}
+          pressed={state?.underline}
+          onClick={actions.toggleUnderline}
+        >
+          <Underline />
+        </ToolButton>
+        <ToolButton
+          label={t("editor.strike")}
+          disabled={!hasText}
+          pressed={state?.strike}
+          onClick={actions.toggleStrike}
+        >
+          <Strikethrough />
+        </ToolButton>
+        <ColorMenu
+          label={t("editor.textColor")}
+          icon={Baseline}
+          value={state?.color ?? active?.color ?? null}
+          disabled={!hasText}
+          resetLabel={t("editor.colorReset")}
+          onSelect={actions.setColor}
+        />
+        <ColorMenu
+          label={t("editor.highlightColor")}
+          icon={Highlighter}
+          value={state?.highlight ?? null}
+          disabled={!hasText}
+          resetLabel={t("editor.highlightNone")}
+          onSelect={actions.setHighlight}
+        />
+
+        {formatted && (
+          <>
             <Divider />
             {ALIGNMENTS.map(({ value, icon: Icon, label }) => (
               <ToolButton
                 key={value}
                 label={t(label)}
-                disabled={!style}
-                pressed={style?.align === value}
-                onClick={() => setStyle({ align: value })}
+                disabled={!active?.align}
+                pressed={active?.align === value}
+                onClick={() => actions.setAlign(value)}
               >
                 <Icon />
               </ToolButton>
             ))}
+          </>
+        )}
+
+        {mode === "docx" && (
+          <>
+            <LineSpacingMenu
+              disabled={!hasText}
+              value={active?.lineSpacing ?? null}
+              spaceBefore={active?.spaceBefore ?? 0}
+              spaceAfter={active?.spaceAfter ?? 0}
+              actions={actions}
+            />
             <ToolButton
-              label={t("editor.resetStyle")}
-              disabled={!active?.style}
-              onClick={() => setStyle(null)}
+              label={t("editor.indentDecrease")}
+              disabled={!hasText || !active?.indentLeft}
+              onClick={() => actions.indent(-1)}
             >
-              <RemoveFormatting />
+              <IndentDecrease />
+            </ToolButton>
+            <ToolButton label={t("editor.indentIncrease")} disabled={!hasText} onClick={() => actions.indent(1)}>
+              <IndentIncrease />
             </ToolButton>
           </>
         )}
 
         <Divider />
-        <ToolButton
-          label={t("editor.restore")}
-          disabled={!active?.isEdited}
-          onClick={() => run((c) => c.restoreSegment())}
-        >
+        <ToolButton label={t("editor.clearFormatting")} disabled={!hasText} onClick={actions.clearFormatting}>
+          <RemoveFormatting />
+        </ToolButton>
+        <SpecialCharactersMenu disabled={!hasText} onSelect={actions.insertText} />
+
+        <Divider />
+        <ToolButton label={t("editor.restore")} disabled={!active?.isEdited} onClick={actions.restore}>
           <RotateCcw />
         </ToolButton>
-        <ToolButton
-          label={t("editor.clear")}
-          disabled={!active || active.isEmpty}
-          onClick={() => run((c) => c.setSegmentText(""))}
-        >
+        <ToolButton label={t("editor.clear")} disabled={!active || active.isEmpty} onClick={actions.clearText}>
           <Eraser />
         </ToolButton>
 
@@ -235,74 +341,36 @@ export function EditorToolbar({ editor, findOpen, onToggleFind, pdf, children }:
           </span>
         )}
 
-        {pdf && (
-          <div className="ml-auto flex shrink-0 items-center gap-0.5 pl-2">
-            <ToolButton
-              label={t("editor.sourceText")}
-              pressed={pdf.showSource}
-              onClick={() => pdf.setShowSource(!pdf.showSource)}
-            >
-              <ScanText />
-            </ToolButton>
-            <ToolButton
-              label={t("editor.compare")}
-              pressed={pdf.compare}
-              onClick={() => pdf.setCompare(!pdf.compare)}
-            >
-              <Columns2 />
-            </ToolButton>
-            <ToolButton
-              label={t("editor.showBoxes")}
-              pressed={pdf.showBoxes}
-              onClick={() => pdf.setShowBoxes(!pdf.showBoxes)}
-            >
-              <SquareDashed />
-            </ToolButton>
-            <Divider />
-            <PageJump count={pdf.pageCount} onSelect={pdf.goToPage} />
-            <Divider />
-            <ToolButton
-              label={t("editor.zoomOut")}
-              disabled={pdf.zoomPercent <= MIN_ZOOM}
-              onClick={() => pdf.setZoomPercent(stepZoom(pdf.zoomPercent, -1))}
-            >
-              <Minus />
-            </ToolButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                aria-label={t("editor.zoomLevel")}
-                title={t("editor.zoomLevel")}
-                className="flex h-7 w-16 shrink-0 cursor-pointer items-center justify-center gap-0.5 rounded-xs text-sm tabular-nums outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/40 data-popup-open:bg-muted"
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 pl-2">
+          <ToolButton
+            label={t("editor.sourceText")}
+            pressed={pdf ? pdf.showSource : showSource}
+            onClick={pdf ? () => pdf.setShowSource(!pdf.showSource) : onToggleSource}
+          >
+            <ScanText />
+          </ToolButton>
+          {pdf && (
+            <>
+              <ToolButton label={t("editor.compare")} pressed={pdf.compare} onClick={() => pdf.setCompare(!pdf.compare)}>
+                <Columns2 />
+              </ToolButton>
+              <ToolButton
+                label={t("editor.showBoxes")}
+                pressed={pdf.showBoxes}
+                onClick={() => pdf.setShowBoxes(!pdf.showBoxes)}
               >
-                {pdf.zoomPercent}%
-                <ChevronDown className="size-3 text-muted-foreground" aria-hidden />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem onClick={pdf.fitWidth}>{t("editor.zoomFit")}</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {ZOOM_PRESETS.map((preset) => (
-                  <DropdownMenuItem key={preset} onClick={() => pdf.setZoomPercent(preset)}>
-                    {preset}%
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <ToolButton
-              label={t("editor.zoomIn")}
-              disabled={pdf.zoomPercent >= MAX_ZOOM}
-              onClick={() => pdf.setZoomPercent(stepZoom(pdf.zoomPercent, 1))}
-            >
-              <Plus />
-            </ToolButton>
-          </div>
-        )}
+                <SquareDashed />
+              </ToolButton>
+            </>
+          )}
+        </div>
       </div>
       {children}
     </div>
   );
 }
 
-function stepZoom(current: number, direction: 1 | -1): number {
+export function stepZoom(current: number, direction: 1 | -1): number {
   const next =
     direction > 0
       ? ZOOM_PRESETS.find((preset) => preset > current)
@@ -310,7 +378,7 @@ function stepZoom(current: number, direction: 1 | -1): number {
   return next ?? Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current + direction * 25));
 }
 
-function ToolButton({
+export function ToolButton({
   label,
   pressed,
   disabled,
@@ -334,7 +402,10 @@ function ToolButton({
       // Keep the editor's selection while clicking.
       onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
-      className={cn("disabled:opacity-35", pressed && "bg-muted text-foreground")}
+      className={cn(
+        "shrink-0 rounded-sm hover:bg-foreground/8 disabled:opacity-35",
+        pressed && "bg-primary/12 text-primary hover:bg-primary/15",
+      )}
     >
       {children}
     </Button>
@@ -342,38 +413,159 @@ function ToolButton({
 }
 
 function Divider() {
-  return <span aria-hidden className="mx-1 h-4 w-px shrink-0 bg-border" />;
+  return <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-foreground/15" />;
+}
+
+const triggerClass =
+  "flex h-7 shrink-0 cursor-pointer items-center gap-1 rounded-sm px-1.5 text-sm outline-none hover:bg-foreground/8 focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent data-popup-open:bg-foreground/8";
+
+function ZoomMenu({ zoom }: { zoom: ZoomControls }) {
+  const { t } = useTranslation("translator");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger aria-label={t("editor.zoomLevel")} title={t("editor.zoomLevel")} className={cn(triggerClass, "w-17 justify-between tabular-nums")}>
+        {zoom.zoomPercent}%
+        <ChevronDown className="size-3 text-muted-foreground" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-40">
+        <DropdownMenuItem onClick={zoom.fitWidth}>{t("editor.zoomFit")}</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {ZOOM_PRESETS.map((preset) => (
+          <DropdownMenuItem key={preset} onClick={() => zoom.setZoomPercent(preset)}>
+            {preset}%
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/** How a paragraph style looks in the menu: its size and weight, like Google Docs'. */
+function headingPreview(kind: HeadingKind, docx: DocxStyles | null): React.CSSProperties {
+  const named = docx?.styles[kind];
+  const run = named ? docx.runStyles[named.run] : null;
+  const size = run?.size ?? (kind === "normal" ? 11 : HEADING_FALLBACKS[kind].size);
+  return {
+    fontSize: `${Math.min(22, Math.max(12, size * 0.9))}px`,
+    fontWeight: (run?.bold ?? (kind !== "normal" && HEADING_FALLBACKS[kind].bold)) ? 700 : 400,
+    fontStyle: run?.italic ? "italic" : undefined,
+    color: run?.color ?? (kind === "subtitle" ? "#666666" : undefined),
+    fontFamily: run ? fontStack(run.family, run.east_asia) : undefined,
+  };
+}
+
+function StyleMenu({
+  value,
+  disabled,
+  docx,
+  onSelect,
+}: {
+  value: HeadingKind | null;
+  disabled: boolean;
+  docx: DocxStyles | null;
+  onSelect: (kind: HeadingKind) => void;
+}) {
+  const { t } = useTranslation("translator");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={t("editor.paragraphStyle")}
+        title={t("editor.paragraphStyle")}
+        className={cn(triggerClass, "w-32 justify-between")}
+      >
+        <span className="truncate">{t(`editor.headings.${value ?? "normal"}`)}</span>
+        <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-64">
+        {HEADINGS.map((kind) => (
+          <DropdownMenuItem
+            key={kind}
+            onClick={() => onSelect(kind)}
+            className={cn("py-1.5", value === kind && "bg-accent/60")}
+          >
+            <span style={headingPreview(kind, docx)} className="truncate leading-tight">
+              {t(`editor.headings.${kind}`)}
+            </span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function FontMenu({
+  value,
+  fonts,
+  disabled,
+  onSelect,
+}: {
+  value: string | null;
+  fonts: { value: string; label: string; stack: string }[];
+  disabled: boolean;
+  onSelect: (family: string) => void;
+}) {
+  const { t } = useTranslation("translator");
+  const current = fonts.find((font) => font.value === value);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={t("editor.fontFamily")}
+        title={t("editor.fontFamily")}
+        className={cn(triggerClass, "w-32 justify-between")}
+      >
+        <span className="truncate">{current?.label ?? value ?? t("editor.fontFamily")}</span>
+        <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="max-h-80 w-56">
+        {fonts.map((font) => (
+          <DropdownMenuItem
+            key={font.value}
+            onClick={() => onSelect(font.value)}
+            className={cn(value === font.value && "bg-accent/60")}
+          >
+            <span style={{ fontFamily: font.stack }} className="truncate">
+              {font.label}
+            </span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 function FontSize({
   value,
   onChange,
+  onStep,
 }: {
   value: number | null;
   onChange: (value: number) => void;
+  onStep: (delta: number) => void;
 }) {
   const { t } = useTranslation("translator");
   const shown = value === null ? "" : String(Math.round(value * 10) / 10);
   const [draft, setDraft] = useState<string | null>(null);
 
   const commit = (next: number) => {
-    if (Number.isFinite(next)) onChange(Math.min(96, Math.max(4, Math.round(next * 10) / 10)));
+    if (Number.isFinite(next)) onChange(next);
   };
 
   return (
     <div className="flex shrink-0 items-center">
       <ToolButton
         label={t("editor.decreaseFontSize")}
-        disabled={value === null}
-        onClick={() => value !== null && commit(value - 0.5)}
+        disabled={value === null || value <= MIN_FONT_SIZE}
+        onClick={() => onStep(-1)}
       >
         <Minus />
       </ToolButton>
       <input
         type="number"
         inputMode="decimal"
-        min={4}
-        max={96}
+        min={MIN_FONT_SIZE}
+        max={MAX_FONT_SIZE}
         step={0.5}
         aria-label={t("editor.fontSize")}
         title={t("editor.fontSize")}
@@ -392,12 +584,12 @@ function FontSize({
             event.currentTarget.blur();
           }
         }}
-        className="h-7 w-11 rounded-xs border border-border bg-background text-center text-sm tabular-nums outline-none [appearance:textfield] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-40 [&::-webkit-inner-spin-button]:appearance-none"
+        className="h-7 w-10 rounded-sm border border-foreground/20 bg-background text-center text-sm tabular-nums outline-none [appearance:textfield] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-40 [&::-webkit-inner-spin-button]:appearance-none"
       />
       <ToolButton
         label={t("editor.increaseFontSize")}
-        disabled={value === null}
-        onClick={() => value !== null && commit(value + 0.5)}
+        disabled={value === null || value >= MAX_FONT_SIZE}
+        onClick={() => onStep(1)}
       >
         <Plus />
       </ToolButton>
@@ -405,24 +597,165 @@ function FontSize({
   );
 }
 
-function PageJump({ count, onSelect }: { count: number; onSelect: (page: number) => void }) {
+function ColorMenu({
+  label,
+  icon: Icon,
+  value,
+  disabled,
+  resetLabel,
+  onSelect,
+}: {
+  label: string;
+  icon: typeof Baseline;
+  value: string | null;
+  disabled: boolean;
+  resetLabel: string;
+  onSelect: (color: string | null) => void;
+}) {
+  const { t } = useTranslation("translator");
+  const [open, setOpen] = useState(false);
+  const current = value ? normalizeColor(value) : undefined;
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={label}
+        title={label}
+        className={cn(triggerClass, "relative size-7 flex-col justify-center gap-0 px-0")}
+      >
+        <Icon className="size-4" aria-hidden />
+        <span
+          aria-hidden
+          className="-mt-0.5 h-0.75 w-4 rounded-full ring-1 ring-black/10"
+          style={{ background: current && current !== "transparent" ? current : "transparent" }}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-auto p-2">
+        <DropdownMenuItem onClick={() => onSelect(null)} className="mb-1.5">
+          {resetLabel}
+        </DropdownMenuItem>
+        <div className="grid grid-cols-10 gap-1" role="group" aria-label={label}>
+          {TEXT_COLORS.map((color) => (
+            <button
+              key={color}
+              type="button"
+              aria-label={color}
+              title={color}
+              onClick={() => {
+                onSelect(color);
+                setOpen(false);
+              }}
+              className={cn(
+                "size-5 cursor-pointer rounded-full ring-1 ring-black/15 transition-transform outline-none hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring",
+                current === color && "ring-2 ring-primary ring-offset-1",
+              )}
+              style={{ background: color }}
+            />
+          ))}
+        </div>
+        <label className="mt-2 flex cursor-pointer items-center gap-2 rounded-xs px-1.5 py-1 text-sm hover:bg-accent">
+          <span
+            aria-hidden
+            className="size-5 rounded-full ring-1 ring-black/15"
+            style={{ background: "conic-gradient(red, yellow, lime, aqua, blue, magenta, red)" }}
+          />
+          {t("editor.customColor")}
+          <input
+            type="color"
+            className="sr-only"
+            value={current && current !== "transparent" ? current : "#000000"}
+            onChange={(event) => onSelect(event.target.value)}
+          />
+        </label>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function LineSpacingMenu({
+  disabled,
+  value,
+  spaceBefore,
+  spaceAfter,
+  actions,
+}: {
+  disabled: boolean;
+  value: number | null;
+  spaceBefore: number;
+  spaceAfter: number;
+  actions: EditorActions;
+}) {
   const { t } = useTranslation("translator");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={t("editor.goToPage")}
-        title={t("editor.goToPage")}
-        className="flex h-7 shrink-0 cursor-pointer items-center gap-1 rounded-xs px-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/40 data-popup-open:bg-muted"
+        disabled={disabled}
+        aria-label={t("editor.lineSpacing")}
+        title={t("editor.lineSpacing")}
+        className={cn(triggerClass, "size-7 justify-center px-0")}
       >
-        <FileSearch className="size-4" aria-hidden />
-        <span className="tabular-nums">{t("editor.pageCount", { count })}</span>
-        <ChevronDown className="size-3 text-muted-foreground" aria-hidden />
+        <ListCollapse className="size-4" aria-hidden />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="max-h-72 w-36">
-        {Array.from({ length: count }, (_, page) => (
-          <DropdownMenuItem key={page} onClick={() => onSelect(page)}>
-            {t("editor.page", { page: page + 1 })}
+      <DropdownMenuContent align="start" className="w-64">
+        <DropdownMenuLabel>{t("editor.lineSpacing")}</DropdownMenuLabel>
+        {LINE_SPACINGS.map((spacing) => (
+          <DropdownMenuItem
+            key={spacing}
+            onClick={() => actions.setLineSpacing(spacing)}
+            className={cn(value !== null && Math.abs(value - spacing) < 0.01 && "bg-accent/60")}
+          >
+            {t(`editor.spacing.${String(spacing).replace(".", "_")}`)}
           </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => actions.setSpaceBefore(spaceBefore > 0 ? 0 : 10)}>
+          {t(spaceBefore > 0 ? "editor.removeSpaceBefore" : "editor.addSpaceBefore")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => actions.setSpaceAfter(spaceAfter > 0 ? 0 : 10)}>
+          {t(spaceAfter > 0 ? "editor.removeSpaceAfter" : "editor.addSpaceAfter")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function SpecialCharactersMenu({
+  disabled,
+  onSelect,
+}: {
+  disabled: boolean;
+  onSelect: (text: string) => void;
+}) {
+  const { t } = useTranslation("translator");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={t("editor.specialCharacters")}
+        title={t("editor.specialCharacters")}
+        className={cn(triggerClass, "size-7 justify-center px-0")}
+      >
+        <Omega className="size-4" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-72 p-2">
+        {SPECIAL_CHARACTERS.map(({ group, chars }) => (
+          <div key={group} className="mb-2 last:mb-0">
+            <p className="mb-1 px-1 text-xs font-medium text-muted-foreground">
+              {t(`editor.characterGroups.${group}`)}
+            </p>
+            <div className="grid grid-cols-8 gap-0.5">
+              {chars.map((char) => (
+                <DropdownMenuItem
+                  key={char}
+                  title={char}
+                  onClick={() => onSelect(char)}
+                  className="h-8 justify-center px-0 text-base"
+                >
+                  {char}
+                </DropdownMenuItem>
+              ))}
+            </div>
+          </div>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

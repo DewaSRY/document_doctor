@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useEditorState, type Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { CaseSensitive, ChevronDown, ChevronUp, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -12,11 +12,12 @@ import { getSearchState } from "./search-extension";
 const inputClass =
   "h-7 min-w-0 flex-1 rounded-xs border border-border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40";
 
-/** Find and replace across every segment. */
+/** Find and replace across every segment, like Google Docs' (⌘F / ⌘⇧H). */
 export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => void }) {
   const { t } = useTranslation("translator");
   const [query, setQuery] = useState("");
   const [replacement, setReplacement] = useState("");
+  const [matchCase, setMatchCase] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const search = useEditorState({
@@ -62,7 +63,7 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
           className={inputClass}
           onChange={(event) => {
             setQuery(event.target.value);
-            editor.commands.setSearchQuery(event.target.value);
+            editor.commands.setSearchQuery(event.target.value, matchCase);
           }}
           onKeyDown={(event) => {
             if (event.key !== "Enter") return;
@@ -78,6 +79,21 @@ export function FindBar({ editor, onClose }: { editor: Editor; onClose: () => vo
               : t("editor.noMatches")
             : ""}
         </span>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={t("editor.matchCase")}
+          title={t("editor.matchCase")}
+          aria-pressed={matchCase}
+          className={matchCase ? "bg-muted text-foreground" : undefined}
+          onClick={() => {
+            setMatchCase(!matchCase);
+            editor.commands.setSearchQuery(query, !matchCase);
+            inputRef.current?.focus();
+          }}
+        >
+          <CaseSensitive aria-hidden />
+        </Button>
         <Button
           variant="ghost"
           size="icon-sm"

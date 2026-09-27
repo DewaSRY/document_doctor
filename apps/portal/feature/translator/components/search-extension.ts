@@ -6,7 +6,7 @@ import { Decoration, DecorationSet } from "@tiptap/pm/view";
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     search: {
-      setSearchQuery: (query: string) => ReturnType;
+      setSearchQuery: (query: string, caseSensitive?: boolean) => ReturnType;
       findNext: () => ReturnType;
       findPrevious: () => ReturnType;
       replaceMatch: (replacement: string) => ReturnType;
@@ -22,6 +22,7 @@ interface Match {
 
 export interface SearchState {
   query: string;
+  caseSensitive: boolean;
   matches: Match[];
   /** The current match, or -1 when there is none. */
   index: number;
@@ -29,14 +30,15 @@ export interface SearchState {
 
 export const searchKey = new PluginKey<SearchState>("search");
 
-/** Case-insensitive matches of the query, within segments (never across them). */
-function findMatches(doc: ProseMirrorNode, query: string): Match[] {
+/** Matches of the query, within segments (never across them). */
+function findMatches(doc: ProseMirrorNode, query: string, caseSensitive: boolean): Match[] {
   if (!query) return [];
-  const needle = query.toLocaleLowerCase();
+  const fold = (value: string) => (caseSensitive ? value : value.toLocaleLowerCase());
+  const needle = fold(query);
   const matches: Match[] = [];
   doc.descendants((node, pos) => {
     if (node.type.name !== "segment") return true;
-    const text = node.textContent.toLocaleLowerCase();
+    const text = fold(node.textContent);
     for (let at = text.indexOf(needle); at !== -1; at = text.indexOf(needle, at + needle.length)) {
       matches.push({ from: pos + 1 + at, to: pos + 1 + at + needle.length });
     }
@@ -51,7 +53,7 @@ function withIndex(state: SearchState, index: number): SearchState {
 }
 
 export function getSearchState(state: EditorState): SearchState {
-  return searchKey.getState(state) ?? { query: "", matches: [], index: -1 };
+  return searchKey.getState(state) ?? { query: "", caseSensitive: false, matches: [], index: -1 };
 }
 
 export const Search = Extension.create({
@@ -75,9 +77,9 @@ export const Search = Extension.create({
 
     return {
       setSearchQuery:
-        (query) =>
+        (query, caseSensitive = false) =>
         ({ tr, dispatch }) => {
-          if (dispatch) tr.setMeta(searchKey, { query });
+          if (dispatch) tr.setMeta(searchKey, { query, caseSensitive });
           return true;
         },
       findNext: () => step(1),
@@ -117,16 +119,17 @@ export const Search = Extension.create({
       new Plugin<SearchState>({
         key: searchKey,
         state: {
-          init: () => ({ query: "", matches: [], index: -1 }),
+          init: () => ({ query: "", caseSensitive: false, matches: [], index: -1 }),
           apply: (tr, value, _old, state) => {
             const meta = tr.getMeta(searchKey) as Partial<SearchState> | undefined;
             const query = meta?.query ?? value.query;
+            const caseSensitive = meta?.caseSensitive ?? value.caseSensitive;
             if (meta?.query === undefined && !tr.docChanged) {
               return meta?.index === undefined ? value : withIndex(value, meta.index);
             }
-            const matches = findMatches(state.doc, query);
+            const matches = findMatches(state.doc, query, caseSensitive);
             const index = meta?.index ?? (meta?.query !== undefined ? 0 : value.index);
-            return withIndex({ query, matches, index }, Math.max(index, 0));
+            return withIndex({ query, caseSensitive, matches, index }, Math.max(index, 0));
           },
         },
         props: {

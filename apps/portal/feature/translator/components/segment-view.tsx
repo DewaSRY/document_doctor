@@ -42,9 +42,8 @@ function PdfSegmentView({ node, decorations }: NodeViewProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState(1);
 
-  const text = node.textContent;
   const isEmpty = node.content.size === 0;
-  const isEdited = text !== node.attrs.initial || node.attrs.style !== null;
+  const isEdited = node.textContent !== node.attrs.initial || node.attrs.style !== null;
   const isActive = decorations.some((decoration) => decoration.spec.active);
 
   const size = style.font_size;
@@ -69,15 +68,17 @@ function PdfSegmentView({ node, decorations }: NodeViewProps) {
     }
     setFit(scale);
     fits.set(node.attrs.key, scale);
-  }, [text, size, style.family, style.bold, style.italic, height, zoom, fits, node.attrs.key]);
+    // node.content changes with the text and with its formatting.
+  }, [node.content, size, style.family, height, zoom, fits, node.attrs.key]);
 
   const typography: CSSProperties = {
     fontFamily: FONT_STACKS[style.family],
     fontSize: `calc(${size * zoom}px * var(--fit, 1))`,
     lineHeight: layout.line_height,
     color: style.color,
-    fontWeight: style.bold ? 700 : 400,
-    fontStyle: style.italic ? "italic" : "normal",
+    // Bold and italic are marks on the text (see format-marks.ts).
+    fontWeight: 400,
+    fontStyle: "normal",
     textAlign: style.align,
     textIndent: `calc(${indent * zoom}px * var(--fit, 1))`,
   };

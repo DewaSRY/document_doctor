@@ -17,6 +17,8 @@ export interface PdfViewSettings {
   /** Show the original text under the active block. */
   showSource: boolean;
   fits: FitStore;
+  /** Laid out for printing: every page loads, without labels or gaps. */
+  printing: boolean;
 }
 
 export const PdfViewContext = createContext<PdfViewSettings | null>(null);

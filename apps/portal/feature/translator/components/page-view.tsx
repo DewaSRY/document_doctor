@@ -3,6 +3,8 @@
 import { NodeViewContent, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 import { getPageImageHref } from "../constants";
 import { usePdfView } from "./pdf-view-context";
 
@@ -10,7 +12,7 @@ import { usePdfView } from "./pdf-view-context";
  *  editable translations placed on top where the rebuilt PDF will have them. */
 export function PageView({ node }: NodeViewProps) {
   const { t } = useTranslation("translator");
-  const { documentId, pageCount, zoom, imageScale, compare } = usePdfView();
+  const { documentId, pageCount, zoom, imageScale, compare, printing } = usePdfView();
   const { number, width, height } = node.attrs as {
     number: number;
     width: number;
@@ -21,7 +23,10 @@ export function PageView({ node }: NodeViewProps) {
   return (
     <NodeViewWrapper
       data-page={number}
-      className="flex scroll-mt-32 flex-col items-center gap-2"
+      className={cn(
+        "flex scroll-mt-32 flex-col items-center gap-2",
+        printing && "gap-0 not-last:break-after-page",
+      )}
     >
       <div className="flex items-start gap-6">
         {compare && (
@@ -46,7 +51,7 @@ export function PageView({ node }: NodeViewProps) {
 
         <div
           style={sheet}
-          className="relative shrink-0 bg-white shadow-md ring-1 ring-black/10"
+          className="relative shrink-0 bg-white shadow-md ring-1 ring-black/10 print:shadow-none print:ring-0"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- a rendered PDF page, not an optimisable asset */}
           <img
@@ -54,7 +59,7 @@ export function PageView({ node }: NodeViewProps) {
             src={getPageImageHref(documentId, number, { scale: imageScale })}
             alt=""
             draggable={false}
-            loading={number < 2 ? "eager" : "lazy"}
+            loading={number < 2 || printing ? "eager" : "lazy"}
             className="pointer-events-none absolute inset-0 size-full select-none"
           />
           <NodeViewContent className="absolute inset-0" />
@@ -69,7 +74,7 @@ export function PageView({ node }: NodeViewProps) {
         </div>
       </div>
 
-      <span contentEditable={false} className="text-xs text-muted-foreground select-none">
+      <span contentEditable={false} className="text-xs text-muted-foreground select-none print:hidden">
         {t("editor.pageOf", { page: number + 1, count: pageCount })}
       </span>
     </NodeViewWrapper>
