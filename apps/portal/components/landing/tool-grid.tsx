@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { TOOL_HREFS } from "@/feature/tools/constants";
@@ -20,7 +21,13 @@ export function ToolGrid({
   labels,
 }: {
   groups: ToolGroup[];
-  labels: { all: string; filters: string; formats: string; ai: string };
+  labels: {
+    all: string;
+    filters: string;
+    formats: string;
+    output: string;
+    ai: string;
+  };
 }) {
   const [active, setActive] = useState(ALL);
   const filters = [{ id: ALL, title: labels.all }, ...groups];
@@ -76,17 +83,32 @@ export function ToolGrid({
                   <Icon className="size-6" aria-hidden />
                 </span>
                 <p className="mt-5 text-lg font-semibold">{tool.name}</p>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-pretty text-muted-foreground">
                   {tool.description}
                 </p>
-                <p className="mt-4 text-xs text-muted-foreground">
-                  <span className="sr-only">{labels.formats}: </span>
-                  <span className="font-mono font-medium">
-                    {tool.formats.join(" · ")}
-                  </span>
-                  {" — "}
-                  {tool.limit}
-                </p>
+                {/* Input → output, so each card says what goes in and what comes back. */}
+                <div className="mt-5 flex flex-col gap-2 border-t pt-4 text-xs">
+                  <p className="flex flex-wrap items-center gap-1.5">
+                    <span className="sr-only">{labels.formats}: </span>
+                    {tool.formats.map((format) => (
+                      <span
+                        key={format}
+                        className="rounded border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground/80"
+                      >
+                        {format}
+                      </span>
+                    ))}
+                    <ArrowRight
+                      className="size-3.5 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <span className="sr-only">{labels.output}: </span>
+                    <span className="font-medium text-foreground">
+                      {tool.output}
+                    </span>
+                  </p>
+                  <p className="text-muted-foreground">{tool.limit}</p>
+                </div>
               </Link>
             </li>
           );

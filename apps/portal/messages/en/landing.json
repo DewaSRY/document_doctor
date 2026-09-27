@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Document Doctor — Every Document & File Tool You Need at Work",
-    "description": "Translate, summarize, extract, convert, merge, split, resize and compress — Document Doctor puts the document and file tools you use at work in one web app. No install, no sign-up.",
+    "title": "Document Doctor — Translate, Summarize and Convert Documents Online",
+    "description": "Translate PDF and Word documents without losing the layout, summarize long reports, extract key details, convert PDF ⇄ Word, merge or split PDFs, and resize or compress images — in your browser, with no install or sign-up.",
     "keywords": [
       "online document tools",
       "AI document tools",
@@ -23,11 +23,11 @@
     "skipToContent": "Skip to content",
     "links": {
       "tools": "Tools",
+      "howItWorks": "How it works",
       "useCases": "Use cases",
       "features": "Why Document Doctor",
       "faq": "FAQ"
     },
-    "cta": "Explore tools",
     "menuOpen": "Open menu",
     "menuTitle": "Menu",
     "menuDescription": "Navigate to a section of the page, or change language.",
@@ -46,20 +46,20 @@
     }
   },
   "hero": {
-    "title": "Every tool you need to work with documents, ",
-    "titleAccent": "in one place.",
-    "description": "Translate, summarize, extract, convert, merge and resize — the document, file and image tools you use at work, right in your browser.",
+    "title": "Translate, summarize and convert your documents, ",
+    "titleAccent": "all in one place.",
+    "description": "Seven tools for everyday office files. Translate a PDF or Word document and keep its layout, get the key points of a long report, convert PDF ⇄ Word, merge PDFs and resize images, all in your browser.",
+    "primaryCta": "Translate a document",
+    "secondaryCta": "Browse all tools",
     "trust": [
       "No install",
       "No sign-up",
       "PDF, Word & images",
       "8 languages"
-    ]
+    ],
+    "trustLabel": "At a glance"
   },
   "tools": {
-    "eyebrow": "The toolkit",
-    "title": "Seven tools that cover the everyday file work",
-    "description": "Each tool does one job well. Open the one you need, drop in your file, and get the result — no switching between websites and apps.",
     "formatsLabel": "Supported file types",
     "groups": [
       {
@@ -70,32 +70,35 @@
           {
             "icon": "translator",
             "name": "Document Translator",
-            "description": "Translate PDF and Word files into 8 languages, keep the layout, and edit the result before you download it.",
+            "description": "Translate PDF and Word files between 8 languages, keep the layout, and correct the wording before you download.",
             "formats": [
               "PDF",
               "DOCX"
             ],
-            "limit": "Up to 5 MB"
+            "limit": "Up to 5 MB",
+            "output": "Editable translation"
           },
           {
             "icon": "summarizer",
             "name": "Document Summarizer",
-            "description": "Get a short overview and the key points of a long document, in the language you choose.",
+            "description": "Get a short overview and the key points of a long document, in the length and language you choose.",
             "formats": [
               "PDF",
               "DOCX"
             ],
-            "limit": "Up to 5 MB"
+            "limit": "Up to 5 MB",
+            "output": "Overview & key points"
           },
           {
             "icon": "extractor",
             "name": "Document Extractor",
-            "description": "Pull out people, organizations, dates, amounts, places and contact details — ready to copy or export as CSV.",
+            "description": "Pull out people, organizations, dates, amounts, places and contact details, ready to copy or download.",
             "formats": [
               "PDF",
               "DOCX"
             ],
-            "limit": "Up to 5 MB"
+            "limit": "Up to 5 MB",
+            "output": "Copy, CSV or JSON"
           }
         ]
       },
@@ -107,21 +110,23 @@
           {
             "icon": "converter",
             "name": "Document Converter",
-            "description": "Turn a PDF into an editable Word file, or a Word file into a PDF ready to share.",
+            "description": "Turn a PDF into an editable Word file, or a Word file into a PDF that's ready to share.",
             "formats": [
               "PDF",
               "DOCX"
             ],
-            "limit": "Up to 10 MB"
+            "limit": "Up to 10 MB",
+            "output": "Word or PDF"
           },
           {
             "icon": "pdf",
             "name": "PDF Merge & Split",
-            "description": "Combine up to 20 PDFs into one in the order you want, or split one PDF by page range.",
+            "description": "Combine up to 20 PDFs in the order you choose, or split one PDF by page range or into single pages.",
             "formats": [
               "PDF"
             ],
-            "limit": "Up to 10 MB per file"
+            "limit": "Up to 10 MB per file",
+            "output": "Merged or split PDF"
           }
         ]
       },
@@ -133,42 +138,81 @@
           {
             "icon": "resizer",
             "name": "Image Resizer",
-            "description": "Resize to exact dimensions or a preset like 1200 × 630 px, and pick how the image fills the frame.",
+            "description": "Resize to exact dimensions or a preset like 1200 × 630 px, and choose how the image fills the frame.",
             "formats": [
               "JPG",
               "PNG",
               "WEBP"
             ],
-            "limit": "Up to 10 MB"
+            "limit": "Up to 10 MB",
+            "output": "Resized image"
           },
           {
             "icon": "compressor",
             "name": "Image Compressor",
-            "description": "Shrink file size without visible quality loss, so uploads and email attachments go through.",
+            "description": "Make an image file smaller with a quality level you control, so uploads and email attachments go through.",
             "formats": [
               "JPG",
               "PNG",
               "WEBP"
             ],
-            "limit": "Up to 10 MB"
+            "limit": "Up to 10 MB",
+            "output": "Smaller image"
           }
         ]
       }
     ],
     "filtersLabel": "Filter tools by category",
     "all": "All",
-    "aiBadge": "AI"
+    "aiBadge": "AI",
+    "outputLabel": "Result"
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "title": "Three steps, whichever tool you use",
+    "description": "Every tool works the same way. Once you've used one, you know them all.",
+    "label": "Upload a file, choose options, then check and download the result",
+    "steps": [
+      {
+        "title": "Upload your file",
+        "body": "Open a tool and drop in a PDF, Word document or image. Nothing to install and no account to create."
+      },
+      {
+        "title": "Choose your options",
+        "body": "Pick the language, summary length, page range or image size. The tool does the rest."
+      },
+      {
+        "title": "Check and download",
+        "body": "Review the result on screen, correct it where the tool allows, then download or copy it."
+      }
+    ],
+    "demo": {
+      "file": "Annual_Report.pdf",
+      "fileMeta": "PDF · 2.4 MB",
+      "drop": "Drop your file here",
+      "from": "Indonesian",
+      "to": "English",
+      "length": "Summary length",
+      "lengths": [
+        "Short",
+        "Medium",
+        "Detailed"
+      ],
+      "result": "Annual_Report_EN.pdf",
+      "ready": "Ready",
+      "download": "Download"
+    }
   },
   "useCases": {
     "eyebrow": "Use cases",
-    "title": "Built for the moments that slow your day down",
-    "description": "Most work tasks aren't hard — they're just fiddly. Here's how people get them done in a few clicks.",
+    "title": "Made for the tasks that slow your day down",
+    "description": "Most office tasks aren't hard, just fiddly. Here's how to get them done in a few clicks.",
     "stepsLabel": "Tools used",
     "items": [
       {
         "role": "Operations & procurement",
         "situation": "A supplier sent the contract in Chinese.",
-        "body": "Translate it into English with the formal legal style, then pull out the dates and amounts you need to check.",
+        "body": "Translate it into English, then pull out the dates and amounts you need to check.",
         "tools": [
           "translator",
           "extractor"
@@ -185,7 +229,7 @@
       {
         "role": "Admin & HR",
         "situation": "The form you need to fill in is only a PDF.",
-        "body": "Convert it to Word, fill it in, and convert it back to PDF to send.",
+        "body": "Convert it to Word, fill it in, then turn it back into a PDF to send.",
         "tools": [
           "converter"
         ]
@@ -193,7 +237,7 @@
       {
         "role": "Finance",
         "situation": "Twelve invoices, one email.",
-        "body": "Merge them into a single PDF in the right order — or split a statement into the pages each team needs.",
+        "body": "Merge them into one PDF in the right order, or split a statement into the pages each team needs.",
         "tools": [
           "pdf"
         ]
@@ -201,7 +245,7 @@
       {
         "role": "Marketing & communications",
         "situation": "The banner has to be exactly 1200 × 630 px.",
-        "body": "Resize to the preset, then compress it so the page stays fast.",
+        "body": "Resize it with the preset, then compress it so the page stays fast.",
         "tools": [
           "resizer",
           "compressor"
@@ -220,101 +264,83 @@
   },
   "review": {
     "eyebrow": "Tool spotlight · Document Translator",
-    "title": "Translation that still looks like your document.",
-    "description": "Our deepest tool. It understands headings, lists and tables, writes each passage back where the original was, and lets you polish the result before it goes anywhere.",
+    "title": "A translation that still looks like your document.",
+    "description": "The translator reads headings, lists and tables, puts each translated passage where the original was, and lets you correct the wording before you download.",
     "label": "Preview of the translation progress and the document editor",
     "points": [
       {
-        "title": "Layout stays intact",
-        "body": "Pages, headings, tables and spacing stay where they were — no reformatting afterwards."
+        "title": "The layout stays in place",
+        "body": "Pages, headings, tables and spacing stay where they were, so there's no reformatting afterwards."
       },
       {
-        "title": "A style for every document",
-        "body": "General, professional, formal, casual, academic, technical or legal, so a contract stays formal and a guide stays friendly."
+        "title": "Compare with the original",
+        "body": "Open the original page next to the translation, and restore the AI version of any passage you changed."
       },
       {
         "title": "Edit before you download",
-        "body": "Fix wording, headings, lists and tables in the browser editor, then export as PDF or DOCX."
+        "body": "Fix wording and formatting in the browser editor, then download the file in its original format."
       }
     ],
     "languagesLabel": "Translate between any of these languages",
     "cta": "Translate a document",
     "progress": {
-      "title": "Translating document…",
+      "title": "Translating Quarterly_Report.docx",
       "steps": [
         {
-          "label": "Upload document",
+          "label": "Upload",
           "state": "done"
         },
         {
-          "label": "Extract document content",
+          "label": "Languages",
           "state": "done"
         },
         {
-          "label": "Analyze document",
-          "state": "done"
-        },
-        {
-          "label": "Translate content",
+          "label": "Translate",
           "state": "active"
         },
         {
-          "label": "Reconstruct document",
-          "state": "pending"
-        },
-        {
-          "label": "Prepare download",
+          "label": "Download or edit",
           "state": "pending"
         }
       ]
     },
     "editor": {
       "fileName": "Quarterly_Report_EN.docx",
-      "downloadDocx": "DOCX",
-      "downloadPdf": "PDF",
       "title": "Q3 Report",
       "paragraphs": [
         "Revenue grew 18% compared to the previous quarter, driven by expansion into",
         "Operating costs remained stable, while customer satisfaction rose to 92%."
       ],
       "edited": "three new cities.",
-      "hint": "Edited by you — changes are included in the download."
+      "hint": "Edited by you — changes are included in the download.",
+      "compare": "Original",
+      "download": "Download"
     }
   },
   "features": {
     "eyebrow": "Why Document Doctor",
-    "title": "Everything you need, nothing you have to set up",
-    "description": "One toolkit in place of a folder of bookmarks, trial apps and upload-and-hope websites.",
+    "title": "Practical tools you stay in control of",
+    "description": "Each tool does one job clearly, and you check the result before you use it.",
     "items": [
-      {
-        "icon": "allInOne",
-        "title": "One place for every task",
-        "body": "Document AI, file tools and image tools side by side. Finish a task and start the next without hunting for another site."
-      },
       {
         "icon": "noInstall",
         "title": "Nothing to install",
-        "body": "Everything runs in your browser. No software, no plugins, no account to create before you can start."
+        "body": "Everything runs in your browser. Open a tool and start, with no software, plugins or account."
       },
       {
         "icon": "control",
         "title": "AI helps, you decide",
-        "body": "Translations open in an editor, and extracted details are flagged for checking. Nothing leaves without your review."
+        "body": "Translations open in an editor, and extracted details are marked for you to check against the document."
       },
       {
         "icon": "layout",
         "title": "Documents stay documents",
-        "body": "Translation keeps the layout, and conversion rebuilds text, tables and images — not a wall of plain text."
-      },
-      {
-        "icon": "languages",
-        "title": "Works across 8 languages",
-        "body": "Translate and summarize in Indonesian, English, Chinese, Japanese, Korean, French, German and Spanish."
+        "body": "Translation keeps the layout, and conversion rebuilds text, tables and images instead of plain text."
       },
       {
         "icon": "privacy",
-        "title": "Your files stay yours",
-        "body": "Summarizer, extractor, file and image tools hand your result straight back without keeping a copy. Translations are saved only so you can reopen and edit them."
+        "title": "Your files aren't kept",
+        "body": "The summarizer, extractor, file and image tools return your result without keeping a copy. Translations are saved only so you can reopen and edit them."
       }
     ]
   },
@@ -384,7 +410,7 @@
       },
       {
         "question": "Can I check or edit what the AI produces?",
-        "answer": "Yes. Translations open in a browser editor where you can change text, headings, lists, links and tables before you export. Extracted details are marked as AI-found, so you can check important ones against the document."
+        "answer": "Yes. Translations open in a browser editor where you can change the wording and formatting, compare with the original page, and restore the AI version of any passage before you download. Extracted details are marked as found by AI, so you can check important ones against the document."
       },
       {
         "question": "Which languages are supported?",
@@ -396,8 +422,14 @@
       }
     ]
   },
+  "finalCta": {
+    "title": "Have a document to deal with?",
+    "description": "Pick a tool, upload your file and get the result in your browser.",
+    "primary": "Translate a document",
+    "secondary": "Browse all tools"
+  },
   "footer": {
-    "tagline": "Every document and file tool you need at work, in one place.",
+    "tagline": "Everyday document, file and image tools, in one place.",
     "product": "Product",
     "tools": "Tools",
     "rights": "All rights reserved."

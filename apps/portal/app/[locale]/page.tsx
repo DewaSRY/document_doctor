@@ -14,10 +14,12 @@ import {
   ToolsSection,
   type ToolGroup,
 } from "@/components/landing/tools-section";
+import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { UseCasesSection } from "@/components/landing/use-cases-section";
 import { ReviewEditSection } from "@/components/landing/review-edit-section";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { FaqSection, type FaqItem } from "@/components/landing/faq-section";
+import { FinalCtaSection } from "@/components/landing/final-cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { tList } from "@/components/landing/types";
 
@@ -140,10 +142,12 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       <main id="main" className="flex w-full flex-1 flex-col bg-muted">
         <HeroSection t={t} />
         <ToolsSection t={t} />
-        <UseCasesSection t={t} />
+        <HowItWorksSection t={t} />
         <ReviewEditSection t={t} />
+        <UseCasesSection t={t} />
         <FeaturesSection t={t} />
         <FaqSection t={t} />
+        <FinalCtaSection t={t} />
       </main>
       <LandingFooter t={t} appName={tCommon("appName")} />
     </>

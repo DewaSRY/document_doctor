@@ -6,6 +6,8 @@ export type Tool = {
   name: string;
   description: string;
   formats: string[];
+  /** What the tool hands back, shown as `formats → output` on its card. */
+  output: string;
   limit: string;
 };
 
@@ -16,7 +18,8 @@ export type ToolGroup = {
   items: Tool[];
 };
 
-/** The whole toolkit: category pills over one grid of tool cards. */
+/** The whole toolkit: category pills over one grid of tool cards. Sits
+ *  right under the hero, so it carries its label for screen readers only. */
 export function ToolsSection({ t }: { t: LandingT }) {
   return (
     <section
@@ -30,6 +33,7 @@ export function ToolsSection({ t }: { t: LandingT }) {
           all: t("tools.all"),
           filters: t("tools.filtersLabel"),
           formats: t("tools.formatsLabel"),
+          output: t("tools.outputLabel"),
           ai: t("tools.aiBadge"),
         }}
       />

@@ -1,15 +1,15 @@
 import {
+  AlignCenter,
+  AlignLeft,
   ArrowRight,
   Bold,
   Check,
+  Columns2,
   Download,
-  Heading2,
   Italic,
-  Link2,
-  List,
   PencilLine,
   Redo2,
-  Table,
+  Search,
   Underline,
   Undo2,
 } from "lucide-react";
@@ -22,15 +22,17 @@ import { START_HREF, tList, type LandingT } from "./types";
 type Step = { label: string; state: "done" | "active" | "pending" };
 type Language = { code: string; name: string; native: string };
 
+// Controls the real editor toolbar has (components/document-editor).
 const TOOLBAR = [
-  [Bold, Italic, Underline],
-  [Heading2, List, Link2, Table],
   [Undo2, Redo2],
+  [Bold, Italic, Underline],
+  [AlignLeft, AlignCenter],
+  [Search],
 ];
 
-/** Spotlight on the translator, the deepest tool. Mirrors the PRD's processing
- *  screen (§10) and the Tiptap review editor (§12): the user sees progress,
- *  then gets to fix the result before download. */
+/** Spotlight on the translator, the deepest tool. Mirrors the wizard's steps
+ *  and the review editor: the user sees progress, then gets to fix the
+ *  result before download. */
 export function ReviewEditSection({ t }: { t: LandingT }) {
   const points = tList<{ title: string; body: string }>(t, "review.points");
   const steps = tList<Step>(t, "review.progress.steps");
@@ -42,7 +44,7 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
       aria-labelledby="review-title"
       className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6"
     >
-      <div className="grid items-center gap-14 overflow-hidden rounded-2xl bg-card px-6 py-12 shadow-xs sm:px-10 lg:grid-cols-[1fr_1.15fr] lg:px-14 lg:py-16">
+      <div className="grid items-center gap-14 overflow-hidden rounded-2xl bg-card px-5 py-10 shadow-xs sm:px-10 sm:py-12 lg:grid-cols-[1fr_1.15fr] lg:px-14 lg:py-16 [&>*]:min-w-0">
         <div>
           <SectionHeading
             id="review-title"
@@ -117,12 +119,12 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
               </p>
               <div className="flex shrink-0 gap-2">
                 <span className="inline-flex h-7 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium">
-                  <Download className="size-3.5" />
-                  {t("review.editor.downloadDocx")}
+                  <Columns2 className="size-3.5" />
+                  {t("review.editor.compare")}
                 </span>
                 <span className="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground">
                   <Download className="size-3.5" />
-                  {t("review.editor.downloadPdf")}
+                  {t("review.editor.download")}
                 </span>
               </div>
             </div>
@@ -138,7 +140,7 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
                       key={j}
                       className={cn(
                         "grid size-7 place-items-center rounded text-muted-foreground",
-                        i === 0 && j === 0 && "bg-background text-foreground shadow-xs",
+                        i === 1 && j === 0 && "bg-background text-foreground shadow-xs",
                       )}
                     >
                       <Icon className="size-3.5" />
@@ -178,8 +180,8 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
           </div>
 
           {/* Processing card, floating over the editor's corner. */}
-          <div aria-hidden className="absolute right-4 bottom-0 w-64 rounded-xl border bg-card p-4 text-left shadow-lg shadow-black/10 sm:-right-6">
-            <p className="text-sm font-semibold">{t("review.progress.title")}</p>
+          <div aria-hidden className="absolute right-0 bottom-0 w-60 sm:w-64 rounded-xl border bg-card p-4 text-left shadow-lg shadow-black/10 sm:-right-6">
+            <p className="truncate text-sm font-semibold">{t("review.progress.title")}</p>
             <ol className="mt-3 flex flex-col gap-2">
               {steps.map((step) => (
                 <li
@@ -207,11 +209,8 @@ export function ReviewEditSection({ t }: { t: LandingT }) {
                 </li>
               ))}
             </ol>
-            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                <div className="h-full w-[65%] rounded-full bg-brand" />
-              </div>
-              <span className="tabular-nums">65%</span>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div className="h-full w-3/5 animate-pulse rounded-full bg-brand motion-reduce:animate-none" />
             </div>
           </div>
         </figure>

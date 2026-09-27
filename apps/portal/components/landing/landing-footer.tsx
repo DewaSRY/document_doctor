@@ -18,6 +18,7 @@ export function LandingFooter({
   const groups = tList<ToolGroup>(t, "tools.groups");
   const links = [
     { href: `#${SECTION_IDS.tools}`, label: t("nav.links.tools") },
+    { href: `#${SECTION_IDS.howItWorks}`, label: t("nav.links.howItWorks") },
     { href: `#${SECTION_IDS.useCases}`, label: t("nav.links.useCases") },
     { href: `#${SECTION_IDS.features}`, label: t("nav.links.features") },
     { href: `#${SECTION_IDS.faq}`, label: t("nav.links.faq") },
