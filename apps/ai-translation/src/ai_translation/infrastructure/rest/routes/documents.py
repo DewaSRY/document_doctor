@@ -16,7 +16,7 @@ from ai_translation.domain.translation import (
 )
 from ai_translation.domain.document import DocumentHandler, PDFHandler, DOCXHandler
 from ai_translation.infrastructure.rest.response_normalizer import normalize_success_response
-from ai_translation.infrastructure.rest.schemas import UpdateSegmentsRequest
+from ai_translation.infrastructure.rest.schemas import SegmentEdit, UpdateSegmentsRequest
 from ai_translation.infrastructure.rest.uploads import content_disposition
 from ai_translation.infrastructure.rest.exceptions import (
     APIException,
@@ -290,6 +290,88 @@ async def get_document_segments(
         )
 
 
+def _apply_edit(segment: dict, edit: SegmentEdit | None) -> dict:
+    if edit is None:
+        return segment
+    updated = {**segment, "translated_text": edit.translated_text}
+    # A style that is sent replaces the stored one; a style that is not sent is kept.
+    if "style" in edit.model_fields_set:
+        style = edit.style.model_dump(exclude_none=True) if edit.style else {}
+        updated.pop("style", None)
+        if style:
+            updated["style"] = style
+    return updated
+
+
+async def _get_pdf_original(session: AsyncSession, document_id: str) -> bytes:
+    document, stored = await _get_document_with_segments(session, document_id)
+    if document.document_type != "pdf":
+        raise ValidationError(
+            message="Page layout is only available for PDF documents",
+            details={"document_type": document.document_type},
+        )
+    return stored.original_document
+
+
+@router.get("/translated-document/{document_id}/layout")
+async def get_document_layout(
+    document_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    PDF only: the size of every page and, per segment, the area (in PDF points)
+    and style its translation is written with. Style overrides are not applied.
+    """
+    try:
+        original = await _get_pdf_original(session, document_id)
+        pages = await asyncio.to_thread(PDFHandler().page_layouts, original)
+        return normalize_success_response(
+            data={"document_id": document_id, "pages": pages},
+            message="Document layout retrieved successfully",
+            code=200,
+        )
+    except APIException:
+        raise
+    except Exception as exc:
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
+
+
+@router.get("/translated-document/{document_id}/pages/{page_num}/image")
+async def get_page_image(
+    document_id: str,
+    page_num: int,
+    scale: float = Query(2.0, ge=0.5, le=4.0, description="Pixels per PDF point"),
+    original: bool = Query(False, description="Keep the source text instead of removing it"),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """
+    PDF only: a PNG of one page of the original upload. By default the translatable
+    text is removed, so the editor can place the translations over it.
+    """
+    try:
+        pdf = await _get_pdf_original(session, document_id)
+        try:
+            png = await asyncio.to_thread(PDFHandler().render_page, pdf, page_num, scale, original)
+        except IndexError:
+            raise NotFoundError("Page", str(page_num))
+        # The original upload never changes, so neither does the image.
+        return Response(
+            content=png,
+            media_type="image/png",
+            headers={"Cache-Control": "private, max-age=86400, immutable"},
+        )
+    except APIException:
+        raise
+    except Exception as exc:
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
+
+
 @router.put("/translated-document/{document_id}/segments")
 @limiter.limit("30/minute")
 async def update_document_segments(
@@ -308,7 +390,7 @@ async def update_document_segments(
     try:
         document, stored = await _get_document_with_segments(session, document_id)
 
-        edits = {segment.key: segment.translated_text for segment in body.segments}
+        edits = {segment.key: segment for segment in body.segments}
         known_keys = {segment["key"] for segment in stored.segments}
         unknown_keys = sorted(edits.keys() - known_keys)
         if unknown_keys:
@@ -318,16 +400,14 @@ async def update_document_segments(
             )
 
         # Reassign rather than mutate so SQLAlchemy sees the JSON change.
-        stored.segments = [
-            {**segment, "translated_text": edits.get(segment["key"], segment["translated_text"])}
-            for segment in stored.segments
-        ]
+        stored.segments = [_apply_edit(segment, edits.get(segment["key"])) for segment in stored.segments]
 
         document.translated_document = await _get_handler(document.document_type).create_translated_document(
             stored.original_document,
             {segment["key"]: segment["translated_text"] for segment in stored.segments},
             document.source_language,
             document.target_language,
+            styles={segment["key"]: segment["style"] for segment in stored.segments if segment.get("style")},
         )
         await session.commit()
         await session.refresh(stored)

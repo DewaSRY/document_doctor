@@ -80,6 +80,7 @@ class DOCXHandler(DocumentHandler):
         translations: dict[str, str],
         source_language: str,
         target_language: str,
+        styles: dict[str, dict] | None = None,
     ) -> bytes:
         """Replace each paragraph with its translation, keeping the formatting."""
         doc = DocxDocument(BytesIO(file_content))

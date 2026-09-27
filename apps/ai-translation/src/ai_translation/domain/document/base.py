@@ -21,8 +21,12 @@ class DocumentHandler(ABC):
         translations: dict[str, str],
         source_language: str,
         target_language: str,
+        styles: dict[str, dict] | None = None,
     ) -> bytes:
-        """Create translated document preserving original structure."""
+        """Create translated document preserving original structure.
+
+        styles: optional per-segment style overrides, by key (PDF only).
+        """
 
     @staticmethod
     def _segment_text(text: str) -> list[str]:

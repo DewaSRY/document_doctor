@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
@@ -61,9 +61,24 @@ class TranslateDocumentResponse(BaseModel):
     created_at: str = Field(..., description="Timestamp when translation was created")
 
 
+class SegmentStyle(BaseModel):
+    """Overrides of a PDF segment's detected style; unset fields keep the detected value."""
+
+    bold: bool | None = None
+    italic: bool | None = None
+    font_size: float | None = Field(default=None, ge=4, le=96, description="Font size in points")
+    color: str | None = Field(default=None, pattern=r"^#[0-9a-fA-F]{6}$")
+    align: Literal["left", "center", "right", "justify"] | None = None
+    family: Literal["Helvetica", "Times", "Courier"] | None = None
+
+
 class SegmentEdit(BaseModel):
     key: str = Field(..., description="Segment key as returned by the segments endpoint (e.g. 'para_3')")
     translated_text: str = Field(..., description="New translated text for the segment")
+    style: SegmentStyle | None = Field(
+        default=None,
+        description="PDF only. Replaces the segment's style overrides when sent; null or {} clears them.",
+    )
 
 
 class UpdateSegmentsRequest(BaseModel):

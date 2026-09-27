@@ -163,11 +163,33 @@ class _PageLayout:
 
 @dataclass
 class _Placement:
+    """Where and how a translation is written: the segment's own style, unless overridden."""
+
     segment: _Segment
     rect: pymupdf.Rect
     align: str
     text_indent: float
+    font_size: float
+    family: str
+    bold: bool
+    italic: bool
+    color: int
     scale: float = 1.0
+
+    def apply_style(self, style: dict | None) -> None:
+        """Apply a user's style override (see SegmentStyle in the REST schemas)."""
+        if not style:
+            return
+        self.font_size = style.get("font_size", self.font_size)
+        self.family = style.get("family", self.family)
+        self.bold = style.get("bold", self.bold)
+        self.italic = style.get("italic", self.italic)
+        if "color" in style:
+            self.color = int(style["color"].lstrip("#"), 16)
+        if "align" in style:
+            self.align = style["align"]
+            if self.align not in ("left", "justify"):
+                self.text_indent = 0.0
 
 
 class PDFHandler(DocumentHandler):
@@ -198,8 +220,10 @@ class PDFHandler(DocumentHandler):
         translations: dict[str, str],
         source_language: str,
         target_language: str,
+        styles: dict[str, dict] | None = None,
     ) -> bytes:
         """Replace each source segment with its translation, keeping the layout."""
+        styles = styles or {}
         with pymupdf.open(stream=file_content, filetype="pdf") as pdf_document:
             for page in pdf_document:
                 # Layout is read before the original text is removed.
@@ -211,23 +235,13 @@ class PDFHandler(DocumentHandler):
                 ]
                 if not placements:
                     continue
+                for placement in placements:
+                    placement.apply_style(styles.get(placement.segment.key))
 
                 # Redaction deletes link annotations over the text; restore them afterwards.
                 links = page.get_links()
 
-                # Remove the original text only; keep images and table lines. The redaction
-                # covers the middle of each line, so tightly spaced neighbours are not touched.
-                for placement in placements:
-                    for line in placement.segment.lines:
-                        band = line.rect.height * 0.3
-                        page.add_redact_annot(
-                            line.rect + (0, band, 0, -band), fill=False
-                        )
-
-                page.apply_redactions(
-                    images=pymupdf.PDF_REDACT_IMAGE_NONE,
-                    graphics=pymupdf.PDF_REDACT_LINE_ART_NONE,
-                )
+                self._remove_text(page, [p.segment for p in placements])
 
                 self._fit(placements, translations)
                 for placement in placements:
@@ -248,6 +262,85 @@ class PDFHandler(DocumentHandler):
                 clean=True,
             )
             return pdf_bytes
+
+    def page_layouts(self, file_content: bytes) -> list[dict]:
+        """
+        Every page's size and, per segment, the area and style its translation is
+        written with, in PDF points. The editor uses it to show each translation
+        where the rebuilt PDF will have it.
+        """
+        pages = []
+        with pymupdf.open(stream=file_content, filetype="pdf") as pdf_document:
+            for page in pdf_document:
+                segments, layout = self._page_segments(page)
+                pages.append(
+                    {
+                        "page": page.number,
+                        "width": round(page.rect.width, 2),
+                        "height": round(page.rect.height, 2),
+                        "segments": [
+                            self._layout_entry(self._place(segment, layout))
+                            for segment in segments
+                        ],
+                    }
+                )
+        return pages
+
+    def render_page(
+        self, file_content: bytes, page_num: int, zoom: float, with_text: bool
+    ) -> bytes:
+        """
+        A PNG of one page. Without text, the translatable text is removed (as in the
+        rebuild), leaving images, tables and untranslated text for the editor's background.
+        """
+        with pymupdf.open(stream=file_content, filetype="pdf") as pdf_document:
+            if not 0 <= page_num < pdf_document.page_count:
+                raise IndexError(page_num)
+            page = pdf_document[page_num]
+            if not with_text:
+                segments, _ = self._page_segments(page)
+                if segments:
+                    self._remove_text(page, segments)
+            pixmap = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
+            return pixmap.tobytes("png")
+
+    @staticmethod
+    def _layout_entry(placement: _Placement) -> dict:
+        segment = placement.segment
+        return {
+            "key": segment.key,
+            # The area the translation may fill, and the area of the source text.
+            "rect": [round(v, 2) for v in placement.rect],
+            "source_rect": [round(v, 2) for v in segment.bbox],
+            "baseline": round(segment.style.baseline, 2),
+            "baseline_ratio": round(
+                _baseline_ratio(placement.family, round(segment.line_height, 2)), 4
+            ),
+            "line_count": len(segment.lines),
+            "line_height": round(segment.line_height, 3),
+            "text_indent": round(placement.text_indent, 2),
+            "font_size": round(placement.font_size, 2),
+            "family": placement.family,
+            "bold": placement.bold,
+            "italic": placement.italic,
+            "color": f"#{placement.color:06x}",
+            "align": placement.align,
+        }
+
+    @staticmethod
+    def _remove_text(page: pymupdf.Page, segments: list[_Segment]) -> None:
+        """
+        Remove the segments' text only; keep images and table lines. The redaction
+        covers the middle of each line, so tightly spaced neighbours are not touched.
+        """
+        for segment in segments:
+            for line in segment.lines:
+                band = line.rect.height * 0.3
+                page.add_redact_annot(line.rect + (0, band, 0, -band), fill=False)
+        page.apply_redactions(
+            images=pymupdf.PDF_REDACT_IMAGE_NONE,
+            graphics=pymupdf.PDF_REDACT_LINE_ART_NONE,
+        )
 
     # ------------------------------------------------------------------ extraction
 
@@ -455,7 +548,15 @@ class PDFHandler(DocumentHandler):
         y1 = max(bbox.y1, bottom - pad)
         text_indent = style.rect.x0 - bbox.x0 if align in ("left", "justify") else 0.0
         return _Placement(
-            segment, pymupdf.Rect(x0, bbox.y0, x1, y1), align, text_indent
+            segment,
+            pymupdf.Rect(x0, bbox.y0, x1, y1),
+            align,
+            text_indent,
+            font_size=style.font_size,
+            family=style.family,
+            bold=style.bold,
+            italic=style.italic,
+            color=style.color,
         )
 
     @classmethod
@@ -482,7 +583,7 @@ class PDFHandler(DocumentHandler):
             )
             column = round(segment.bbox.x0 / 3)
             groups.setdefault(
-                (segment.style.block, column, round(segment.style.font_size)), []
+                (segment.style.block, column, round(placement.font_size)), []
             ).append(placement)
 
         for group in groups.values():
@@ -506,9 +607,9 @@ class PDFHandler(DocumentHandler):
     def _text_rect(placement: _Placement, scale: float) -> pymupdf.Rect:
         """The placement area, moved so the first baseline lands on the original one."""
         segment = placement.segment
-        size = segment.style.font_size * scale
+        size = placement.font_size * scale
         top = segment.style.baseline - size * _baseline_ratio(
-            segment.style.family, round(segment.line_height, 2)
+            placement.family, round(segment.line_height, 2)
         )
         rect = pymupdf.Rect(placement.rect)
         rect.y0 = top
@@ -521,14 +622,13 @@ class PDFHandler(DocumentHandler):
 
     @staticmethod
     def _css(placement: _Placement, scale: float) -> str:
-        style = placement.segment.style
-        red, green, blue = pymupdf.sRGB_to_rgb(style.color)
+        red, green, blue = pymupdf.sRGB_to_rgb(placement.color)
         return (
             "body {margin: 0; padding: 0;} "
-            f"* {{font-family: {style.family}; font-size: {style.font_size * scale:.2f}px; "
+            f"* {{font-family: {placement.family}; font-size: {placement.font_size * scale:.2f}px; "
             f"color: rgb({red}, {green}, {blue}); "
-            f"font-weight: {'bold' if style.bold else 'normal'}; "
-            f"font-style: {'italic' if style.italic else 'normal'}; "
+            f"font-weight: {'bold' if placement.bold else 'normal'}; "
+            f"font-style: {'italic' if placement.italic else 'normal'}; "
             f"line-height: {placement.segment.line_height:.2f}; "
             f"text-align: {placement.align}; text-indent: {placement.text_indent * scale:.2f}px; "
             "margin: 0; padding: 0;}"
