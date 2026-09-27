@@ -1,9 +1,7 @@
 import html
 import re
 from dataclasses import dataclass, field
-
 import pymupdf
-
 from .base import DocumentHandler
 
 
@@ -70,6 +68,7 @@ class PDFHandler(DocumentHandler):
                 for segment in page_segments:
                     for rect in segment.rects:
                         page.add_redact_annot(rect, fill=False)
+                        
                 page.apply_redactions(
                     images=pymupdf.PDF_REDACT_IMAGE_NONE,
                     graphics=pymupdf.PDF_REDACT_LINE_ART_NONE,
@@ -84,7 +83,13 @@ class PDFHandler(DocumentHandler):
                     "subject": f"Translated from {source_language} to {target_language}",
                 }
             )
-            return pdf_document.tobytes(garbage=3, deflate=True)
+
+            pdf_bytes = pdf_document.tobytes(
+                garbage=4,
+                deflate=True,
+                clean=True,
+            )
+            return pdf_bytes
 
     def _collect_segments(self, pdf_document: pymupdf.Document) -> list[_Segment]:
         segments: list[_Segment] = []

@@ -1,29 +1,32 @@
+import re
 from io import BytesIO
+
 from docx import Document as DocxDocument
+from docx.document import Document
+from docx.text.hyperlink import Hyperlink
+from docx.text.paragraph import Paragraph
+from docx.text.run import Run
 
 from .base import DocumentHandler
 
 
 class DOCXHandler(DocumentHandler):
-    """Handler for DOCX documents."""
+    """
+    Handler for DOCX documents.
+
+    Every paragraph (body, tables, headers and footers) is one segment.
+    Keys look like 'para_3' and are stable between extraction and rebuild.
+    """
+
+    _HAS_LETTER = re.compile(r"[^\W\d_]")
 
     async def extract_text(self, file_content: bytes) -> dict[str, list[str]]:
-        """Extract text from DOCX, preserving paragraph structure."""
+        """Extract translatable paragraphs from the DOCX."""
         doc = DocxDocument(BytesIO(file_content))
-        paragraphs_text = {}
-
-        for para_num, para in enumerate(doc.paragraphs):
-            if para.text.strip():
-                paragraphs_text[f"para_{para_num}"] = [para.text.strip()]
-
-        for table_num, table in enumerate(doc.tables):
-            for row_num, row in enumerate(table.rows):
-                for cell_num, cell in enumerate(row.cells):
-                    if cell.text.strip():
-                        key = f"table_{table_num}_row_{row_num}_cell_{cell_num}"
-                        paragraphs_text[key] = [cell.text.strip()]
-
-        return paragraphs_text
+        return {
+            key: self._segment_text(paragraph.text)
+            for key, paragraph in self._collect_paragraphs(doc).items()
+        }
 
     async def create_translated_document(
         self,
@@ -32,38 +35,65 @@ class DOCXHandler(DocumentHandler):
         source_language: str,
         target_language: str,
     ) -> bytes:
-        """Create translated DOCX by replacing text in paragraphs and tables."""
+        """Replace each paragraph with its translation, keeping the formatting."""
         doc = DocxDocument(BytesIO(file_content))
 
-        # Replace text in paragraphs
-        for para_num, para in enumerate(doc.paragraphs):
-            if para.text.strip():
-                key = f"para_{para_num}"
-                if key in translations:
-                    # Clear existing runs and add translated text
-                    for run in para.runs:
-                        run.text = ""
-                    para.clear()
-                    para.add_run(translations[key])
+        for key, paragraph in self._collect_paragraphs(doc).items():
+            translated_text = translations.get(key, "").strip()
+            if translated_text:
+                self._write_paragraph(paragraph, translated_text)
 
-        # Replace text in table cells
-        for table_num, table in enumerate(doc.tables):
-            for row_num, row in enumerate(table.rows):
-                for cell_num, cell in enumerate(row.cells):
-                    if cell.text.strip():
-                        key = f"table_{table_num}_row_{row_num}_cell_{cell_num}"
-                        if key in translations:
-                            # Clear cell paragraphs and add translated text
-                            for para in cell.paragraphs:
-                                para.clear()
-                            if cell.paragraphs:
-                                cell.paragraphs[0].add_run(translations[key])
-
-        core_props = doc.core_properties
-        core_props.subject = f"Translated from {source_language} to {target_language}"
-        core_props.comments = "Translated by AI Translation Service"
+        doc.core_properties.subject = f"Translated from {source_language} to {target_language}"
+        doc.core_properties.comments = "Translated by AI Translation Service"
 
         output = BytesIO()
         doc.save(output)
-        output.seek(0)
         return output.getvalue()
+
+    def _collect_paragraphs(self, doc: Document) -> dict[str, Paragraph]:
+        paragraphs: list[Paragraph] = []
+
+        def walk(container) -> None:
+            """Add the paragraphs of a document, cell, header or footer, including nested tables."""
+            paragraphs.extend(container.paragraphs)
+            for table in container.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        walk(cell)
+
+        walk(doc)
+        for section in doc.sections:
+            walk(section.header)
+            walk(section.footer)
+
+        # Merged cells and linked headers return the same paragraph more than once.
+        result: dict[str, Paragraph] = {}
+        seen = set()
+        for paragraph in paragraphs:
+            if paragraph._p in seen or not self._HAS_LETTER.search(paragraph.text):
+                continue
+            seen.add(paragraph._p)
+            result[f"para_{len(result)}"] = paragraph
+        return result
+
+    @staticmethod
+    def _write_paragraph(paragraph: Paragraph, translated_text: str) -> None:
+        """Put the translation in the first text run so its style is kept; empty the rest."""
+        runs: list[Run] = []
+        for item in paragraph.iter_inner_content():
+            runs.extend(item.runs if isinstance(item, Hyperlink) else [item])
+
+        # Only touch runs with text, so images and other inline objects survive.
+        text_runs = [run for run in runs if run.text]
+        if not text_runs:
+            paragraph.add_run(translated_text)
+            return
+
+        text_runs[0].text = translated_text
+        for run in text_runs[1:]:
+            run.text = ""
+
+    def _segment_text(self, text: str) -> list[str]:
+        """Segment text into sentences."""
+        sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+        return [s.strip() for s in sentences if s.strip()]
