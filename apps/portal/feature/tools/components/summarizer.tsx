@@ -18,7 +18,10 @@ import {
 } from "@/components/file-tools";
 import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
-import { LANGUAGE_CODES, type LanguageCode } from "@/feature/translator/constants";
+import {
+  LANGUAGE_CODES,
+  type LanguageCode,
+} from "@/feature/translator/constants";
 
 import {
   DOCUMENT_ACCEPT,
@@ -35,7 +38,11 @@ const SAME_LANGUAGE = "same";
 const MAX_SIZE_MB = DOCUMENT_AI_MAX_SIZE / 1024 / 1024;
 
 function summaryText(summary: DocumentSummary): string {
-  return [summary.overview, "", ...summary.key_points.map((point) => `• ${point}`)].join("\n");
+  return [
+    summary.overview,
+    "",
+    ...summary.key_points.map((point) => `• ${point}`),
+  ].join("\n");
 }
 
 export function Summarizer() {
@@ -50,7 +57,9 @@ export function Summarizer() {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [length, setLength] = useState<SummaryLength>("medium");
-  const [language, setLanguage] = useState<LanguageCode | typeof SAME_LANGUAGE>(SAME_LANGUAGE);
+  const [language, setLanguage] = useState<LanguageCode | typeof SAME_LANGUAGE>(
+    SAME_LANGUAGE,
+  );
 
   function selectFile([selected]: File[]) {
     if (!selected) return;
@@ -110,12 +119,18 @@ export function Summarizer() {
             onChange={setLanguage}
             options={[
               { value: SAME_LANGUAGE, label: t("summarizer.sameLanguage") },
-              ...LANGUAGE_CODES.map((code) => ({ value: code, label: t(`languages.${code}`) })),
+              ...LANGUAGE_CODES.map((code) => ({
+                value: code,
+                label: t(`languages.${code}`),
+              })),
             ]}
           />
 
           {summarize.isError && (
-            <ErrorAlert title={t("summarizer.errorTitle")} error={summarize.error} />
+            <ErrorAlert
+              title={t("summarizer.errorTitle")}
+              error={summarize.error}
+            />
           )}
 
           <SubmitButton
@@ -147,7 +162,13 @@ export function Summarizer() {
   );
 }
 
-function SummaryResult({ summary, onReset }: { summary: DocumentSummary; onReset: () => void }) {
+function SummaryResult({
+  summary,
+  onReset,
+}: {
+  summary: DocumentSummary;
+  onReset: () => void;
+}) {
   const { t } = useTranslation("tools");
   const [copied, setCopied] = useState(false);
 
@@ -163,18 +184,26 @@ function SummaryResult({ summary, onReset }: { summary: DocumentSummary; onReset
         <p className="truncate text-sm text-muted-foreground">
           {summary.file_name}
         </p>
-        <h2 id="summary-title" className="mt-1 text-xl font-semibold tracking-tight">
+        <h2
+          id="summary-title"
+          className="mt-1 text-xl font-semibold tracking-tight"
+        >
           {t("summarizer.overview")}
         </h2>
         <p className="mt-3 leading-relaxed">{summary.overview}</p>
 
         {summary.key_points.length > 0 && (
           <>
-            <h3 className="mt-6 text-base font-semibold">{t("summarizer.keyPoints")}</h3>
+            <h3 className="mt-6 text-base font-semibold">
+              {t("summarizer.keyPoints")}
+            </h3>
             <ul className="mt-3 flex flex-col gap-2">
               {summary.key_points.map((point) => (
                 <li key={point} className="flex gap-2.5 leading-relaxed">
-                  <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-brand" />
+                  <span
+                    aria-hidden
+                    className="mt-2.5 size-1.5 shrink-0 rounded-full bg-brand"
+                  />
                   {point}
                 </li>
               ))}
@@ -190,7 +219,11 @@ function SummaryResult({ summary, onReset }: { summary: DocumentSummary; onReset
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" className="h-9 rounded-lg px-4" onClick={copy}>
+        <Button
+          variant="outline"
+          className="h-9 rounded-lg px-4"
+          onClick={copy}
+        >
           {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
           {copied ? t("common.copied") : t("common.copy")}
         </Button>
@@ -199,7 +232,9 @@ function SummaryResult({ summary, onReset }: { summary: DocumentSummary; onReset
           className="h-9 rounded-lg px-4"
           onClick={() =>
             saveBlob(
-              new Blob([summaryText(summary)], { type: "text/plain;charset=utf-8" }),
+              new Blob([summaryText(summary)], {
+                type: "text/plain;charset=utf-8",
+              }),
               `${fileStem(summary.file_name)}_summary.txt`,
             )
           }
@@ -207,7 +242,11 @@ function SummaryResult({ summary, onReset }: { summary: DocumentSummary; onReset
           <Download aria-hidden />
           {t("summarizer.downloadText")}
         </Button>
-        <Button variant="ghost" className="h-9 rounded-lg px-4 sm:ml-auto" onClick={onReset}>
+        <Button
+          variant="ghost"
+          className="h-9 rounded-lg px-4 sm:ml-auto"
+          onClick={onReset}
+        >
           <RotateCcw aria-hidden />
           {t("summarizer.another")}
         </Button>

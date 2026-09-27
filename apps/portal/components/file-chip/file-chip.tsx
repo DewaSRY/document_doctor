@@ -16,7 +16,7 @@ export function FileChip({
   file,
   icon: Icon = FileText,
   preview = false,
-  defaultPreviewOpen = false,
+  defaultPreviewOpen = true,
   children,
 }: {
   file: File;
@@ -39,7 +39,8 @@ export function FileChip({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{file.name}</p>
           <p className="text-xs text-muted-foreground">
-            {getFileExtension(file.name).toUpperCase()} · {formatFileSize(file.size)}
+            {getFileExtension(file.name).toUpperCase()} ·{" "}
+            {formatFileSize(file.size)}
           </p>
         </div>
         {showToggle && (

@@ -19,7 +19,12 @@ import { FileChip } from "@/components/file-chip";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { FILE_TOOL_MAX_SIZE, MAX_MERGE_FILES, PDF_ACCEPT, PDF_EXTENSIONS } from "../constants";
+import {
+  FILE_TOOL_MAX_SIZE,
+  MAX_MERGE_FILES,
+  PDF_ACCEPT,
+  PDF_EXTENSIONS,
+} from "../constants";
 import { useFileTool, usePdfInfo } from "../hooks/query";
 import { fileStem } from "../utils";
 
@@ -79,11 +84,16 @@ function MergePdfs() {
     const room = MAX_MERGE_FILES - files.length;
 
     setFileError(
-      errors[0] ?? (valid.length > room ? t("pdf.merge.tooMany", { count: MAX_MERGE_FILES }) : null),
+      errors[0] ??
+        (valid.length > room
+          ? t("pdf.merge.tooMany", { count: MAX_MERGE_FILES })
+          : null),
     );
     setFiles((current) => [
       ...current,
-      ...valid.slice(0, room).map((file) => ({ id: crypto.randomUUID(), file })),
+      ...valid
+        .slice(0, room)
+        .map((file) => ({ id: crypto.randomUUID(), file })),
     ]);
   }
 
@@ -138,7 +148,12 @@ function MergePdfs() {
         <ol className="flex flex-col gap-2" aria-label={t("pdf.merge.order")}>
           {files.map(({ id, file }, index) => (
             <li key={id}>
-              <FileChip file={file} icon={FileText}>
+              <FileChip
+                file={file}
+                icon={FileText}
+                preview
+                defaultPreviewOpen={false}
+              >
                 <span className="text-xs font-medium text-muted-foreground tabular-nums">
                   {index + 1}
                 </span>
@@ -164,7 +179,11 @@ function MergePdfs() {
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t("pdf.merge.remove", { name: file.name })}
-                  onClick={() => setFiles((current) => current.filter((item) => item.id !== id))}
+                  onClick={() =>
+                    setFiles((current) =>
+                      current.filter((item) => item.id !== id),
+                    )
+                  }
                 >
                   <X aria-hidden />
                 </Button>
@@ -179,18 +198,31 @@ function MergePdfs() {
           accept={PDF_ACCEPT}
           multiple
           compact={files.length > 0}
-          hint={t("pdf.merge.hint", { size: MAX_SIZE_MB, count: MAX_MERGE_FILES })}
+          hint={t("pdf.merge.hint", {
+            size: MAX_SIZE_MB,
+            count: MAX_MERGE_FILES,
+          })}
           onFiles={addFiles}
         />
       )}
       <FieldError>{fileError}</FieldError>
 
-      {files.length === 1 && <p className="text-sm text-muted-foreground">{t("pdf.merge.needTwo")}</p>}
+      {files.length === 1 && (
+        <p className="text-sm text-muted-foreground">
+          {t("pdf.merge.needTwo")}
+        </p>
+      )}
 
-      {merge.isError && <ErrorAlert title={t("pdf.merge.errorTitle")} error={merge.error} />}
+      {merge.isError && (
+        <ErrorAlert title={t("pdf.merge.errorTitle")} error={merge.error} />
+      )}
 
       {files.length > 0 && (
-        <SubmitButton retry={merge.isError} disabled={files.length < 2} onClick={submit}>
+        <SubmitButton
+          retry={merge.isError}
+          disabled={files.length < 2}
+          onClick={submit}
+        >
           {t("pdf.merge.submit", { count: files.length })}
         </SubmitButton>
       )}
@@ -263,7 +295,12 @@ function SplitPdf() {
   }
 
   if (split.isPending) {
-    return <Processing title={t("pdf.split.processing", { fileName: file.name })} description={t("common.processing")} />;
+    return (
+      <Processing
+        title={t("pdf.split.processing", { fileName: file.name })}
+        description={t("common.processing")}
+      />
+    );
   }
 
   if (split.data) {
@@ -284,14 +321,18 @@ function SplitPdf() {
     <section className="flex flex-col gap-6">
       <FileChip file={file} preview>
         {pageCount !== undefined && (
-          <span className="text-xs text-muted-foreground">{t("pdf.split.pages", { count: pageCount })}</span>
+          <span className="text-xs text-muted-foreground">
+            {t("pdf.split.pages", { count: pageCount })}
+          </span>
         )}
         <Button variant="ghost" size="sm" onClick={startOver}>
           {t("common.changeFile")}
         </Button>
       </FileChip>
 
-      {info.isError && <ErrorAlert title={t("pdf.split.readError")} error={info.error} />}
+      {info.isError && (
+        <ErrorAlert title={t("pdf.split.readError")} error={info.error} />
+      )}
 
       {!info.isError && (
         <>
@@ -300,8 +341,16 @@ function SplitPdf() {
             value={mode}
             onChange={setMode}
             options={[
-              { value: "ranges", label: t("pdf.split.modes.ranges"), description: t("pdf.split.modeDescriptions.ranges") },
-              { value: "every", label: t("pdf.split.modes.every"), description: t("pdf.split.modeDescriptions.every") },
+              {
+                value: "ranges",
+                label: t("pdf.split.modes.ranges"),
+                description: t("pdf.split.modeDescriptions.ranges"),
+              },
+              {
+                value: "every",
+                label: t("pdf.split.modes.every"),
+                description: t("pdf.split.modeDescriptions.every"),
+              },
             ]}
           />
 
@@ -324,7 +373,10 @@ function SplitPdf() {
                     : t("pdf.split.rangesHint")}
                 </p>
               </div>
-              <label htmlFor={singleId} className="flex items-start gap-2.5 text-sm">
+              <label
+                htmlFor={singleId}
+                className="flex items-start gap-2.5 text-sm"
+              >
                 <input
                   id={singleId}
                   type="checkbox"
@@ -333,14 +385,20 @@ function SplitPdf() {
                   className="mt-0.5 size-4 accent-brand"
                 />
                 <span>
-                  <span className="font-medium">{t("pdf.split.singleFile")}</span>
-                  <span className="block text-muted-foreground">{t("pdf.split.singleFileDescription")}</span>
+                  <span className="font-medium">
+                    {t("pdf.split.singleFile")}
+                  </span>
+                  <span className="block text-muted-foreground">
+                    {t("pdf.split.singleFileDescription")}
+                  </span>
                 </span>
               </label>
             </div>
           )}
 
-          {split.isError && <ErrorAlert title={t("pdf.split.errorTitle")} error={split.error} />}
+          {split.isError && (
+            <ErrorAlert title={t("pdf.split.errorTitle")} error={split.error} />
+          )}
 
           <SubmitButton
             retry={split.isError}
