@@ -183,3 +183,47 @@
   transform-origin: left;
   animation: fill 3.2s ease-in-out infinite;
 }
+
+/* SparkleLoader (components/ui/sparkle-loader.tsx): the core star breathes
+   and turns a quarter-rotation per cycle (seamless thanks to its 4-fold
+   symmetry); satellites twinkle in on staggered delays. */
+@keyframes sparkle-core {
+  0% { transform: scale(0.82) rotate(0deg); }
+  50% { transform: scale(1) rotate(45deg); }
+  100% { transform: scale(0.82) rotate(90deg); }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1) rotate(90deg); opacity: 1; }
+}
+
+@keyframes sparkle-glow {
+  0%, 100% { transform: scale(0.8); opacity: 0.35; }
+  50% { transform: scale(1.15); opacity: 0.75; }
+}
+
+.animate-sparkle-core {
+  animation: sparkle-core 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.animate-sparkle-twinkle {
+  animation: sparkle-twinkle 1.65s ease-in-out infinite;
+}
+
+.animate-sparkle-glow {
+  animation: sparkle-glow 2.4s ease-in-out infinite;
+}
+
+/* Reduced motion: freeze into a static sparkle cluster that still reads as
+   "busy" alongside the accessible status label. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-sparkle-core,
+  .animate-sparkle-glow {
+    animation: none !important;
+  }
+  .animate-sparkle-twinkle {
+    animation: none !important;
+    opacity: 0.7;
+  }
+}
