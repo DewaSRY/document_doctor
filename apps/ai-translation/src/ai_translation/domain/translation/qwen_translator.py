@@ -1,10 +1,12 @@
 import os
+import threading
 from typing import Any
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from .dto import TranslationParams
+from .url_protection import translate_protecting_urls
 
 class QwenTranslatorModel:
     """
@@ -37,10 +39,18 @@ class QwenTranslatorModel:
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name,
         )
+        # Decoder-only models must be padded on the left for batched generation.
+        self.tokenizer.padding_side = "left"
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        self.batch_size = int(os.getenv("TRANSLATION_BATCH_SIZE", "8"))
+        # generate() is not safe to run from several threads on one model.
+        self._lock = threading.Lock()
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
-            torch_dtype=self.dtype,
+            dtype=self.dtype,
         )
 
         self.model.to(self.device)
@@ -100,6 +110,7 @@ class QwenTranslatorModel:
             f"{translation_params.target_language}. "
             f"{style_instruction} "
             "Preserve the original meaning and context. "
+            "Keep placeholders such as [1] exactly as they are. "
             "Do not explain the translation. "
             "Output ONLY the translated text."
         )
@@ -127,26 +138,123 @@ class QwenTranslatorModel:
             add_generation_prompt=True,
         )
 
-    @torch.inference_mode()
     def translate(
         self,
         translation_params: TranslationParams,
+        **generation_options: Any,
+    ) -> str:
+        """Process one translation request at runtime."""
+        return self.translate_batch([translation_params], **generation_options)[0]
+
+    def translate_batch(
+        self,
+        params_list: list[TranslationParams],
         *,
         max_new_tokens: int = 256,
         temperature: float = 0.2,
         do_sample: bool = False,
-    ) -> str:
+    ) -> list[str]:
         """
-        Process one translation request at runtime.
+        Translate many texts with batched generation.
 
-        The model itself is NOT loaded again.
+        URLs are kept verbatim. Texts are sorted by length so each batch
+        carries little padding; results are returned in the input order.
         """
+        return translate_protecting_urls(
+            params_list,
+            lambda protected: self._translate_sorted(
+                protected,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=do_sample,
+            ),
+        )
 
-        prompt = self._build_prompt(translation_params)
+    def _translate_sorted(
+        self,
+        params_list: list[TranslationParams],
+        *,
+        max_new_tokens: int,
+        temperature: float,
+        do_sample: bool,
+    ) -> list[str]:
+        order = sorted(
+            range(len(params_list)),
+            key=lambda index: len(params_list[index].text),
+        )
+        results: list[str] = [""] * len(params_list)
 
+        for start in range(0, len(order), self.batch_size):
+            batch_indices = order[start:start + self.batch_size]
+            translations = self._generate(
+                [params_list[index] for index in batch_indices],
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=do_sample,
+            )
+            for index, translation in zip(batch_indices, translations):
+                results[index] = translation
+
+        return results
+
+    def chat_batch(
+        self,
+        conversations: list[list[dict[str, str]]],
+        *,
+        max_new_tokens: int = 512,
+    ) -> list[str]:
+        """
+        Run free-form chat completions (summaries, extraction, ...) on the
+        loaded model, in batches; results are returned in the input order.
+        """
+        prompts = [
+            self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            for messages in conversations
+        ]
+        results: list[str] = []
+        for start in range(0, len(prompts), self.batch_size):
+            results.extend(
+                self._generate_prompts(
+                    prompts[start:start + self.batch_size],
+                    max_new_tokens=max_new_tokens,
+                    temperature=0.2,
+                    do_sample=False,
+                )
+            )
+        return results
+
+    def _generate(
+        self,
+        params_list: list[TranslationParams],
+        *,
+        max_new_tokens: int,
+        temperature: float,
+        do_sample: bool,
+    ) -> list[str]:
+        return self._generate_prompts(
+            [self._build_prompt(params) for params in params_list],
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            do_sample=do_sample,
+        )
+
+    @torch.inference_mode()
+    def _generate_prompts(
+        self,
+        prompts: list[str],
+        *,
+        max_new_tokens: int,
+        temperature: float,
+        do_sample: bool,
+    ) -> list[str]:
         inputs = self.tokenizer(
-            prompt,
+            prompts,
             return_tensors="pt",
+            padding=True,
             truncation=True,
         )
 
@@ -158,23 +266,24 @@ class QwenTranslatorModel:
         generation_kwargs: dict[str, Any] = {
             "max_new_tokens": max_new_tokens,
             "do_sample": do_sample,
+            "pad_token_id": self.tokenizer.pad_token_id,
         }
 
         if do_sample:
             generation_kwargs["temperature"] = temperature
 
-        outputs = self.model.generate(
-            **inputs,
-            **generation_kwargs,
-        )
+        with self._lock:
+            outputs = self.model.generate(
+                **inputs,
+                **generation_kwargs,
+            )
 
+        # Left padding gives every prompt the same length.
         input_length = inputs["input_ids"].shape[1]
 
-        generated_tokens = outputs[0][input_length:]
-
-        translation = self.tokenizer.decode(
-            generated_tokens,
+        translations = self.tokenizer.batch_decode(
+            outputs[:, input_length:],
             skip_special_tokens=True,
         )
 
-        return translation.strip()
+        return [translation.strip() for translation in translations]

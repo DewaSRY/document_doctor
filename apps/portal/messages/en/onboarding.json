@@ -1,0 +1,89 @@
+{
+  "metaTitle": "Interactive demo — Simple Bank",
+  "metaDescription": "Try Simple Bank's core banking flow yourself — create an account, deposit funds, and transfer money — no sign-up, no backend, fully simulated.",
+  "badge": "Interactive demo · No account needed",
+  "badgeShort": "Demo",
+  "exitDemo": "Exit demo",
+  "restartDemo": "Restart demo",
+  "steps": {
+    "start": "Start",
+    "createAccount": "Create account",
+    "deposit": "Deposit",
+    "transfer": "Transfer",
+    "complete": "Ledger"
+  },
+  "stepLocked": "Finish the previous step first",
+
+  "start": {
+    "eyebrow": "See it in action",
+    "title": "Walk through the entire Simple Bank flow yourself",
+    "description": "This is a fully working simulation of the real app — the same forms, validation, and ledger behavior — running entirely in your browser. Nothing you do here touches the real backend or requires an account.",
+    "cta": "Start the demo",
+    "step1Title": "Open an account",
+    "step1Description": "Give it a name and a description, just like the real dashboard.",
+    "step2Title": "Deposit funds",
+    "step2Description": "Fund the account and watch the balance update instantly.",
+    "step3Title": "Transfer money",
+    "step3Description": "Pick a recipient and move money between accounts.",
+    "step4Title": "Review the ledger",
+    "step4Description": "See every entry recorded exactly like the real account page."
+  },
+
+  "createAccount": {
+    "eyebrow": "Step 1 of 3",
+    "title": "Create your first account",
+    "description": "Every Simple Bank journey starts here. Fill in a name and description — the same two fields the real \"Create account\" dialog asks for — then review and confirm.",
+    "emptyTitle": "No account yet",
+    "emptyDescription": "Create an account to see it appear here, just like on the real dashboard.",
+    "createButton": "Create account",
+    "createdBadge": "Account created",
+    "continueCta": "Continue to deposit"
+  },
+
+  "deposit": {
+    "eyebrow": "Step 2 of 3",
+    "title": "Deposit into your account",
+    "description": "Pick the account, enter an amount, and confirm — the balance updates the moment the deposit lands.",
+    "quickAmounts": "Quick amounts",
+    "continueCta": "Continue to transfer",
+    "guardTitle": "Create an account first",
+    "guardDescription": "You'll need an account before you can deposit into one.",
+    "guardCta": "Go to step 1"
+  },
+
+  "transfer": {
+    "eyebrow": "Step 3 of 3",
+    "title": "Transfer to another account",
+    "description": "Choose a recipient — a recent contact or search by account number — then send funds from your balance.",
+    "insufficientFunds": "Insufficient balance for this transfer.",
+    "continueCta": "See the ledger",
+    "guardTitle": "Create an account first",
+    "guardDescription": "You'll need an account with a balance before you can transfer money.",
+    "guardCta": "Go to step 1"
+  },
+
+  "complete": {
+    "eyebrow": "Demo complete",
+    "title": "That's the whole loop",
+    "description": "Account, deposit, transfer, ledger — the exact same flow real Simple Bank customers use. Everything above ran locally in your browser; nothing was sent anywhere.",
+    "statsAccounts": "Account created",
+    "statsDeposits": "Deposits made",
+    "statsTransfers": "Transfers sent",
+    "statsEntries": "Ledger entries",
+    "ctaRegister": "Create your real account",
+    "ctaRestart": "Run the demo again",
+    "guardTitle": "Nothing to show yet",
+    "guardDescription": "Complete the earlier steps to build up a ledger you can review.",
+    "guardCta": "Go to step 1"
+  },
+
+  "toast": {
+    "accountCreated": "Account created",
+    "accountCreatedDescription": "\"{{name}}\" is ready to use.",
+    "depositSuccess": "Deposit successful",
+    "depositSuccessDescription": "{{amount}} added to your balance.",
+    "transferSuccess": "Transfer successful",
+    "transferSuccessDescription": "{{amount}} sent to {{name}}.",
+    "transferFailed": "Transfer failed"
+  }
+}

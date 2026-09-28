@@ -10,18 +10,28 @@ requires-python = ">=3.12"
 
 dependencies = [
     "accelerate>=1.15.0",
-    "grpcio>=1.84.0",
-    "protobuf>=7.35.1",
+    "asyncpg>=0.29.0",
+    "fastapi>=0.104.0",
+    "python-docx>=0.8.11",
+    "python-multipart>=0.0.6",
+    "pypdf>=4.0.0",
+    "pymupdf>=1.23.0",
     "python-dotenv>=1.0.1",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
     "requests>=2.34.2",
     "sentencepiece>=0.2.2",
+    "slowapi>=0.1.9",
+    "sqlalchemy[asyncio]>=2.0.0",
     "torch>=2.14.0",
     "transformers>=5.17.0",
+    "uvicorn[standard]>=0.24.0",
+    "pillow>=11.0.0",
+    "pdf2docx>=0.5.8",
 ]
 
 [project.scripts]
 ai-translation = "ai_translation:main"
-ai-translation-serve = "ai_translation.bootstrap.server:serve"
 
 [build-system]
 requires = ["uv_build>=0.12.17,<0.13.0"]
@@ -29,9 +39,9 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "grpcio-tools>=1.84.0",
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.8",
+    "httpx>=0.25.0",
 ]

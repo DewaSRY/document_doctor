@@ -1,0 +1,396 @@
+"use client";
+
+import { useId, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  FileText,
+  Loader2,
+  RotateCcw,
+  Upload,
+  type LucideIcon,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { z } from "zod";
+
+import { cn } from "@/lib/utils";
+
+import { formatFileSize, getServiceErrorMessage, saveBlob } from "./utils";
+
+/** Checks a picked file against a tool's file schema (see fileSchema) before
+ *  it goes into the form; returns the translated error text or null. */
+export function useFileValidator(schema: z.ZodType<File>, namespace = "tools") {
+  const { t } = useTranslation(namespace);
+
+  return (file: File): string | null => {
+    const result = schema.safeParse(file);
+    if (result.success) return null;
+    const [issue] = result.error.issues;
+    return t(issue.message, issue.code === z.ZodIssueCode.custom ? issue.params : undefined);
+  };
+}
+
+export function ToolIntro({
+  icon: Icon,
+  category,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  category: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-4">
+      <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-brand text-primary-foreground">
+        <Icon className="size-5" aria-hidden />
+      </span>
+      <div>
+        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          {category}
+        </p>
+        <h1 className="mt-0.5 text-2xl font-semibold tracking-tight">{title}</h1>
+        <p className="mt-2 text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+export function FileDropzone({
+  accept,
+  hint,
+  multiple = false,
+  compact = false,
+  pickLabel,
+  dropLabel,
+  onFiles,
+}: {
+  accept: string;
+  hint: string;
+  multiple?: boolean;
+  compact?: boolean;
+  /** Override the default "Choose file(s)" / "or drop it here" texts. */
+  pickLabel?: string;
+  dropLabel?: string;
+  onFiles: (files: File[]) => void;
+}) {
+  const { t } = useTranslation("tools");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+
+  function onDrop(event: DragEvent) {
+    event.preventDefault();
+    setDragging(false);
+    const files = [...event.dataTransfer.files];
+    onFiles(multiple ? files : files.slice(0, 1));
+  }
+
+  return (
+    <div
+      onDragOver={(event) => {
+        event.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={onDrop}
+      className={cn(
+        "flex flex-col items-center gap-3 rounded-xl border-2 border-dashed px-6 text-center transition-colors",
+        compact ? "py-6" : "py-14",
+        dragging ? "border-brand bg-brand-soft/40" : "border-border bg-card",
+      )}
+    >
+      {!compact && (
+        <span className="grid size-12 place-items-center rounded-full bg-brand-soft text-brand">
+          <Upload className="size-5" aria-hidden />
+        </span>
+      )}
+      <Button
+        size="lg"
+        variant={compact ? "outline" : "default"}
+        className={cn("rounded-lg px-6", !compact && "mt-2 h-11 text-base")}
+        onClick={() => inputRef.current?.click()}
+      >
+        {compact && <Upload aria-hidden />}
+        {pickLabel ?? (multiple ? t("common.pickMany") : t("common.pick"))}
+      </Button>
+      <p className="text-sm text-muted-foreground">
+        {dropLabel ?? (multiple ? t("common.dropMany") : t("common.drop"))}
+      </p>
+      <p className="text-xs text-muted-foreground">{hint}</p>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
+        onChange={(event) => {
+          onFiles([...(event.target.files ?? [])]);
+          // Let the same file be picked again after an error.
+          event.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
+export function FieldError({ children }: { children: ReactNode }) {
+  if (!children) return null;
+  return (
+    <p role="alert" className="text-sm text-destructive">
+      {children}
+    </p>
+  );
+}
+
+export function ErrorAlert({ title, error }: { title: string; error: unknown }) {
+  const { t } = useTranslation("tools");
+
+  return (
+    <div
+      role="alert"
+      className="flex gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm"
+    >
+      <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
+      <div>
+        <p className="font-medium">{title}</p>
+        <p className="mt-1 text-muted-foreground">
+          {getServiceErrorMessage(error) ?? t("common.errorDescription")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export function Processing({ title, description }: { title: string; description: string }) {
+  return (
+    <section
+      aria-live="polite"
+      className="flex flex-col items-center gap-4 rounded-xl border bg-card px-6 py-14 text-center"
+    >
+      <Loader2 className="size-10 animate-spin text-brand" aria-hidden />
+      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+      <p className="max-w-md text-muted-foreground">{description}</p>
+    </section>
+  );
+}
+
+/** Success state of a file tool: what was made, a download button, extras. */
+export function FileResult({
+  blob,
+  fileName,
+  title,
+  description,
+  onReset,
+  resetLabel,
+  children,
+}: {
+  blob: Blob;
+  fileName: string;
+  title: string;
+  description?: string;
+  onReset: () => void;
+  resetLabel: string;
+  children?: ReactNode;
+}) {
+  const { t } = useTranslation("tools");
+
+  return (
+    <section aria-live="polite" className="flex flex-col gap-6">
+      <div className="flex flex-col items-center text-center">
+        <CheckCircle2 className="size-10 text-brand" aria-hidden />
+        <h2 className="mt-3 text-2xl font-semibold tracking-tight">{title}</h2>
+        {description && <p className="mt-2 text-muted-foreground">{description}</p>}
+      </div>
+
+      {children}
+
+      <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">
+          <FileText className="size-5" aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{fileName}</p>
+          <p className="text-xs text-muted-foreground">{formatFileSize(blob.size)}</p>
+        </div>
+        <Button className="h-9 rounded-lg px-4" onClick={() => saveBlob(blob, fileName)}>
+          <Download aria-hidden />
+          {t("common.download")}
+        </Button>
+      </div>
+
+      <Button variant="ghost" className="self-center" onClick={onReset}>
+        <RotateCcw aria-hidden />
+        {resetLabel}
+      </Button>
+    </section>
+  );
+}
+
+/** Submits the tool's form; the form's handleSubmit runs the request. */
+export function SubmitButton({
+  disabled,
+  retry,
+  children,
+}: {
+  disabled?: boolean;
+  retry?: boolean;
+  children: ReactNode;
+}) {
+  const { t } = useTranslation("tools");
+
+  return (
+    <Button
+      type="submit"
+      size="lg"
+      className="h-11 rounded-lg text-base sm:self-start"
+      disabled={disabled}
+    >
+      {retry && <RotateCcw aria-hidden />}
+      {retry ? t("common.retry") : children}
+    </Button>
+  );
+}
+
+/** A small single-choice button group (radio semantics). */
+export function Segmented<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; label: string; description?: string }[];
+  onChange: (value: T) => void;
+}) {
+  const id = useId();
+
+  return (
+    <fieldset className="flex flex-col gap-1.5">
+      <legend id={id} className="mb-1.5 text-sm font-medium">
+        {label}
+      </legend>
+      <div role="radiogroup" aria-labelledby={id} className="grid gap-2 sm:grid-flow-col sm:auto-cols-fr">
+        {options.map((option) => {
+          const checked = option.value === value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={checked}
+              onClick={() => onChange(option.value)}
+              className={cn(
+                "flex flex-col rounded-lg border px-3 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                checked
+                  ? "border-brand bg-brand-soft/40 text-foreground"
+                  : "bg-background text-muted-foreground hover:border-brand/40 hover:text-foreground",
+              )}
+            >
+              <span className="font-medium">{option.label}</span>
+              {option.description && (
+                <span className="mt-0.5 text-xs text-muted-foreground">{option.description}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+export function SelectField<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+}) {
+  const id = useId();
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium">
+        {label}
+      </label>
+      <Select
+        items={options}
+        value={value}
+        onValueChange={(next) => next !== null && onChange(next)}
+      >
+        <SelectTrigger id={id} size="lg" className="w-full bg-background">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+export function NumberField({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  suffix,
+  placeholder,
+  invalid,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  min?: number;
+  max?: number;
+  suffix?: string;
+  placeholder?: string;
+  invalid?: boolean;
+}) {
+  const id = useId();
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium">
+        {label}
+      </label>
+      <div className="flex h-10 items-center rounded-lg border border-input bg-background focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+        <input
+          id={id}
+          type="number"
+          inputMode="numeric"
+          min={min}
+          max={max}
+          value={value}
+          placeholder={placeholder}
+          aria-invalid={invalid || undefined}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-full w-full min-w-0 bg-transparent px-3 text-sm outline-none"
+        />
+        {suffix && <span className="pr-3 text-xs text-muted-foreground">{suffix}</span>}
+      </div>
+    </div>
+  );
+}

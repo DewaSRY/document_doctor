@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "editTitle": "Sunting terjemahan"
+  },
+  "header": {
+    "home": "Beranda Document Doctor"
+  },
+  "languages": {
+    "id": "Indonesia",
+    "en": "Inggris",
+    "zh": "Mandarin",
+    "ja": "Jepang",
+    "ko": "Korea",
+    "fr": "Prancis",
+    "de": "Jerman",
+    "es": "Spanyol"
+  },
+  "steps": {
+    "label": "Progres terjemahan",
+    "upload": "Unggah",
+    "languages": "Bahasa",
+    "translate": "Terjemahkan",
+    "done": "Unduh atau sunting"
+  },
+  "upload": {
+    "title": "Terjemahkan dokumen",
+    "description": "Unggah dokumen PDF atau Word. Tata letaknya tetap dipertahankan dalam terjemahan.",
+    "pick": "Pilih dokumen",
+    "drop": "atau letakkan di sini",
+    "hint": "PDF atau DOCX, maksimal {{size}} MB",
+    "invalidType": "Jenis file ini tidak didukung. Pilih file PDF atau DOCX.",
+    "tooLarge": "File ini lebih dari {{size}} MB. Pilih file yang lebih kecil.",
+    "empty": "File ini kosong. Pilih file lain.",
+    "required": "Pilih dokumen terlebih dahulu."
+  },
+  "languageStep": {
+    "title": "Pilih bahasa",
+    "description": "Dokumen ini dalam bahasa apa, dan perlu diterjemahkan ke bahasa apa?",
+    "source": "Bahasa dokumen",
+    "target": "Terjemahkan ke",
+    "swap": "Tukar bahasa",
+    "sameLanguage": "Pilih dua bahasa yang berbeda.",
+    "changeFile": "Ganti file",
+    "submit": "Terjemahkan dokumen"
+  },
+  "translating": {
+    "title": "Menerjemahkan {{fileName}}",
+    "description": "Dari {{source}} ke {{target}}. Dokumen yang panjang bisa memakan waktu beberapa menit — jangan tutup halaman ini."
+  },
+  "done": {
+    "title": "Terjemahan Anda sudah siap",
+    "description": "{{fileName}} sudah diterjemahkan dari {{source}} ke {{target}}.",
+    "download": "Unduh terjemahan",
+    "downloadDescription": "Dapatkan file {{type}} terjemahan apa adanya.",
+    "edit": "Sunting sebelum mengunduh",
+    "editDescription": "Periksa terjemahan di samping teks aslinya dan perbaiki kalimat mana pun.",
+    "another": "Terjemahkan dokumen lain"
+  },
+  "error": {
+    "title": "Dokumen tidak dapat diterjemahkan",
+    "description": "Terjadi kesalahan saat menerjemahkan. Coba lagi, atau pilih file lain.",
+    "retry": "Coba lagi"
+  },
+  "editor": {
+    "loading": "Memuat terjemahan…",
+    "notFoundTitle": "Terjemahan ini tidak dapat disunting",
+    "notFoundDescription": "Terjemahan ini tidak ada, atau dibuat sebelum fitur sunting tersedia. Terjemahkan ulang dokumennya untuk menyunting.",
+    "loadErrorTitle": "Terjemahan tidak dapat dimuat",
+    "loadErrorDescription": "Periksa koneksi Anda lalu coba lagi.",
+    "translateAgain": "Terjemahkan dokumen",
+    "languagePair": "{{source}} → {{target}}",
+    "languages": "Bahasa"
+  }
+}

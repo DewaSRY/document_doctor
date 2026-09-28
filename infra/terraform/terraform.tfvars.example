@@ -1,0 +1,36 @@
+# Copy this file to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored - never commit real secrets.
+# Every variable has a working default; these are the ones worth reviewing.
+
+docker_image = "sdewa/ai-translation:latest"
+
+# Optional for public Qwen models; avoids Hugging Face download rate limits.
+# hf_token = "hf_..."
+
+# qwen_model_name = "Qwen/Qwen2.5-1.5B-Instruct"
+
+# 16 GB RAM is the comfortable minimum for the model on CPU.
+# instance_type    = "t3.xlarge"
+# root_volume_size = 60
+
+# Lock this down to your own IP (e.g. ["1.2.3.4/32"]) once you know it.
+ssh_cidr_blocks = ["0.0.0.0/0"]
+
+# Only needed if a browser calls the service directly; the portal calls it
+# server-side.
+# cors_origins = "https://your-portal.example.com"
+
+# Leave db_host empty to run postgres on the instance (password generated
+# by Terraform). To use an external database instead:
+# db_host     = "your-db-host"
+# db_port     = 5432
+# db_user     = "ai_translation"
+# db_name     = "ai_translation"
+# db_password = "alphanumeric-password"
+
+# nginx in front of the service. All have working defaults.
+# nginx_port                  = 80
+# nginx_rate_limit_rps        = 10
+# nginx_rate_limit_burst      = 20
+# nginx_client_max_body_size  = "60m"
+# nginx_proxy_timeout_seconds = 900

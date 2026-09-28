@@ -1,0 +1,333 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Light-only product: nothing sets .dark, so any dark: utility (e.g. from a
+   future shadcn add) stays inert instead of following the OS setting. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Brand identity — red scale, see :root */
+  --color-brand-50: var(--brand-50);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-100: var(--brand-100);
+  --color-brand-300: var(--brand-300);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-900: var(--brand-900);
+
+  /* Semantic status colors */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Neutrals are a warm gray (hue ~60, very low chroma) so the red brand
+     reads as intentional rather than sitting on a cold blue-gray. Text is
+     charcoal, never pure black. */
+  --background: oklch(0.995 0.001 60);
+  --foreground: oklch(0.22 0.006 50);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.006 50);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.006 50);
+  --primary: var(--brand-500);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.967 0.003 60);
+  --secondary-foreground: oklch(0.26 0.006 50);
+  --muted: oklch(0.967 0.003 60);
+  --muted-foreground: oklch(0.47 0.008 50);
+  --accent: var(--brand-50);
+  --accent-foreground: var(--brand-700);
+  --destructive: oklch(0.55 0.2 20);
+  --border: oklch(0.92 0.004 60);
+  --input: oklch(0.9 0.005 60);
+  --ring: var(--brand-500);
+  --chart-1: var(--brand-500);
+  --chart-2: oklch(0.45 0.01 50);
+  --chart-3: oklch(0.72 0.12 60);
+  --chart-4: var(--brand-300);
+  --chart-5: oklch(0.6 0.01 50);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.982 0.002 60);
+  --sidebar-foreground: oklch(0.22 0.006 50);
+  --sidebar-primary: var(--brand-500);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: var(--brand-50);
+  --sidebar-accent-foreground: var(--brand-700);
+  --sidebar-border: oklch(0.92 0.004 60);
+  --sidebar-ring: var(--brand-500);
+
+  /* Red brand scale on hue 25. --brand-500 is the identity/primary-action
+     red (white text on it passes WCAG AA), 600/700 are hover/active, and
+     50/100 are the subtle tints used for highlights and selected states.
+     Keep large surfaces neutral — red is for actions and accents. */
+  --brand-50: oklch(0.975 0.014 20);
+  --brand-100: oklch(0.945 0.032 20);
+  --brand-300: oklch(0.8 0.1 22);
+  --brand-500: oklch(0.56 0.215 26);
+  --brand-600: oklch(0.5 0.195 26);
+  --brand-700: oklch(0.44 0.165 26);
+  --brand-900: oklch(0.3 0.1 24);
+  --brand: var(--brand-500);
+  --brand-hover: var(--brand-600);
+  --brand-active: var(--brand-700);
+  --brand-soft: var(--brand-50);
+  --brand-foreground: var(--brand-700);
+
+  --success: oklch(0.58 0.14 155);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.77 0.15 75);
+  --warning-foreground: oklch(0.28 0.06 70);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: light;
+    scroll-behavior: smooth !important;
+  }
+}
+
+@keyframes logout-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Landing hero: the "translating" scan line and progress fill. Both are
+   decorative and disabled for users who prefer reduced motion. */
+@keyframes scan {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(var(--scan-distance, 16rem)); opacity: 0; }
+}
+
+@keyframes fill {
+  from { transform: scaleX(0.08); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scan,
+  .animate-fill {
+    animation: none !important;
+  }
+}
+
+.animate-scan {
+  animation: scan 3.2s ease-in-out infinite;
+}
+
+.animate-fill {
+  transform-origin: left;
+  animation: fill 3.2s ease-in-out infinite;
+}
+
+/* SparkleLoader (components/ui/sparkle-loader.tsx): the core star breathes
+   and turns a quarter-rotation per cycle (seamless thanks to its 4-fold
+   symmetry); satellites twinkle in on staggered delays. */
+@keyframes sparkle-core {
+  0% { transform: scale(0.82) rotate(0deg); }
+  50% { transform: scale(1) rotate(45deg); }
+  100% { transform: scale(0.82) rotate(90deg); }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1) rotate(90deg); opacity: 1; }
+}
+
+@keyframes sparkle-glow {
+  0%, 100% { transform: scale(0.8); opacity: 0.35; }
+  50% { transform: scale(1.15); opacity: 0.75; }
+}
+
+.animate-sparkle-core {
+  animation: sparkle-core 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.animate-sparkle-twinkle {
+  animation: sparkle-twinkle 1.65s ease-in-out infinite;
+}
+
+.animate-sparkle-glow {
+  animation: sparkle-glow 2.4s ease-in-out infinite;
+}
+
+/* Reduced motion: freeze into a static sparkle cluster that still reads as
+   "busy" alongside the accessible status label. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-sparkle-core,
+  .animate-sparkle-glow {
+    animation: none !important;
+  }
+  .animate-sparkle-twinkle {
+    animation: none !important;
+    opacity: 0.7;
+  }
+}
+
+/* Word documents on pages (feature/document-editor/components/docx-*.ts). Lengths
+   inside the document are in points times --z, set on .docx-canvas. */
+.docx-canvas {
+  color: #000;
+  color-scheme: light;
+  --leader-dot: radial-gradient(circle, currentColor 0.055em, transparent 0.07em) 0 100% / 0.3em 0.22em repeat-x;
+  --leader-middleDot: radial-gradient(circle, currentColor 0.055em, transparent 0.07em) 0 55% / 0.3em 0.22em repeat-x;
+  --leader-hyphen: linear-gradient(90deg, currentColor 55%, transparent 55%) 0 75% / 0.45em 0.06em repeat-x;
+  --leader-underscore: linear-gradient(currentColor, currentColor) 0 100% / 100% 0.06em no-repeat;
+  --leader-heavy: linear-gradient(currentColor, currentColor) 0 100% / 100% 0.12em no-repeat;
+}
+.docx-sheet {
+  box-shadow: 0 1px 3px rgb(60 64 67 / 0.15), 0 4px 8px 3px rgb(60 64 67 / 0.08);
+}
+.docx-body {
+  position: relative;
+  caret-color: #000;
+  font-kerning: normal;
+}
+.docx-p {
+  position: relative;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+/* An empty paragraph is still one line high. */
+.docx-p::after {
+  content: "\200b";
+}
+.docx-seg-text > br.ProseMirror-trailingBreak {
+  display: none;
+}
+.docx-seg-text.is-empty {
+  display: inline-block;
+  min-width: 1px;
+}
+.docx-seg-text.is-empty::after {
+  content: attr(data-placeholder);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.docx-body.ProseMirror-focused .docx-seg.is-active > .docx-seg-text {
+  background-color: rgb(26 115 232 / 0.07);
+  border-radius: 2px;
+}
+.docx-tab {
+  display: inline-block;
+  height: 0.3em;
+  vertical-align: baseline;
+  text-indent: 0;
+}
+[data-field="page"]::after {
+  content: var(--page-number, "1");
+}
+[data-field="pages"]::after {
+  content: var(--page-count, "1");
+}
+.docx-image {
+  display: inline-block;
+  max-width: none;
+  vertical-align: baseline;
+}
+.docx-image-missing {
+  border: 1px dashed rgb(0 0 0 / 0.25);
+  background: repeating-linear-gradient(45deg, rgb(0 0 0 / 0.03) 0 6px, transparent 6px 12px);
+}
+.docx-table {
+  display: grid;
+}
+.docx-row {
+  display: contents;
+}
+.docx-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+}
+.docx-region {
+  position: absolute;
+}
+.docx-region-copy {
+  pointer-events: none;
+}
+.docx-body > .docx-region:hover {
+  outline: 1px dashed rgb(0 0 0 / 0.18);
+  outline-offset: 3px;
+}
+.docx-page-gap {
+  user-select: none;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  .docx-sheet {
+    box-shadow: none;
+  }
+  .docx-body > .docx-region:hover {
+    outline: none;
+  }
+}

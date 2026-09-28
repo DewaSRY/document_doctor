@@ -1,0 +1,59 @@
+{
+  "searchAccountsPlaceholder": "Cari akun",
+  "mainAccount": "Rekening utama",
+  "appName": "Document Doctor",
+  "backToHome": "Kembali ke beranda",
+  "backToHomeDescription": "Mengarahkan Anda kembali ke halaman utama",
+  "brandTagline": "Pelajari lebih lanjut tentang {{appName}} di sini",
+  "getStarted": "Mulai sekarang",
+  "language": "Bahasa",
+  "dashboardTitle": "Dasbor",
+  "yourAccounts": "Akun Anda",
+  "noAccounts": "Belum ada akun.",
+  "loadingAccounts": "Memuat akun…",
+  "loadAccountsError": "Gagal memuat akun.",
+  "toggleSidebar": "Alihkan sidebar",
+  "cancel": "Batal",
+  "back": "Kembali",
+  "continue": "Lanjutkan",
+  "confirm": "Konfirmasi",
+  "close": "Tutup",
+  "loading": "Memuat…",
+  "tryAgain": "Coba lagi",
+  "leave": "Tinggalkan",
+  "unsavedChangesTitle": "Perubahan belum disimpan",
+  "unsavedChangesDescription": "Anda memiliki perubahan yang belum disimpan. Jika Anda keluar sekarang, perubahan tersebut akan hilang.",
+  "leaveGuard": {
+    "title": "Tinggalkan halaman ini?",
+    "description": "Proses Anda di sini belum selesai. Jika Anda keluar sekarang, file dan pengaturan yang sudah Anda masukkan akan hilang.",
+    "stay": "Tetap di halaman",
+    "leave": "Tetap tinggalkan"
+  },
+  "availableBalance": "Saldo tersedia",
+  "searchPlaceholder": "Cari...",
+  "sidebarTitle": "Sidebar",
+  "sidebarDescription": "Menampilkan sidebar seluler.",
+  "noDataFound": "Data tidak ditemukan",
+  "noDataDescription": "Coba sesuaikan filter atau pencarian",
+  "paginationRowsInfo": "Dari {{count}} baris",
+  "previousPage": "Halaman sebelumnya",
+  "nextPage": "Halaman berikutnya",
+  "pageNumber": "Halaman {{page}}",
+  "error": {
+    "title": "Terjadi kesalahan",
+    "description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
+    "dashboardDescription": "Gagal memuat akun Anda."
+  },
+  "changeLanguage": "Ubah bahasa",
+  "localeNames": {
+    "en": "English",
+    "id": "Bahasa Indonesia"
+  },
+  "filePreview": {
+    "show": "Pratinjau",
+    "hide": "Sembunyikan pratinjau",
+    "alt": "Pratinjau {{name}}",
+    "error": "Dokumen ini tidak dapat dipratinjau di sini."
+  },
+  "skipToContent": "Langsung ke konten"
+}

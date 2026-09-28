@@ -1,0 +1,503 @@
+{
+  "breadcrumb": {
+    "label": "Breadcrumb",
+    "home": "Beranda"
+  },
+  "specsTitle": "File dan batas yang didukung",
+  "faqTitle": "Pertanyaan yang sering diajukan",
+  "relatedTitle": "Alat terkait",
+  "tools": {
+    "translator": {
+      "meta": {
+        "title": "Terjemahkan Dokumen PDF dan Word Online",
+        "description": "Terjemahkan dokumen PDF dan Word (DOCX) antara bahasa Indonesia, Inggris, Mandarin, Jepang, Korea, Prancis, Jerman, dan Spanyol. Tata letak tetap terjaga, dan terjemahan bisa disunting sebelum diunduh."
+      },
+      "benefitsTitle": "Penerjemah dokumen yang menjaga tata letak",
+      "benefits": [
+        {
+          "title": "Judul, tabel, dan spasi tetap di tempatnya",
+          "body": "Setiap bagian terjemahan ditempatkan di posisi teks aslinya, jadi file PDF atau Word hasil terjemahan tetap terlihat seperti dokumen yang Anda unggah."
+        },
+        {
+          "title": "Sunting terjemahan di browser",
+          "body": "Periksa terjemahan AI di samping halaman asli, perbaiki kalimat mana pun, dan kembalikan versi AI dari suatu bagian jika Anda berubah pikiran."
+        },
+        {
+          "title": "Unduh dalam format aslinya",
+          "body": "PDF kembali sebagai PDF dan dokumen Word sebagai DOCX, lengkap dengan suntingan Anda."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "PDF dan Word (.docx)"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "5 MB per dokumen"
+        },
+        {
+          "label": "Bahasa",
+          "value": "Indonesia, Inggris, Mandarin, Jepang, Korea, Prancis, Jerman, Spanyol — pasangan mana pun"
+        },
+        {
+          "label": "Hasil",
+          "value": "File terjemahan dalam format asli, bisa disunting sebelum diunduh"
+        }
+      ],
+      "stepsTitle": "Cara menerjemahkan dokumen",
+      "steps": [
+        {
+          "title": "Unggah dokumen",
+          "body": "Pilih atau letakkan file PDF atau DOCX hingga 5 MB."
+        },
+        {
+          "title": "Pilih bahasa",
+          "body": "Pilih bahasa dokumen dan bahasa yang Anda butuhkan."
+        },
+        {
+          "title": "Unduh atau sunting",
+          "body": "Unduh terjemahan apa adanya, atau buka di editor untuk memperbaikinya dulu."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Bisakah saya menerjemahkan PDF dari bahasa Inggris ke bahasa Indonesia?",
+          "answer": "Bisa. Pilih bahasa Inggris sebagai bahasa dokumen dan bahasa Indonesia sebagai tujuan. Semua pasangan dari delapan bahasa yang didukung bisa dipakai ke dua arah."
+        },
+        {
+          "question": "Apakah terjemahan menjaga format aslinya?",
+          "answer": "Penerjemah membaca judul, daftar, dan tabel, lalu menempatkan setiap bagian terjemahan di posisi teks aslinya, jadi halaman dan spasi tetap di tempatnya."
+        },
+        {
+          "question": "Bisakah saya menerjemahkan PDF hasil pindaian?",
+          "answer": "Belum. Penerjemah membutuhkan PDF dengan teks yang bisa dipilih. PDF hasil pindaian hanya berisi gambar halaman."
+        },
+        {
+          "question": "Apakah dokumen terjemahan saya disimpan?",
+          "answer": "Ya. Dokumen terjemahan disimpan agar bisa Anda buka lagi di editor dan unduh ulang."
+        }
+      ],
+      "cta": "Terjemahkan dokumen"
+    },
+    "summarizer": {
+      "meta": {
+        "title": "Ringkas Dokumen PDF dan Word dengan AI",
+        "description": "Ringkas dokumen PDF atau Word dengan AI. Dapatkan gambaran singkat dan 3, 5, atau 8 poin penting, dalam bahasa dokumen atau salah satu dari delapan bahasa yang didukung."
+      },
+      "benefitsTitle": "Pahami inti dokumen panjang dalam semenit",
+      "benefits": [
+        {
+          "title": "Gambaran umum dan poin penting",
+          "body": "Ringkasan dimulai dengan gambaran singkat, lalu poin-poin yang paling penting."
+        },
+        {
+          "title": "Atur panjangnya",
+          "body": "Singkat berisi 3 poin penting, sedang 5, dan rinci 8, jadi Anda bisa membaca sekilas atau lebih dalam."
+        },
+        {
+          "title": "Ringkasan dalam bahasa lain",
+          "body": "Gunakan bahasa dokumen, atau dapatkan ringkasan dalam bahasa Indonesia, Inggris, Mandarin, Jepang, Korea, Prancis, Jerman, atau Spanyol."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "PDF dan Word (.docx)"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "5 MB per dokumen"
+        },
+        {
+          "label": "Panjang ringkasan",
+          "value": "Singkat (3 poin penting), sedang (5), atau rinci (8)"
+        },
+        {
+          "label": "Hasil",
+          "value": "Gambaran umum dan poin penting untuk disalin atau diunduh sebagai teks"
+        }
+      ],
+      "stepsTitle": "Cara meringkas dokumen",
+      "steps": [
+        {
+          "title": "Unggah dokumen",
+          "body": "Pilih atau letakkan file PDF atau DOCX hingga 5 MB."
+        },
+        {
+          "title": "Pilih panjang dan bahasa",
+          "body": "Pilih singkat, sedang, atau rinci, serta bahasa ringkasannya."
+        },
+        {
+          "title": "Baca, salin, atau unduh",
+          "body": "Baca gambaran umum dan poin penting di layar, salin, atau unduh sebagai file teks."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Berapa lama proses meringkas?",
+          "answer": "AI membaca seluruh dokumen, jadi prosesnya bisa beberapa detik hingga beberapa menit untuk dokumen panjang."
+        },
+        {
+          "question": "Bagaimana dengan dokumen yang sangat panjang?",
+          "answer": "Jika dokumen sangat panjang, hanya bagian awalnya yang diringkas, dan hasilnya akan memberi tahu Anda."
+        },
+        {
+          "question": "Apakah dokumen saya disimpan setelah diringkas?",
+          "answer": "Tidak. Peringkas mengembalikan ringkasan tanpa menyimpan salinan file Anda."
+        }
+      ],
+      "cta": "Ringkas dokumen"
+    },
+    "extractor": {
+      "meta": {
+        "title": "Ekstrak Data dari Dokumen PDF dan Word",
+        "description": "Ambil nama, organisasi, tanggal, jumlah, tempat, alamat e-mail, nomor telepon, dan tautan dari dokumen PDF atau Word dengan AI. Salin hasilnya atau unduh sebagai CSV atau JSON."
+      },
+      "benefitsTitle": "Temukan detail dalam dokumen tanpa membaca semuanya",
+      "benefits": [
+        {
+          "title": "Delapan jenis detail",
+          "body": "Orang, organisasi, tanggal, jumlah, tempat, alamat e-mail, nomor telepon, dan tautan ditampilkan terpisah."
+        },
+        {
+          "title": "Siap untuk spreadsheet",
+          "body": "Salin hasilnya, atau unduh sebagai CSV untuk spreadsheet atau JSON untuk sistem lain."
+        },
+        {
+          "title": "Ditandai untuk diperiksa",
+          "body": "Hasil ditandai sebagai temuan AI, jadi Anda tahu detail penting mana yang perlu dicocokkan dengan dokumennya."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "PDF dan Word (.docx)"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "5 MB per dokumen"
+        },
+        {
+          "label": "Detail yang dicari",
+          "value": "Orang, organisasi, tanggal, jumlah, tempat, alamat e-mail, nomor telepon, tautan"
+        },
+        {
+          "label": "Hasil",
+          "value": "Salin, CSV, atau JSON"
+        }
+      ],
+      "stepsTitle": "Cara mengekstrak informasi dari dokumen",
+      "steps": [
+        {
+          "title": "Unggah dokumen",
+          "body": "Pilih atau letakkan file PDF atau DOCX hingga 5 MB."
+        },
+        {
+          "title": "Biarkan AI membacanya",
+          "body": "Ekstraktor mencari setiap jenis detail di dalam teks."
+        },
+        {
+          "title": "Periksa dan ekspor",
+          "body": "Tinjau hasil temuan, lalu salin atau unduh sebagai CSV atau JSON."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Bisakah saya mengambil data dari faktur atau kontrak?",
+          "answer": "Bisa, selama berupa PDF dengan teks yang bisa dipilih atau dokumen Word. Tanggal, jumlah, organisasi, dan kontak adalah hasil yang umum."
+        },
+        {
+          "question": "Seberapa akurat hasil ekstraksinya?",
+          "answer": "AI menemukan sebagian besar detail, tetapi bisa melewatkan atau salah membaca beberapa. Cocokkan detail penting, seperti jumlah dan tanggal, dengan dokumennya."
+        },
+        {
+          "question": "Apakah dokumen saya disimpan setelah diekstrak?",
+          "answer": "Tidak. Ekstraktor mengembalikan hasilnya tanpa menyimpan salinan file Anda."
+        }
+      ],
+      "cta": "Ekstrak informasi"
+    },
+    "converter": {
+      "meta": {
+        "title": "Konversi PDF ke Word dan Word ke PDF",
+        "description": "Ubah PDF menjadi dokumen Word (DOCX) yang bisa diedit, atau dokumen Word menjadi PDF. Teks, tabel, dan gambar disusun ulang, bukan diratakan. File hingga 10 MB."
+      },
+      "benefitsTitle": "Konversi PDF dan Word ke dua arah",
+      "benefits": [
+        {
+          "title": "PDF ke Word yang bisa diedit",
+          "body": "Teks, tabel, dan gambar disusun ulang menjadi konten Word yang bisa diedit di Word, Google Docs, atau LibreOffice."
+        },
+        {
+          "title": "Word ke PDF",
+          "body": "Judul, gaya teks, daftar, tabel, dan gambar ditata di halaman A4, siap dibagikan atau dicetak."
+        },
+        {
+          "title": "Tidak perlu memilih arah",
+          "body": "Unggah PDF untuk mendapatkan Word, atau file Word untuk mendapatkan PDF. Konverter memilih arahnya dari file Anda."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "PDF dan Word (.docx)"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "10 MB per file"
+        },
+        {
+          "label": "Hasil",
+          "value": "DOCX dari PDF, PDF dari DOCX"
+        },
+        {
+          "label": "PDF hasil pindaian",
+          "value": "Tetap dikonversi, halamannya menjadi gambar di Word"
+        }
+      ],
+      "stepsTitle": "Cara mengubah PDF ke Word atau Word ke PDF",
+      "steps": [
+        {
+          "title": "Unggah file",
+          "body": "Pilih atau letakkan file PDF atau DOCX hingga 10 MB."
+        },
+        {
+          "title": "Konversi",
+          "body": "Mulai konversi. Arahnya mengikuti jenis file."
+        },
+        {
+          "title": "Unduh",
+          "body": "Unduh dokumen Word atau PDF-nya."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Bisakah file Word diedit setelah PDF dikonversi?",
+          "answer": "Bisa. Teks, tabel, dan gambar menjadi konten Word biasa, bukan gambar halaman."
+        },
+        {
+          "question": "Bagaimana dengan PDF hasil pindaian?",
+          "answer": "PDF hasil pindaian tidak memiliki teks yang bisa dipilih, jadi halamannya menjadi gambar di dokumen Word."
+        },
+        {
+          "question": "Apakah file saya disimpan setelah dikonversi?",
+          "answer": "Tidak. Konverter mengembalikan hasilnya tanpa menyimpan salinan file Anda."
+        }
+      ],
+      "cta": "Konversi dokumen"
+    },
+    "pdf": {
+      "meta": {
+        "title": "Gabung PDF dan Pisah PDF Online",
+        "description": "Gabungkan hingga 20 file PDF menjadi satu sesuai urutan pilihan Anda, atau pisahkan PDF berdasarkan rentang halaman, per halaman, atau ambil halaman tertentu saja."
+      },
+      "benefitsTitle": "Gabung dan pisah PDF di satu tempat",
+      "benefits": [
+        {
+          "title": "Gabungkan dengan urutan yang tepat",
+          "body": "Tambahkan hingga 20 PDF, atur urutannya, lalu gabungkan menjadi satu file."
+        },
+        {
+          "title": "Pisahkan berdasarkan rentang halaman",
+          "body": "Isi rentang seperti 1-3, 5, 8-10 dan dapatkan satu PDF per rentang, atau satu PDF untuk setiap halaman."
+        },
+        {
+          "title": "Ambil atau buang halaman",
+          "body": "Masukkan hanya halaman yang Anda pilih ke satu PDF, untuk mengambil sebagian halaman atau membuang yang lain."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "PDF"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "10 MB per file"
+        },
+        {
+          "label": "Gabung",
+          "value": "Hingga 20 file sekaligus"
+        },
+        {
+          "label": "Hasil",
+          "value": "Satu PDF gabungan, atau bagian hasil pemisahan dalam satu file ZIP"
+        }
+      ],
+      "stepsTitle": "Cara menggabungkan atau memisahkan PDF",
+      "steps": [
+        {
+          "title": "Pilih gabung atau pisah",
+          "body": "Buka tab Gabung PDF atau Pisah PDF."
+        },
+        {
+          "title": "Tambahkan file dan atur opsi",
+          "body": "Tambahkan dan urutkan PDF yang akan digabung, atau pilih halaman yang akan dipisah."
+        },
+        {
+          "title": "Unduh",
+          "body": "Unduh PDF gabungan, atau bagian hasil pemisahan."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Berapa banyak PDF yang bisa digabung sekaligus?",
+          "answer": "Hingga 20 file PDF, masing-masing hingga 10 MB."
+        },
+        {
+          "question": "Bagaimana cara memisahkan PDF menjadi halaman terpisah?",
+          "answer": "Pilih Setiap halaman di tab Pisah PDF. Setiap halaman menjadi PDF sendiri, dikemas dalam satu file ZIP."
+        },
+        {
+          "question": "Bisakah saya menggabungkan PDF hasil pindaian?",
+          "answer": "Bisa. Gabung dan pisah berfungsi untuk PDF apa pun, termasuk hasil pindaian."
+        }
+      ],
+      "cta": "Gabung atau pisah PDF"
+    },
+    "resizer": {
+      "meta": {
+        "title": "Ubah Ukuran Gambar Online — JPG, PNG, WEBP",
+        "description": "Ubah ukuran gambar JPG, PNG, dan WEBP ke dimensi piksel yang tepat atau ukuran siap pakai seperti 1200 × 630 untuk media sosial. Pilih potong, muat di dalam, atau regangkan, serta format hasilnya."
+      },
+      "benefitsTitle": "Ubah ukuran gambar sesuai kebutuhan",
+      "benefits": [
+        {
+          "title": "Ukuran siap pakai",
+          "body": "Berbagi di media sosial (1200 × 630), postingan persegi (1080 × 1080), story (1080 × 1920), Full HD (1920 × 1080), dan thumbnail (400 × 300)."
+        },
+        {
+          "title": "Anda yang menentukan cara muatnya",
+          "body": "Potong agar pas di ukuran yang tepat, muat seluruh gambar di dalamnya, atau regangkan. Atau pertahankan rasio aspek dan isi satu sisi saja."
+        },
+        {
+          "title": "Ganti formatnya juga",
+          "body": "Pertahankan format asli, atau simpan hasilnya sebagai JPG, PNG, atau WEBP."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "JPG, PNG, dan WEBP"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "10 MB per gambar"
+        },
+        {
+          "label": "Dimensi",
+          "value": "1 hingga 10.000 px per sisi"
+        },
+        {
+          "label": "Hasil",
+          "value": "Gambar dengan ukuran baru dalam format JPG, PNG, atau WEBP"
+        }
+      ],
+      "stepsTitle": "Cara mengubah ukuran gambar",
+      "steps": [
+        {
+          "title": "Unggah gambar",
+          "body": "Pilih atau letakkan gambar JPG, PNG, atau WEBP hingga 10 MB."
+        },
+        {
+          "title": "Atur ukurannya",
+          "body": "Pilih ukuran siap pakai atau isi lebar dan tinggi, lalu pilih cara gambar dimuat."
+        },
+        {
+          "title": "Unduh",
+          "body": "Lihat pratinjau gambar lalu unduh."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Bagaimana cara mengubah ukuran gambar ke 1200 × 630 px?",
+          "answer": "Pilih ukuran Berbagi di media sosial, atau isi 1200 dan 630. Opsi Potong mengisi ukuran tepat dengan memangkas tepinya."
+        },
+        {
+          "question": "Bisakah mengubah ukuran tanpa membuat gambar melar?",
+          "answer": "Bisa. Pertahankan rasio aspek dan isi lebar atau tinggi saja, atau gunakan Potong atau Muat di dalam saat kedua sisi diisi."
+        },
+        {
+          "question": "Apakah gambar saya disimpan setelah diubah ukurannya?",
+          "answer": "Tidak. Pengubah ukuran mengembalikan hasilnya tanpa menyimpan salinan gambar Anda."
+        }
+      ],
+      "cta": "Ubah ukuran gambar"
+    },
+    "compressor": {
+      "meta": {
+        "title": "Kompres Gambar Online — JPG, PNG, WEBP",
+        "description": "Perkecil ukuran file gambar JPG, PNG, dan WEBP dengan tingkat kualitas yang Anda atur. Sisi terpanjang juga bisa diperkecil. Data lokasi dan kamera dihapus."
+      },
+      "benefitsTitle": "Perkecil gambar agar mudah diunggah dan dikirim",
+      "benefits": [
+        {
+          "title": "Anda yang mengatur kualitasnya",
+          "body": "Geser antara file lebih kecil dan gambar lebih tajam, lalu lihat seberapa kecil hasilnya."
+        },
+        {
+          "title": "Perkecil foto besar",
+          "body": "Atur sisi terpanjang, misalnya 1920 px, untuk penghematan terbesar pada foto dari ponsel dan kamera."
+        },
+        {
+          "title": "Data pribadi dihapus",
+          "body": "Data kamera dan lokasi dihapus dari gambar hasil kompresi."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "JPG, PNG, dan WEBP"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "10 MB per gambar"
+        },
+        {
+          "label": "Opsi",
+          "value": "Kualitas, sisi terpanjang, format hasil"
+        },
+        {
+          "label": "Hasil",
+          "value": "Gambar lebih kecil tanpa data kamera atau lokasi"
+        }
+      ],
+      "stepsTitle": "Cara mengompres gambar",
+      "steps": [
+        {
+          "title": "Unggah gambar",
+          "body": "Pilih atau letakkan gambar JPG, PNG, atau WEBP hingga 10 MB."
+        },
+        {
+          "title": "Pilih kualitas",
+          "body": "Atur kualitas, dan jika perlu sisi terpanjang serta format hasilnya."
+        },
+        {
+          "title": "Unduh",
+          "body": "Lihat seberapa kecil gambarnya, lalu unduh."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Apakah kompresi membuat gambar terlihat lebih buruk?",
+          "answer": "Pada kualitas bawaan, perbedaannya biasanya tidak terlihat. Turunkan kualitas untuk file yang lebih kecil."
+        },
+        {
+          "question": "Mengapa gambar saya tidak menjadi lebih kecil?",
+          "answer": "Beberapa gambar sudah terkompres dengan baik. Coba kualitas lebih rendah, format WEBP, atau sisi terpanjang yang lebih kecil."
+        },
+        {
+          "question": "Apakah gambar saya disimpan setelah dikompres?",
+          "answer": "Tidak. Kompresor mengembalikan hasilnya tanpa menyimpan salinan gambar Anda."
+        }
+      ],
+      "cta": "Kompres gambar"
+    }
+  },
+  "notFound": {
+    "title": "Halaman tidak ditemukan",
+    "description": "Halaman ini tidak ada atau sudah dipindahkan. Pilih salah satu alat di bawah, atau kembali ke beranda.",
+    "home": "Ke beranda"
+  }
+}

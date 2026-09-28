@@ -1,0 +1,59 @@
+{
+  "searchAccountsPlaceholder": "Search accounts",
+  "mainAccount": "Main account",
+  "appName": "Document Doctor",
+  "backToHome": "Back to home",
+  "backToHomeDescription": "Takes you back to the landing page",
+  "brandTagline": "Learn more about {{appName}} here",
+  "getStarted": "Get started",
+  "language": "Language",
+  "dashboardTitle": "Dashboard",
+  "yourAccounts": "Your accounts",
+  "noAccounts": "No accounts yet.",
+  "loadingAccounts": "Loading accounts…",
+  "loadAccountsError": "Failed to load accounts.",
+  "toggleSidebar": "Toggle sidebar",
+  "cancel": "Cancel",
+  "back": "Back",
+  "continue": "Continue",
+  "confirm": "Confirm",
+  "close": "Close",
+  "loading": "Loading…",
+  "tryAgain": "Try again",
+  "leave": "Leave",
+  "unsavedChangesTitle": "Unsaved changes",
+  "unsavedChangesDescription": "You have unsaved changes. If you leave now, they will be lost.",
+  "leaveGuard": {
+    "title": "Leave this page?",
+    "description": "Your work here isn't finished yet. If you leave now, the file and settings you've entered will be lost.",
+    "stay": "Stay on page",
+    "leave": "Leave anyway"
+  },
+  "availableBalance": "Available balance",
+  "searchPlaceholder": "Search...",
+  "sidebarTitle": "Sidebar",
+  "sidebarDescription": "Displays the mobile sidebar.",
+  "noDataFound": "No data found",
+  "noDataDescription": "Try adjusting filters or search",
+  "paginationRowsInfo": "From {{count}} rows",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "pageNumber": "Page {{page}}",
+  "error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "dashboardDescription": "Failed to load your accounts."
+  },
+  "changeLanguage": "Change language",
+  "localeNames": {
+    "en": "English",
+    "id": "Bahasa Indonesia"
+  },
+  "filePreview": {
+    "show": "Preview",
+    "hide": "Hide preview",
+    "alt": "Preview of {{name}}",
+    "error": "This document can't be previewed here."
+  },
+  "skipToContent": "Skip to content"
+}

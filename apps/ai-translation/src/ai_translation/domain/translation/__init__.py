@@ -1,4 +1,5 @@
 from .qwen_translator import QwenTranslatorModel
+from .nllb_translator import NllbTranslatorModel
 
 from .dto import TranslationParams
 from .utils import (

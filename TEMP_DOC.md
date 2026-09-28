@@ -1,8 +1,11 @@
-i have a grpc server on my apps/ai-translation, the file is on apps/ai-translation/proto/translation/v1/translation.proto
+i alredy have the ai tranlator on my apps/ai-tranlsation
 
-then i want to make a client to use the ai-translation,
+now i need to integrate it with my portal
 
-currently i have docker compose to run the ai-translation container.
+the flow is when user clikc the services on langing page, there will be a button to pic document want to upload
 
-give me the step to make the client for my java application on apps/coreServices,
-my java is use spring boot and gradle with grovy
+then user will ask about what the source language and target language,
+
+after the translation process is done user have option to translate the doc or to eidt the translated doc first,
+
+if user want to translated the doc firs there will be a integrated titptap editor for that.

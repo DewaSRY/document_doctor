@@ -1,0 +1,89 @@
+{
+  "metaTitle": "Demo interaktif — Simple Bank",
+  "metaDescription": "Coba sendiri alur perbankan inti Simple Bank — buat rekening, setor dana, dan transfer uang — tanpa pendaftaran, tanpa backend, sepenuhnya simulasi.",
+  "badge": "Demo interaktif · Tanpa perlu akun",
+  "badgeShort": "Demo",
+  "exitDemo": "Keluar dari demo",
+  "restartDemo": "Ulangi demo",
+  "steps": {
+    "start": "Mulai",
+    "createAccount": "Buat rekening",
+    "deposit": "Setor dana",
+    "transfer": "Transfer",
+    "complete": "Buku besar"
+  },
+  "stepLocked": "Selesaikan langkah sebelumnya terlebih dahulu",
+
+  "start": {
+    "eyebrow": "Lihat langsung cara kerjanya",
+    "title": "Jalani sendiri seluruh alur Simple Bank",
+    "description": "Ini adalah simulasi aplikasi asli yang berfungsi penuh — formulir, validasi, dan perilaku ledger yang sama — berjalan sepenuhnya di browser Anda. Tidak ada yang menyentuh backend sungguhan atau memerlukan akun.",
+    "cta": "Mulai demo",
+    "step1Title": "Buka rekening",
+    "step1Description": "Beri nama dan deskripsi, sama seperti dasbor asli.",
+    "step2Title": "Setor dana",
+    "step2Description": "Isi saldo rekening dan lihat saldo diperbarui secara instan.",
+    "step3Title": "Transfer uang",
+    "step3Description": "Pilih penerima dan pindahkan uang antar rekening.",
+    "step4Title": "Tinjau buku besar",
+    "step4Description": "Lihat setiap entri tercatat persis seperti halaman rekening asli."
+  },
+
+  "createAccount": {
+    "eyebrow": "Langkah 1 dari 3",
+    "title": "Buat rekening pertama Anda",
+    "description": "Setiap perjalanan Simple Bank dimulai di sini. Isi nama dan deskripsi — dua kolom yang sama seperti dialog \"Buat rekening\" asli — lalu tinjau dan konfirmasi.",
+    "emptyTitle": "Belum ada rekening",
+    "emptyDescription": "Buat rekening untuk melihatnya muncul di sini, sama seperti di dasbor asli.",
+    "createButton": "Buat rekening",
+    "createdBadge": "Rekening dibuat",
+    "continueCta": "Lanjut ke setor dana"
+  },
+
+  "deposit": {
+    "eyebrow": "Langkah 2 dari 3",
+    "title": "Setor dana ke rekening Anda",
+    "description": "Pilih rekening, masukkan jumlah, lalu konfirmasi — saldo diperbarui begitu setoran masuk.",
+    "quickAmounts": "Jumlah cepat",
+    "continueCta": "Lanjut ke transfer",
+    "guardTitle": "Buat rekening terlebih dahulu",
+    "guardDescription": "Anda memerlukan rekening sebelum dapat menyetor dana ke dalamnya.",
+    "guardCta": "Ke langkah 1"
+  },
+
+  "transfer": {
+    "eyebrow": "Langkah 3 dari 3",
+    "title": "Transfer ke rekening lain",
+    "description": "Pilih penerima — kontak terbaru atau cari dengan nomor rekening — lalu kirim dana dari saldo Anda.",
+    "insufficientFunds": "Saldo tidak cukup untuk transfer ini.",
+    "continueCta": "Lihat buku besar",
+    "guardTitle": "Buat rekening terlebih dahulu",
+    "guardDescription": "Anda memerlukan rekening dengan saldo sebelum dapat mentransfer uang.",
+    "guardCta": "Ke langkah 1"
+  },
+
+  "complete": {
+    "eyebrow": "Demo selesai",
+    "title": "Itulah seluruh alurnya",
+    "description": "Rekening, setoran, transfer, buku besar — alur yang persis sama dengan yang digunakan pelanggan Simple Bank sungguhan. Semua di atas berjalan secara lokal di browser Anda; tidak ada yang dikirim ke mana pun.",
+    "statsAccounts": "Rekening dibuat",
+    "statsDeposits": "Setoran dilakukan",
+    "statsTransfers": "Transfer terkirim",
+    "statsEntries": "Entri buku besar",
+    "ctaRegister": "Buat rekening sungguhan Anda",
+    "ctaRestart": "Jalankan demo lagi",
+    "guardTitle": "Belum ada yang bisa ditampilkan",
+    "guardDescription": "Selesaikan langkah-langkah sebelumnya untuk membangun buku besar yang bisa Anda tinjau.",
+    "guardCta": "Ke langkah 1"
+  },
+
+  "toast": {
+    "accountCreated": "Rekening dibuat",
+    "accountCreatedDescription": "\"{{name}}\" siap digunakan.",
+    "depositSuccess": "Setoran berhasil",
+    "depositSuccessDescription": "{{amount}} ditambahkan ke saldo Anda.",
+    "transferSuccess": "Transfer berhasil",
+    "transferSuccessDescription": "{{amount}} terkirim ke {{name}}.",
+    "transferFailed": "Transfer gagal"
+  }
+}

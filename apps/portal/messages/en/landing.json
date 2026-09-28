@@ -1,0 +1,436 @@
+{
+  "meta": {
+    "title": "Document Doctor — Translate, Summarize and Convert Documents Online",
+    "description": "Translate PDF and Word documents without losing the layout, summarize reports, convert PDF ⇄ Word, merge PDFs and compress images. Online, no sign-up.",
+    "keywords": [
+      "online document tools",
+      "AI document tools",
+      "all-in-one document toolkit",
+      "document translator",
+      "summarize PDF",
+      "extract data from PDF",
+      "PDF to Word converter",
+      "merge PDF",
+      "split PDF",
+      "resize image online",
+      "compress image online",
+      "translate document Indonesian to English"
+    ]
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Document Doctor home",
+    "links": {
+      "tools": "Tools",
+      "howItWorks": "How it works",
+      "useCases": "Use cases",
+      "features": "Why Document Doctor",
+      "faq": "FAQ"
+    },
+    "menuOpen": "Open menu",
+    "menuTitle": "Menu",
+    "menuDescription": "Navigate to a section of the page, or change language.",
+    "allTools": "All tools",
+    "quick": [
+      "translator",
+      "summarizer",
+      "converter",
+      "pdf"
+    ],
+    "quickLabels": {
+      "translator": "Translate",
+      "summarizer": "Summarize",
+      "converter": "Convert",
+      "pdf": "Merge PDF"
+    }
+  },
+  "hero": {
+    "title": "Translate, summarize and convert your documents, ",
+    "titleAccent": "all in one place.",
+    "description": "Seven tools for everyday office files. Translate a PDF or Word document and keep its layout, get the key points of a long report, convert PDF ⇄ Word, merge PDFs and resize images, all in your browser.",
+    "primaryCta": "Translate a document",
+    "secondaryCta": "Browse all tools",
+    "trust": [
+      "No install",
+      "No sign-up",
+      "PDF, Word & images",
+      "8 languages"
+    ],
+    "trustLabel": "At a glance"
+  },
+  "tools": {
+    "formatsLabel": "Supported file types",
+    "groups": [
+      {
+        "id": "documentAi",
+        "title": "Document AI",
+        "description": "Understand and rework what a document says.",
+        "items": [
+          {
+            "icon": "translator",
+            "name": "Document Translator",
+            "description": "Translate PDF and Word files between 8 languages, keep the layout, and correct the wording before you download.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Up to 5 MB",
+            "output": "Editable translation"
+          },
+          {
+            "icon": "summarizer",
+            "name": "Document Summarizer",
+            "description": "Get a short overview and the key points of a long document, in the length and language you choose.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Up to 5 MB",
+            "output": "Overview & key points"
+          },
+          {
+            "icon": "extractor",
+            "name": "Document Extractor",
+            "description": "Pull out people, organizations, dates, amounts, places and contact details, ready to copy or download.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Up to 5 MB",
+            "output": "Copy, CSV or JSON"
+          }
+        ]
+      },
+      {
+        "id": "fileTools",
+        "title": "File tools",
+        "description": "Get files into the shape someone asked for.",
+        "items": [
+          {
+            "icon": "converter",
+            "name": "Document Converter",
+            "description": "Turn a PDF into an editable Word file, or a Word file into a PDF that's ready to share.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Up to 10 MB",
+            "output": "Word or PDF"
+          },
+          {
+            "icon": "pdf",
+            "name": "PDF Merge & Split",
+            "description": "Combine up to 20 PDFs in the order you choose, or split one PDF by page range or into single pages.",
+            "formats": [
+              "PDF"
+            ],
+            "limit": "Up to 10 MB per file",
+            "output": "Merged or split PDF"
+          }
+        ]
+      },
+      {
+        "id": "imageTools",
+        "title": "Image tools",
+        "description": "Make images fit the slot, the form, or the inbox.",
+        "items": [
+          {
+            "icon": "resizer",
+            "name": "Image Resizer",
+            "description": "Resize to exact dimensions or a preset like 1200 × 630 px, and choose how the image fills the frame.",
+            "formats": [
+              "JPG",
+              "PNG",
+              "WEBP"
+            ],
+            "limit": "Up to 10 MB",
+            "output": "Resized image"
+          },
+          {
+            "icon": "compressor",
+            "name": "Image Compressor",
+            "description": "Make an image file smaller with a quality level you control, so uploads and email attachments go through.",
+            "formats": [
+              "JPG",
+              "PNG",
+              "WEBP"
+            ],
+            "limit": "Up to 10 MB",
+            "output": "Smaller image"
+          }
+        ]
+      }
+    ],
+    "filtersLabel": "Filter tools by category",
+    "all": "All",
+    "aiBadge": "AI",
+    "outputLabel": "Result"
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "title": "Three steps, whichever tool you use",
+    "description": "Every tool works the same way. Once you've used one, you know them all.",
+    "label": "Upload a file, choose options, then check and download the result",
+    "steps": [
+      {
+        "title": "Upload your file",
+        "body": "Open a tool and drop in a PDF, Word document or image. Nothing to install and no account to create."
+      },
+      {
+        "title": "Choose your options",
+        "body": "Pick the language, summary length, page range or image size. The tool does the rest."
+      },
+      {
+        "title": "Check and download",
+        "body": "Review the result on screen, correct it where the tool allows, then download or copy it."
+      }
+    ],
+    "demo": {
+      "file": "Annual_Report.pdf",
+      "fileMeta": "PDF · 2.4 MB",
+      "drop": "Drop your file here",
+      "from": "Indonesian",
+      "to": "English",
+      "length": "Summary length",
+      "lengths": [
+        "Short",
+        "Medium",
+        "Detailed"
+      ],
+      "result": "Annual_Report_EN.pdf",
+      "ready": "Ready",
+      "download": "Download"
+    }
+  },
+  "useCases": {
+    "eyebrow": "Use cases",
+    "title": "Made for the tasks that slow your day down",
+    "description": "Most office tasks aren't hard, just fiddly. Here's how to get them done in a few clicks.",
+    "stepsLabel": "Tools used",
+    "items": [
+      {
+        "role": "Operations & procurement",
+        "situation": "A supplier sent the contract in Chinese.",
+        "body": "Translate it into English, then pull out the dates and amounts you need to check.",
+        "tools": [
+          "translator",
+          "extractor"
+        ]
+      },
+      {
+        "role": "Managers & analysts",
+        "situation": "The 40-page report is due in your next meeting.",
+        "body": "Get the overview and key points in a minute, and walk in knowing what matters.",
+        "tools": [
+          "summarizer"
+        ]
+      },
+      {
+        "role": "Admin & HR",
+        "situation": "The form you need to fill in is only a PDF.",
+        "body": "Convert it to Word, fill it in, then turn it back into a PDF to send.",
+        "tools": [
+          "converter"
+        ]
+      },
+      {
+        "role": "Finance",
+        "situation": "Twelve invoices, one email.",
+        "body": "Merge them into one PDF in the right order, or split a statement into the pages each team needs.",
+        "tools": [
+          "pdf"
+        ]
+      },
+      {
+        "role": "Marketing & communications",
+        "situation": "The banner has to be exactly 1200 × 630 px.",
+        "body": "Resize it with the preset, then compress it so the page stays fast.",
+        "tools": [
+          "resizer",
+          "compressor"
+        ]
+      },
+      {
+        "role": "Students & researchers",
+        "situation": "The paper you need is in Japanese.",
+        "body": "Translate it into your language, then summarize it to decide whether it's worth a full read.",
+        "tools": [
+          "translator",
+          "summarizer"
+        ]
+      }
+    ]
+  },
+  "review": {
+    "eyebrow": "Tool spotlight · Document Translator",
+    "title": "A translation that still looks like your document.",
+    "description": "The translator reads headings, lists and tables, puts each translated passage where the original was, and lets you correct the wording before you download.",
+    "label": "Preview of the translation progress and the document editor",
+    "points": [
+      {
+        "title": "The layout stays in place",
+        "body": "Pages, headings, tables and spacing stay where they were, so there's no reformatting afterwards."
+      },
+      {
+        "title": "Compare with the original",
+        "body": "Open the original page next to the translation, and restore the AI version of any passage you changed."
+      },
+      {
+        "title": "Edit before you download",
+        "body": "Fix wording and formatting in the browser editor, then download the file in its original format."
+      }
+    ],
+    "languagesLabel": "Translate between any of these languages",
+    "cta": "Translate a document",
+    "progress": {
+      "title": "Translating Quarterly_Report.docx",
+      "steps": [
+        {
+          "label": "Upload",
+          "state": "done"
+        },
+        {
+          "label": "Languages",
+          "state": "done"
+        },
+        {
+          "label": "Translate",
+          "state": "active"
+        },
+        {
+          "label": "Download or edit",
+          "state": "pending"
+        }
+      ]
+    },
+    "editor": {
+      "fileName": "Quarterly_Report_EN.docx",
+      "title": "Q3 Report",
+      "paragraphs": [
+        "Revenue grew 18% compared to the previous quarter, driven by expansion into",
+        "Operating costs remained stable, while customer satisfaction rose to 92%."
+      ],
+      "edited": "three new cities.",
+      "hint": "Edited by you — changes are included in the download.",
+      "compare": "Original",
+      "download": "Download"
+    }
+  },
+  "features": {
+    "eyebrow": "Why Document Doctor",
+    "title": "Practical tools you stay in control of",
+    "description": "Each tool does one job clearly, and you check the result before you use it.",
+    "items": [
+      {
+        "icon": "noInstall",
+        "title": "Nothing to install",
+        "body": "Everything runs in your browser. Open a tool and start, with no software, plugins or account."
+      },
+      {
+        "icon": "control",
+        "title": "AI helps, you decide",
+        "body": "Translations open in an editor, and extracted details are marked for you to check against the document."
+      },
+      {
+        "icon": "layout",
+        "title": "Documents stay documents",
+        "body": "Translation keeps the layout, and conversion rebuilds text, tables and images instead of plain text."
+      },
+      {
+        "icon": "privacy",
+        "title": "Your files aren't kept",
+        "body": "The summarizer, extractor, file and image tools return your result without keeping a copy. Translations are saved only so you can reopen and edit them."
+      }
+    ]
+  },
+  "languages": {
+    "items": [
+      {
+        "code": "id",
+        "name": "Indonesian",
+        "native": "Bahasa Indonesia"
+      },
+      {
+        "code": "en",
+        "name": "English",
+        "native": "English"
+      },
+      {
+        "code": "zh",
+        "name": "Chinese",
+        "native": "中文"
+      },
+      {
+        "code": "ja",
+        "name": "Japanese",
+        "native": "日本語"
+      },
+      {
+        "code": "ko",
+        "name": "Korean",
+        "native": "한국어"
+      },
+      {
+        "code": "fr",
+        "name": "French",
+        "native": "Français"
+      },
+      {
+        "code": "de",
+        "name": "German",
+        "native": "Deutsch"
+      },
+      {
+        "code": "es",
+        "name": "Spanish",
+        "native": "Español"
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "question": "What is Document Doctor?",
+        "answer": "Document Doctor is one web app with the document and file tools people need at work: a translator, summarizer and extractor for documents, a PDF ⇄ Word converter, PDF merge & split, and an image resizer and compressor."
+      },
+      {
+        "question": "Do I need to install anything or create an account?",
+        "answer": "No. Every tool runs in your browser. Open the tool, upload your file, and download the result."
+      },
+      {
+        "question": "Which file types and sizes are supported?",
+        "answer": "The translator, summarizer and extractor accept PDF and Word (.docx) files up to 5 MB. The converter and PDF tools accept files up to 10 MB, and you can merge up to 20 PDFs at once. The image tools accept JPG, PNG and WEBP up to 10 MB."
+      },
+      {
+        "question": "What happens to my files?",
+        "answer": "The summarizer, extractor, converter, PDF and image tools process your file and return the result without keeping a copy. The translator saves your translated document so you can reopen it in the editor and download it again."
+      },
+      {
+        "question": "Can I check or edit what the AI produces?",
+        "answer": "Yes. Translations open in a browser editor where you can change the wording and formatting, compare with the original page, and restore the AI version of any passage before you download. Extracted details are marked as found by AI, so you can check important ones against the document."
+      },
+      {
+        "question": "Which languages are supported?",
+        "answer": "Indonesian, English, Chinese, Japanese, Korean, French, German and Spanish. You can translate from any of these into any other, and get summaries in any of them."
+      },
+      {
+        "question": "Can I use scanned PDFs?",
+        "answer": "Not yet for the AI tools. The translator, summarizer and extractor need PDFs with selectable text. Scanned PDFs can still be merged, split, or converted — they come out as images in Word."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Have a document to deal with?",
+    "description": "Pick a tool, upload your file and get the result in your browser.",
+    "primary": "Translate a document",
+    "secondary": "Browse all tools"
+  },
+  "footer": {
+    "tagline": "Everyday document, file and image tools, in one place.",
+    "product": "Product",
+    "tools": "Tools",
+    "rights": "All rights reserved."
+  }
+}

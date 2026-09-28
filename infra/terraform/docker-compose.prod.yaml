@@ -1,0 +1,85 @@
+# Rendered by main.tf's local.docker_compose_yml and shipped to the instance
+# base64-encoded inside user_data.sh.tpl, the same way nginx.conf.tpl is.
+# Lives at /opt/ai-translation/docker-compose.yml on the instance, alongside
+# app.env and nginx.conf (both written by user_data.sh.tpl into the same
+# directory).
+#
+# The env file is deliberately named app.env, not .env: compose would also
+# read a .env for interpolation of this file.
+services:
+  ai-translation:
+    image: ${docker_image}
+    container_name: ai-translation
+    restart: unless-stopped
+    networks:
+      - ai-translation-net
+    # Bound to 127.0.0.1 only, for SSH-side debugging (curl from the instance
+    # itself) — not reachable from outside since it's not in the security
+    # group. The public entrypoint is nginx below.
+    ports:
+      - "127.0.0.1:${app_port}:${app_port}"
+    volumes:
+      - ai-translation-model-cache:/models/huggingface
+    env_file:
+      - app.env
+    # The port only opens once the model is loaded (main.py's lifespan), and
+    # the first boot downloads it, hence the long start_period.
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${app_port}/health', timeout=5)",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15m
+%{ if use_bundled_postgres ~}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: ${postgres_image}
+    container_name: postgres
+    restart: unless-stopped
+    networks:
+      - ai-translation-net
+    volumes:
+      - ai-translation-postgres-data:/var/lib/postgresql/data
+    env_file:
+      - app.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+%{ endif ~}
+
+  nginx:
+    image: ${nginx_image}
+    container_name: nginx
+    restart: unless-stopped
+    networks:
+      - ai-translation-net
+    ports:
+      - "${nginx_port}:${nginx_port}"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - ai-translation
+
+networks:
+  ai-translation-net:
+    name: ai-translation-net
+
+volumes:
+  ai-translation-model-cache:
+    name: ai-translation-model-cache
+%{ if use_bundled_postgres ~}
+  ai-translation-postgres-data:
+    name: ai-translation-postgres-data
+%{ endif ~}

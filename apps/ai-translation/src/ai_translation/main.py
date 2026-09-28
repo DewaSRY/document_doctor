@@ -1,54 +1,92 @@
-from dotenv import load_dotenv
+"""
+Main entry point for the AI Translation Service application.
 
-from ai_translation.domain.translation import (
-    TranslationParams,
-    get_emotion_name,
-    get_language_name,
-    get_translator,
-    get_voice_name,
+- Author: Dewasurya Ariesta
+There are improvements needed for production.
+"""
+
+import asyncio
+import os
+from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+import uvicorn
+from fastapi import FastAPI
+
+from ai_translation.config import settings
+from ai_translation.domain.translation import get_translator
+from ai_translation.infrastructure.database import (
+    init_db,
+    close_db,
+)
+from ai_translation.infrastructure.rest.routes import (
+    health_router,
+    translation_router,
+    documents_router,
+    document_ai_router,
+    file_tools_router,
+    image_tools_router,
+)
+from ai_translation.infrastructure.rest.error_handlers import register_exception_handlers
+from ai_translation.infrastructure.middleware import (
+    setup_cors,
+    setup_rate_limiter,
+    setup_logging,
+    setup_request_logging_middleware,
 )
 
-"""
-Kami bangsa Indonesia dengan ini menjatakan kemerdekaan Indonesia.Hal-hal jang mengenai pemindahan kekoeasaan d.l.l., 
-diselenggarakan dengan tjara seksama dan dalam tempo jang sesingkat-singkatnja.Djakarta, hari 17 boelan 8 tahoen 
-05Atas nama bangsa Indonesia,Soekarno/Hatta.
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    # Load the model at startup so the first request does not pay for it.
+    await asyncio.to_thread(get_translator)
+    yield
+    await close_db()
 
 
-印尼人民在此宣誓捍卫印尼的独立。有关领土变更、战争及其他相关事宜，均以严肃态度处理，并在短时间内完成。这是于1945年8月17日，在雅加达举行的声明。由印尼共和国总统苏哈托/荷西·阿塔主持。
-
-"""
-
-def main():
-    load_dotenv()
-
-    text = """
-  印尼人民在此宣誓捍卫印尼的独立。有关领土变更、战争及其他相关事宜，均以严肃态度处理，并在短时间内完成。这是于1945年8月17日，在雅加达举行的声明。由印尼共和国总统苏哈托/荷西·阿塔主持。
-
-    """
-
-    source_language = "zh"
-    target_language = "id"
-
-    # source_language = "id"
-    # target_language = "zh"
-
-    emotion_tag = "formal"
-    voice_tag = "professional"
-
-    translated_text = get_translator().translate(
-        translation_params=TranslationParams(
-            text=text,
-            source_language=get_language_name(source_language),
-            target_language=get_language_name(target_language),
-            emotions_tags=[get_emotion_name(emotion_tag)],
-            voice_tags=[get_voice_name(voice_tag)],
-
-        )
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="AI Translation Service",
+        description="Document, file and image tools; AI features powered by Qwen",
+        version="0.1.0",
+        lifespan=lifespan,
+        debug=settings.debug,
     )
 
-     
+    # Setup middleware
+    setup_cors(app, dev_mode=settings.dev_mode)
+    setup_rate_limiter(app)
+    setup_request_logging_middleware(app)
 
-    print(translated_text)
+    # Include routers
+    app.include_router(health_router)
+    app.include_router(translation_router)
+    app.include_router(documents_router)
+    app.include_router(document_ai_router)
+    app.include_router(file_tools_router)
+    app.include_router(image_tools_router)
+
+    # Register exception handlers
+    register_exception_handlers(app)
+
+    return app
+
+
+app = create_app()
+
+
+def main() -> None:
+    load_dotenv()
+
+    # Setup logging
+    setup_logging(dev_mode=settings.dev_mode)
+
+    uvicorn.run(
+        app,
+        host=settings.rest_host,
+        port=settings.rest_port,
+        log_level="debug" if settings.dev_mode else "info",
+    )
 
 
 if __name__ == "__main__":

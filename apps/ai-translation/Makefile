@@ -21,9 +21,17 @@ deactivate: ## Print how to deactivate the virtual environment (must be sourced,
 	@echo "Run this in your shell (Makefiles cannot deactivate a venv for you):"
 	@echo "  deactivate"
 
-.PHONY: run
-run: ## Run the application
-	uv run ai-translation
+.PHONY: translate
+translate: ## Run the translation CLI (test translation)
+	uv run ai-translation translate
+
+.PHONY: serve
+serve: ## Run the REST API server
+	uv run ai-translation server
+
+.PHONY: serve-dev
+serve-dev: ## Run the REST API server in development mode (with auto-reload)
+	uv run uvicorn ai_translation.bootstrap.server:create_app --host 0.0.0.0 --port 8000 --reload
 
 .PHONY: test
 test: ## Run the test suite
@@ -48,47 +56,30 @@ clean: ## Remove caches and build artifacts
 clean-venv: ## Remove the virtual environment entirely
 	rm -rf $(VENV)
 
-## PROTOBUF / gRPC
-
-PROTO_DIR := ./proto
-PROTO_FILE := $(PROTO_DIR)/translation/v1/translation.proto
-GRPC_OUT := ./src/ai_translation/infrastructure/grpc
-
-.PHONY: gen-proto
-gen-proto: ## Generate gRPC code from proto files
-	$(PYTHON) -m grpc_tools.protoc \
-		-I$(PROTO_DIR) \
-		--python_out=$(GRPC_OUT) \
-		--grpc_python_out=$(GRPC_OUT) \
-		$(PROTO_FILE)
-	touch $(GRPC_OUT)/translation/__init__.py $(GRPC_OUT)/translation/v1/__init__.py
-	sed -i '' 's/from translation.v1 import/from . import/' $(GRPC_OUT)/translation/v1/translation_pb2_grpc.py
-
-.PHONY: clean-proto
-clean-proto: ## Remove generated gRPC code
-	rm -rf $(GRPC_OUT)/translation
-
-
-.PHONY: serve
-serve: ## Run the gRPC server
-	uv run ai-translation-serve
 
 ## DOCKER
 
 IMAGE_NAME := sdewa/ai-translation
 IMAGE_TAG := latest
 CONTAINER_NAME := ai-translation
-GRPC_PORT := 50051
+PORT := 8000
 MODEL_CACHE_VOLUME := ai-translation-model-cache
+# EC2 is x86_64; an image built natively on an Apple Silicon Mac is arm64
+# and fails there with "exec format error".
+DEPLOY_PLATFORM := linux/amd64
 
 .PHONY: docker-build
 docker-build: ## Build the Docker image
 	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
 
+.PHONY: docker-push
+docker-push: ## Build the linux/amd64 image for EC2 and push it to Docker Hub
+	docker buildx build --platform $(DEPLOY_PLATFORM) -t $(IMAGE_NAME):$(IMAGE_TAG) --push .
+
 .PHONY: docker-run
 docker-run: ## Run the Docker image (model cache persisted in a named volume, see docs/MODEL_STORAGE.md)
-	docker run --rm --name $(CONTAINER_NAME) -p $(GRPC_PORT):$(GRPC_PORT) \
-		-v $(MODEL_CACHE_VOLUME):/app/.cache/huggingface \
+	docker run --rm --name $(CONTAINER_NAME) -p $(PORT):8000 \
+		-v $(MODEL_CACHE_VOLUME):/models/huggingface \
 		--env-file .env \
 		$(IMAGE_NAME):$(IMAGE_TAG)
 

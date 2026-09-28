@@ -1,97 +1,74 @@
-# ai-translation
+## Translation Document
 
-Python AI Language Service for the Context-Aware Indonesian ↔ Mandarin Language Assistant.
+## Document Translation Strategy
 
-> See the platform-wide [PRD](../../docs/PRD.md) and [Technical Design Document](../../docs/TECH_DOC.md) for full product/system context. This README covers only this service.
+Document translation should not send an entire document to the translation model as a single request.
 
-## What This Service Does
+The document should first be analyzed and divided into smaller, meaningful translation units. The preferred boundaries are based on the document structure, such as:
 
-<!-- TODO: fill in — one or two sentences describing this service's responsibility
-within the platform (e.g. "Owns AI inference and language intelligence: context
-analysis, intent detection, tone analysis, translation, and response formatting.
-Exposes a gRPC API consumed by the Go backend."). -->
+- paragraphs
+- headings
+- list items
+- table cells
+- captions
+- other logical text blocks
 
-## Status
+The system should avoid arbitrary character-based splitting when possible because splitting in the middle of a sentence or logical section can reduce translation quality.
 
-<!-- TODO: fill in — e.g. Draft / Alpha / In Development -->
+### Translation Units
 
-## Responsibilities
-
-<!-- TODO: fill in — list what this service owns, e.g.
-- Context analysis
-- Intent detection
-- Tone analysis
-- Translation engine (NLLB-200)
-- Response formatting
--->
-
-## Non-Responsibilities
-
-<!-- TODO: fill in — what this service explicitly does NOT do, e.g.
-- No direct client access (client talks to Go backend only)
-- No authentication/authorization (handled by Go backend)
--->
-
-## Architecture
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-## API
-
-See [docs/API.md](docs/API.md).
-
-## Requirements
-
-- Python >= 3.12 (see [.python-version](.python-version))
-- [uv](https://docs.astral.sh/uv/) for dependency and virtual environment management
-
-## Getting Started
-
-```bash
-# install dependencies and create the virtual environment
-make install
-
-# activate the virtual environment (must be run with `source`)
-source .venv/bin/activate
-
-# ...do your work...
-
-# deactivate the virtual environment
-deactivate
-```
-
-See the [Makefile](Makefile) for all available development commands (`make help`).
-
-## Project Structure
+A document is represented as a collection of ordered translation units.
 
 ```text
-src/ai_translation/   # application source code
-tests/                # test suite
-docs/                 # service-specific documentation
+Document
+  ├── Segment 1
+  ├── Segment 2
+  ├── Segment 3
+  ├── ...
+  └── Segment N
 ```
 
-<!-- TODO: fill in / expand as the project grows -->
+Each segment should retain enough metadata to reconstruct the translated document, such as:
 
-## Configuration
+- segment ID
+- original text
+- segment type
+- document order
+- page information when applicable
+- formatting information when applicable
 
-This service reads configuration from environment variables. Copy [.env.example](.env.example)
-to `.env` and fill in the values — it is loaded automatically at startup via `python-dotenv`.
+### Chunking vs Batching
 
-| Variable    | Required | Default | Description                                                                                                                                     |
-| ----------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `HF_TOKEN`  | No       | —       | Hugging Face Hub read token. Avoids rate limits/warnings when downloading model weights. [Get a token](https://huggingface.co/settings/tokens). |
-| `GRPC_PORT` | No       | `50051` | Port the gRPC server binds to (`make serve`).                                                                                                   |
+Chunking and batching are separate concepts.
 
-## Testing
+**Chunking** determines how a document is divided into logical translation units.
 
-```bash
-make test
+**Batching** determines how many translation units are processed by the model during one inference operation.
+
+For example:
+
+```text
+PDF
+ ↓
+Extract structure
+ ↓
+Create translation segments
+ ↓
+Group segments into batches
+ ↓
+Translation model
+ ↓
+Translated segments
+ ↓
+Reconstruct document
 ```
 
-## Contributing
+The implementation should optimize these decisions based on:
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+- translation quality
+- model context limitations
+- inference latency
+- memory usage
+- infrastructure cost
 
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
+The system should not introduce a fixed chunk size without measuring its effect on translation quality and runtime performance.

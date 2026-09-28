@@ -1,0 +1,436 @@
+{
+  "meta": {
+    "title": "Document Doctor — Terjemahkan, Ringkas, dan Konversi Dokumen Online",
+    "description": "Terjemahkan PDF dan Word tanpa merusak tata letak, ringkas laporan, konversi PDF ⇄ Word, gabung PDF, dan kompres gambar. Online, tanpa daftar.",
+    "keywords": [
+      "alat dokumen online",
+      "alat dokumen AI",
+      "toolkit dokumen lengkap",
+      "penerjemah dokumen",
+      "ringkas PDF",
+      "ekstrak data dari PDF",
+      "konversi PDF ke Word",
+      "gabungkan PDF",
+      "pisahkan PDF",
+      "ubah ukuran gambar online",
+      "kompres gambar online",
+      "terjemahan dokumen Inggris ke Indonesia"
+    ]
+  },
+  "nav": {
+    "label": "Navigasi utama",
+    "home": "Beranda Document Doctor",
+    "links": {
+      "tools": "Alat",
+      "howItWorks": "Cara kerja",
+      "useCases": "Contoh penggunaan",
+      "features": "Kenapa Document Doctor",
+      "faq": "FAQ"
+    },
+    "menuOpen": "Buka menu",
+    "menuTitle": "Menu",
+    "menuDescription": "Buka bagian halaman, atau ubah bahasa.",
+    "allTools": "Semua alat",
+    "quick": [
+      "translator",
+      "summarizer",
+      "converter",
+      "pdf"
+    ],
+    "quickLabels": {
+      "translator": "Terjemahkan",
+      "summarizer": "Ringkas",
+      "converter": "Konversi",
+      "pdf": "Gabung PDF"
+    }
+  },
+  "hero": {
+    "title": "Terjemahkan, ringkas, dan konversi dokumen Anda, ",
+    "titleAccent": "semua di satu tempat.",
+    "description": "Tujuh alat untuk file kantor sehari-hari. Terjemahkan PDF atau Word tanpa merusak tata letaknya, dapatkan poin penting laporan panjang, konversi PDF ⇄ Word, gabungkan PDF, dan ubah ukuran gambar, langsung di browser.",
+    "primaryCta": "Terjemahkan dokumen",
+    "secondaryCta": "Lihat semua alat",
+    "trust": [
+      "Tanpa instalasi",
+      "Tanpa daftar",
+      "PDF, Word & gambar",
+      "8 bahasa"
+    ],
+    "trustLabel": "Sekilas"
+  },
+  "tools": {
+    "formatsLabel": "Jenis file yang didukung",
+    "groups": [
+      {
+        "id": "documentAi",
+        "title": "AI Dokumen",
+        "description": "Pahami dan olah isi dokumen.",
+        "items": [
+          {
+            "icon": "translator",
+            "name": "Penerjemah Dokumen",
+            "description": "Terjemahkan file PDF dan Word antar 8 bahasa, pertahankan tata letaknya, dan perbaiki kata-katanya sebelum diunduh.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Maks. 5 MB",
+            "output": "Terjemahan yang bisa diedit"
+          },
+          {
+            "icon": "summarizer",
+            "name": "Peringkas Dokumen",
+            "description": "Dapatkan gambaran singkat dan poin penting dari dokumen panjang, dengan panjang dan bahasa pilihan Anda.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Maks. 5 MB",
+            "output": "Gambaran & poin penting"
+          },
+          {
+            "icon": "extractor",
+            "name": "Ekstraktor Dokumen",
+            "description": "Ambil nama orang, organisasi, tanggal, nominal, tempat, dan kontak — siap disalin atau diunduh.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Maks. 5 MB",
+            "output": "Salin, CSV, atau JSON"
+          }
+        ]
+      },
+      {
+        "id": "fileTools",
+        "title": "Alat file",
+        "description": "Siapkan file sesuai format yang diminta.",
+        "items": [
+          {
+            "icon": "converter",
+            "name": "Konverter Dokumen",
+            "description": "Ubah PDF menjadi file Word yang bisa diedit, atau file Word menjadi PDF yang siap dibagikan.",
+            "formats": [
+              "PDF",
+              "DOCX"
+            ],
+            "limit": "Maks. 10 MB",
+            "output": "Word atau PDF"
+          },
+          {
+            "icon": "pdf",
+            "name": "Gabung & Pisah PDF",
+            "description": "Gabungkan hingga 20 PDF sesuai urutan pilihan Anda, atau pisahkan satu PDF per rentang halaman atau per halaman.",
+            "formats": [
+              "PDF"
+            ],
+            "limit": "Maks. 10 MB per file",
+            "output": "PDF gabungan atau terpisah"
+          }
+        ]
+      },
+      {
+        "id": "imageTools",
+        "title": "Alat gambar",
+        "description": "Sesuaikan gambar untuk slot, formulir, atau email.",
+        "items": [
+          {
+            "icon": "resizer",
+            "name": "Pengubah Ukuran Gambar",
+            "description": "Ubah ke ukuran persis atau preset seperti 1200 × 630 px, dan atur cara gambar mengisi bingkai.",
+            "formats": [
+              "JPG",
+              "PNG",
+              "WEBP"
+            ],
+            "limit": "Maks. 10 MB",
+            "output": "Gambar ukuran baru"
+          },
+          {
+            "icon": "compressor",
+            "name": "Kompresor Gambar",
+            "description": "Perkecil ukuran file gambar dengan tingkat kualitas yang Anda atur, agar unggahan dan lampiran email lolos.",
+            "formats": [
+              "JPG",
+              "PNG",
+              "WEBP"
+            ],
+            "limit": "Maks. 10 MB",
+            "output": "Gambar lebih ringan"
+          }
+        ]
+      }
+    ],
+    "filtersLabel": "Saring alat berdasarkan kategori",
+    "all": "Semua",
+    "aiBadge": "AI",
+    "outputLabel": "Hasil"
+  },
+  "howItWorks": {
+    "eyebrow": "Cara kerja",
+    "title": "Tiga langkah, alat apa pun yang Anda pakai",
+    "description": "Semua alat bekerja dengan cara yang sama. Setelah mencoba satu, Anda tahu cara memakai semuanya.",
+    "label": "Unggah file, pilih opsi, lalu periksa dan unduh hasilnya",
+    "steps": [
+      {
+        "title": "Unggah file Anda",
+        "body": "Buka alat lalu masukkan PDF, dokumen Word, atau gambar. Tanpa instalasi dan tanpa membuat akun."
+      },
+      {
+        "title": "Pilih opsi",
+        "body": "Tentukan bahasa, panjang ringkasan, rentang halaman, atau ukuran gambar. Sisanya dikerjakan alat."
+      },
+      {
+        "title": "Periksa dan unduh",
+        "body": "Tinjau hasilnya di layar, perbaiki bila alatnya mendukung, lalu unduh atau salin."
+      }
+    ],
+    "demo": {
+      "file": "Laporan_Tahunan.pdf",
+      "fileMeta": "PDF · 2,4 MB",
+      "drop": "Letakkan file di sini",
+      "from": "Indonesia",
+      "to": "Inggris",
+      "length": "Panjang ringkasan",
+      "lengths": [
+        "Singkat",
+        "Sedang",
+        "Detail"
+      ],
+      "result": "Laporan_Tahunan_EN.pdf",
+      "ready": "Siap",
+      "download": "Unduh"
+    }
+  },
+  "useCases": {
+    "eyebrow": "Contoh penggunaan",
+    "title": "Dibuat untuk tugas yang memperlambat hari Anda",
+    "description": "Sebagian besar tugas kantor tidak sulit, hanya merepotkan. Begini cara menyelesaikannya dalam beberapa klik.",
+    "stepsLabel": "Alat yang dipakai",
+    "items": [
+      {
+        "role": "Operasional & pengadaan",
+        "situation": "Pemasok mengirim kontrak dalam bahasa Mandarin.",
+        "body": "Terjemahkan ke bahasa Indonesia, lalu ambil tanggal dan nominal yang perlu Anda periksa.",
+        "tools": [
+          "translator",
+          "extractor"
+        ]
+      },
+      {
+        "role": "Manajer & analis",
+        "situation": "Laporan 40 halaman dibahas di rapat berikutnya.",
+        "body": "Dapatkan gambaran dan poin pentingnya dalam semenit, dan masuk rapat dengan tahu apa yang penting.",
+        "tools": [
+          "summarizer"
+        ]
+      },
+      {
+        "role": "Admin & HR",
+        "situation": "Formulir yang harus diisi hanya tersedia dalam PDF.",
+        "body": "Ubah ke Word, isi, lalu ubah kembali ke PDF untuk dikirim.",
+        "tools": [
+          "converter"
+        ]
+      },
+      {
+        "role": "Keuangan",
+        "situation": "Dua belas faktur, satu email.",
+        "body": "Gabungkan menjadi satu PDF dengan urutan yang benar, atau pisahkan laporan menjadi halaman yang dibutuhkan tiap tim.",
+        "tools": [
+          "pdf"
+        ]
+      },
+      {
+        "role": "Pemasaran & komunikasi",
+        "situation": "Banner harus tepat 1200 × 630 px.",
+        "body": "Ubah ukuran dengan preset, lalu kompres agar halaman tetap cepat.",
+        "tools": [
+          "resizer",
+          "compressor"
+        ]
+      },
+      {
+        "role": "Mahasiswa & peneliti",
+        "situation": "Jurnal yang Anda butuhkan berbahasa Jepang.",
+        "body": "Terjemahkan ke bahasa Anda, lalu ringkas untuk memutuskan apakah layak dibaca penuh.",
+        "tools": [
+          "translator",
+          "summarizer"
+        ]
+      }
+    ]
+  },
+  "review": {
+    "eyebrow": "Sorotan alat · Penerjemah Dokumen",
+    "title": "Terjemahan yang tetap terlihat seperti dokumen Anda.",
+    "description": "Penerjemah membaca judul, daftar, dan tabel, menempatkan setiap terjemahan di posisi teks aslinya, dan membiarkan Anda memperbaiki kata-katanya sebelum diunduh.",
+    "label": "Pratinjau progres terjemahan dan editor dokumen",
+    "points": [
+      {
+        "title": "Tata letak tetap di tempatnya",
+        "body": "Halaman, judul, tabel, dan spasi tetap di tempatnya, jadi tidak perlu merapikan ulang."
+      },
+      {
+        "title": "Bandingkan dengan aslinya",
+        "body": "Buka halaman asli di samping terjemahan, dan kembalikan versi AI dari bagian mana pun yang Anda ubah."
+      },
+      {
+        "title": "Edit sebelum mengunduh",
+        "body": "Perbaiki kata dan format di editor browser, lalu unduh file dalam format aslinya."
+      }
+    ],
+    "languagesLabel": "Terjemahkan antar bahasa berikut",
+    "cta": "Terjemahkan dokumen",
+    "progress": {
+      "title": "Menerjemahkan Laporan_Kuartal.docx",
+      "steps": [
+        {
+          "label": "Unggah",
+          "state": "done"
+        },
+        {
+          "label": "Bahasa",
+          "state": "done"
+        },
+        {
+          "label": "Terjemahkan",
+          "state": "active"
+        },
+        {
+          "label": "Unduh atau edit",
+          "state": "pending"
+        }
+      ]
+    },
+    "editor": {
+      "fileName": "Laporan_Kuartal_EN.docx",
+      "title": "Q3 Report",
+      "paragraphs": [
+        "Revenue grew 18% compared to the previous quarter, driven by expansion into",
+        "Operating costs remained stable, while customer satisfaction rose to 92%."
+      ],
+      "edited": "three new cities.",
+      "hint": "Diedit oleh Anda — perubahan ikut dalam unduhan.",
+      "compare": "Asli",
+      "download": "Unduh"
+    }
+  },
+  "features": {
+    "eyebrow": "Kenapa Document Doctor",
+    "title": "Alat praktis yang tetap Anda kendalikan",
+    "description": "Setiap alat mengerjakan satu tugas dengan jelas, dan Anda memeriksa hasilnya sebelum dipakai.",
+    "items": [
+      {
+        "icon": "noInstall",
+        "title": "Tidak perlu instalasi",
+        "body": "Semuanya berjalan di browser. Buka alat dan langsung mulai, tanpa software, plugin, atau akun."
+      },
+      {
+        "icon": "control",
+        "title": "AI membantu, Anda memutuskan",
+        "body": "Terjemahan terbuka di editor, dan data hasil ekstraksi ditandai agar bisa Anda cocokkan dengan dokumennya."
+      },
+      {
+        "icon": "layout",
+        "title": "Dokumen tetap rapi",
+        "body": "Terjemahan mempertahankan tata letak, dan konversi menyusun ulang teks, tabel, dan gambar — bukan sekadar teks polos."
+      },
+      {
+        "icon": "privacy",
+        "title": "File Anda tidak disimpan",
+        "body": "Peringkas, ekstraktor, alat file, dan alat gambar mengembalikan hasil tanpa menyimpan salinan. Terjemahan disimpan hanya agar bisa Anda buka dan edit lagi."
+      }
+    ]
+  },
+  "languages": {
+    "items": [
+      {
+        "code": "id",
+        "name": "Indonesia",
+        "native": "Bahasa Indonesia"
+      },
+      {
+        "code": "en",
+        "name": "Inggris",
+        "native": "English"
+      },
+      {
+        "code": "zh",
+        "name": "Mandarin",
+        "native": "中文"
+      },
+      {
+        "code": "ja",
+        "name": "Jepang",
+        "native": "日本語"
+      },
+      {
+        "code": "ko",
+        "name": "Korea",
+        "native": "한국어"
+      },
+      {
+        "code": "fr",
+        "name": "Prancis",
+        "native": "Français"
+      },
+      {
+        "code": "de",
+        "name": "Jerman",
+        "native": "Deutsch"
+      },
+      {
+        "code": "es",
+        "name": "Spanyol",
+        "native": "Español"
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Pertanyaan yang sering diajukan",
+    "items": [
+      {
+        "question": "Apa itu Document Doctor?",
+        "answer": "Document Doctor adalah satu aplikasi web berisi alat dokumen dan file yang dibutuhkan di tempat kerja: penerjemah, peringkas, dan ekstraktor dokumen, konverter PDF ⇄ Word, gabung & pisah PDF, serta pengubah ukuran dan kompresor gambar."
+      },
+      {
+        "question": "Apakah saya perlu menginstal sesuatu atau membuat akun?",
+        "answer": "Tidak. Semua alat berjalan di browser. Buka alatnya, unggah file, dan unduh hasilnya."
+      },
+      {
+        "question": "Jenis dan ukuran file apa yang didukung?",
+        "answer": "Penerjemah, peringkas, dan ekstraktor menerima file PDF dan Word (.docx) hingga 5 MB. Konverter dan alat PDF menerima file hingga 10 MB, dan Anda bisa menggabungkan hingga 20 PDF sekaligus. Alat gambar menerima JPG, PNG, dan WEBP hingga 10 MB."
+      },
+      {
+        "question": "Apa yang terjadi dengan file saya?",
+        "answer": "Peringkas, ekstraktor, konverter, alat PDF, dan alat gambar memproses file Anda dan mengembalikan hasilnya tanpa menyimpan salinan. Penerjemah menyimpan dokumen terjemahan agar bisa Anda buka lagi di editor dan unduh ulang."
+      },
+      {
+        "question": "Bisakah saya memeriksa atau mengedit hasil AI?",
+        "answer": "Bisa. Terjemahan terbuka di editor browser tempat Anda bisa mengubah kata dan format, membandingkan dengan halaman asli, dan mengembalikan versi AI dari bagian mana pun sebelum diunduh. Data hasil ekstraksi ditandai sebagai temuan AI, jadi Anda bisa mencocokkan detail penting dengan dokumennya."
+      },
+      {
+        "question": "Bahasa apa saja yang didukung?",
+        "answer": "Indonesia, Inggris, Mandarin, Jepang, Korea, Prancis, Jerman, dan Spanyol. Anda bisa menerjemahkan dari salah satu bahasa ini ke bahasa lainnya, dan mendapatkan ringkasan dalam bahasa mana pun di antaranya."
+      },
+      {
+        "question": "Bisakah saya memakai PDF hasil pindaian?",
+        "answer": "Belum untuk alat AI. Penerjemah, peringkas, dan ekstraktor membutuhkan PDF dengan teks yang bisa dipilih. PDF hasil pindaian tetap bisa digabung, dipisah, atau dikonversi — hasilnya berupa gambar di Word."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Ada dokumen yang perlu diurus?",
+    "description": "Pilih alat, unggah file Anda, dan dapatkan hasilnya langsung di browser.",
+    "primary": "Terjemahkan dokumen",
+    "secondary": "Lihat semua alat"
+  },
+  "footer": {
+    "tagline": "Alat dokumen, file, dan gambar sehari-hari, dalam satu tempat.",
+    "product": "Produk",
+    "tools": "Alat",
+    "rights": "Hak cipta dilindungi."
+  }
+}
