@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import Document from "@tiptap/extension-document";
 import Text from "@tiptap/extension-text";
-import { UndoRedo } from "@tiptap/extensions";
+import { Dropcursor, UndoRedo } from "@tiptap/extensions";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import {
   AlertCircle,
@@ -44,9 +44,14 @@ import type {
   DocumentLayout,
   DocxLayout,
   EditorDocument,
+  InsertedBlock,
+  InsertedTextKind,
   PdfLayout,
   SegmentEdit,
+  UploadedImage,
 } from "../type";
+import { BlockHandle } from "./block-handle";
+import { BubbleToolbar, TableToolbar } from "./bubble-toolbar";
 import { DocxCanvas } from "./docx-canvas";
 import { docxToContent, type DocxSetup } from "./docx-content";
 import { docxExtensions } from "./docx-extension";
@@ -66,6 +71,15 @@ import {
 } from "./editor-toolbar";
 import { FindBar } from "./find-bar";
 import { FORMAT_MARKS, sameRuns } from "./format-marks";
+import { countInsertionChanges, readInsertions } from "./insert-content";
+import {
+  HEADING_KINDS,
+  IMAGE_TYPES,
+  insertExtensions,
+  insertImages,
+  Latest,
+  SlashKeys,
+} from "./insert-extension";
 import { MenuBar } from "./menu-bar";
 import {
   FitStore,
@@ -83,6 +97,7 @@ import {
   type SegmentValue,
 } from "./segment-extension";
 import { PX_PER_PT } from "./segment-style";
+import { SlashMenu } from "./slash-menu";
 import { StatusBar } from "./status-bar";
 
 function changedSegments(
@@ -105,6 +120,17 @@ function changedSegments(
       style: value.style,
       runs: value.runs,
     }));
+}
+
+/** The inserted blocks, one string each, and how many differ from those last saved. */
+function insertionKeys(doc: ProseMirrorNode): { blocks: InsertedBlock[]; keys: string[] } {
+  const blocks = readInsertions(doc);
+  return { blocks, keys: blocks.map((block) => JSON.stringify(block)) };
+}
+
+/** Text the reader reads: translations and the paragraphs the user added. */
+function isCountedText(node: ProseMirrorNode): boolean {
+  return node.type.name === "segment" || node.type.name === "insParagraph";
 }
 
 /** Room around the pages in the canvas, in px (both sides). */
@@ -130,7 +156,7 @@ function countWords(doc: ProseMirrorNode): number {
       : null;
   let words = 0;
   doc.descendants((node) => {
-    if (node.type.name !== "segment") return true;
+    if (!isCountedText(node)) return true;
     const text = node.textContent;
     if (segmenter) {
       for (const part of segmenter.segment(text)) if (part.isWordLike) words++;
@@ -192,7 +218,7 @@ function prepare(
   }
   const { mediaHref } = hrefs;
   if (document.document_type === "docx" && isDocxLayout(layout) && mediaHref) {
-    const converted = docxToContent(layout, document.segments);
+    const converted = docxToContent(layout, document.segments, document.insertions);
     if (converted) {
       return {
         mode: "docx",
@@ -229,8 +255,11 @@ export interface DocumentEditorProps {
    *  document is edited as blocks. The schema is fixed when the editor
    *  mounts: give it a new `key` when the layout arrives. */
   layout?: DocumentLayout;
-  /** Stores the edits. The editor keeps them unsaved when it rejects. */
-  onSave: (edits: SegmentEdit[]) => Promise<unknown>;
+  /** Stores the edits, and the blocks added to a Word document when they
+   *  changed (all of them, in order). The editor keeps them unsaved when it rejects. */
+  onSave: (edits: SegmentEdit[], insertions?: InsertedBlock[]) => Promise<unknown>;
+  /** Stores an image to add to a Word document; without it images can't be added. */
+  onUploadImage?: (file: File) => Promise<UploadedImage>;
   /** The image of a PDF page; needed to edit a PDF on its pages. */
   pageImageHref?: PageImageHref;
   /** An image of a Word document, by its part name; needed to edit a DOCX on pages. */
@@ -251,11 +280,14 @@ export interface DocumentEditorProps {
 }
 
 /** A Google Docs–like editor of a document's segments: a PDF drawn on its
- *  pages, a DOCX laid out on pages, or, without a layout, plain blocks. */
+ *  pages, a DOCX laid out on pages, or, without a layout, plain blocks. A
+ *  Word document can also be given new blocks, as in Notion: text, headings,
+ *  lists, to-dos, quotes, code, tables, images, dividers and page breaks. */
 export function DocumentEditor({
   document,
   layout,
   onSave,
+  onUploadImage,
   pageImageHref,
   mediaHref,
   downloadHref,
@@ -293,6 +325,16 @@ export function DocumentEditor({
     ),
   );
   const [changes, setChanges] = useState<SegmentEdit[]>([]);
+  // The inserted blocks as last saved, and how many differ now.
+  const savedInsertions = useRef<string[]>(
+    (document.insertions ?? []).map((block) => JSON.stringify(block)),
+  );
+  const [insertionChanges, setInsertionChanges] = useState(0);
+  const [uploadFailed, setUploadFailed] = useState(false);
+  const imageInput = useRef<HTMLInputElement>(null);
+  const [uploader] = useState(() => new Latest<[File], Promise<UploadedImage>>());
+  useEffect(() => uploader.set(onUploadImage));
+  const [slashKeys] = useState(() => new SlashKeys());
   const [findOpen, setFindOpen] = useState(false);
   const [wordCountOpen, setWordCountOpen] = useState(false);
   const [words, setWords] = useState(0);
@@ -328,13 +370,14 @@ export function DocumentEditor({
     pagination.get,
   );
 
+  const canInsert = mode === "docx" && !!docx && !!setup;
   const [extensions] = useState(() => [
     Document.extend({
       content:
         mode === "pdf"
           ? "page+"
           : mode === "docx"
-            ? "docxRegion* docxBlock+"
+            ? "docxRegion* (docxBlock | insertedBlock)+"
             : "segment+",
     }),
     Text,
@@ -345,7 +388,27 @@ export function DocumentEditor({
     Search,
     DocShortcuts.configure({ mode, docx }),
     ...(mode === "docx" && docx && setup
-      ? docxExtensions(docx, setup, pagination)
+      ? [
+          ...docxExtensions(docx, setup, pagination),
+          ...insertExtensions({
+            docx,
+            setup,
+            upload: onUploadImage ? uploader.call : null,
+            onError: () => setUploadFailed(true),
+            placeholder: (kind: InsertedTextKind, focused: boolean) =>
+              kind === "normal"
+                ? focused
+                  ? t("blocks.placeholder")
+                  : ""
+                : (HEADING_KINDS as string[]).includes(kind)
+                  ? t(`headings.${kind}`)
+                  : focused
+                    ? t(`blocks.placeholders.${kind}`)
+                    : "",
+            slashKeys,
+          }),
+          Dropcursor.configure({ color: "#1a73e8", width: 2 }),
+        ]
       : []),
   ]);
 
@@ -373,6 +436,11 @@ export function DocumentEditor({
     onCreate: ({ editor }) => setWords(countWords(editor.state.doc)),
     onUpdate: ({ editor }) => {
       setChanges(changedSegments(editor.state.doc, saved.current));
+      if (canInsert) {
+        setInsertionChanges(
+          countInsertionChanges(savedInsertions.current, insertionKeys(editor.state.doc).keys),
+        );
+      }
       clearTimeout(wordTimer.current);
       wordTimer.current = setTimeout(
         () => setWords(countWords(editor.state.doc)),
@@ -391,17 +459,23 @@ export function DocumentEditor({
       editor ? (activeFormat(editor.state, docx)?.source ?? null) : null,
   });
 
-  const hasChanges = changes.length > 0;
+  const changeCount = changes.length + insertionChanges;
+  const hasChanges = changeCount > 0;
 
   useLeaveGuard(hasChanges);
+
+  function pickImage() {
+    imageInput.current?.click();
+  }
 
   async function save() {
     if (!editor || !hasChanges) return;
     const sent = changes;
+    const inserted = canInsert && insertionChanges > 0 ? insertionKeys(editor.state.doc) : null;
     setSaving(true);
     setSaveFailed(false);
     try {
-      await onSave(sent);
+      await onSave(sent, inserted?.blocks);
     } catch (error) {
       setSaveFailed(true);
       throw error;
@@ -415,8 +489,14 @@ export function DocumentEditor({
         runs: runs ?? null,
       });
     }
+    if (inserted) savedInsertions.current = inserted.keys;
     // The user may have kept typing while the request was in flight.
     setChanges(changedSegments(editor.state.doc, saved.current));
+    if (canInsert) {
+      setInsertionChanges(
+        countInsertionChanges(savedInsertions.current, insertionKeys(editor.state.doc).keys),
+      );
+    }
   }
 
   async function saveAndDownload() {
@@ -624,7 +704,7 @@ export function DocumentEditor({
                 {saving
                   ? t("saving")
                   : hasChanges
-                    ? t("unsaved", { count: changes.length })
+                    ? t("unsaved", { count: changeCount })
                     : t("saved")}
               </span>
             </div>
@@ -649,6 +729,7 @@ export function DocumentEditor({
               showSource={showSource}
               onToggleSource={() => setShowSource((value) => !value)}
               pdf={pdfControls}
+              onInsertImage={canInsert && onUploadImage ? pickImage : undefined}
             />
           </div>
 
@@ -718,6 +799,7 @@ export function DocumentEditor({
           showSource={showSource}
           onToggleSource={() => setShowSource((value) => !value)}
           pdf={pdfControls}
+          onInsertImage={canInsert && onUploadImage ? pickImage : undefined}
         >
           {findOpen && editor && (
             <FindBar editor={editor} onClose={() => setFindOpen(false)} />
@@ -753,6 +835,23 @@ export function DocumentEditor({
           </p>
         )}
 
+        {uploadFailed && (
+          <p
+            role="alert"
+            className="flex items-center gap-2 border-b border-destructive/20 bg-destructive/5 px-4 py-1.5 text-sm text-destructive"
+          >
+            <span className="flex-1">{t("blocks.uploadError")}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 rounded-full"
+              onClick={() => setUploadFailed(false)}
+            >
+              {t("blocks.dismiss")}
+            </Button>
+          </p>
+        )}
+
         {saveFailed && (
           <p
             role="alert"
@@ -783,7 +882,31 @@ export function DocumentEditor({
             zoom={zoom}
             printing={printing}
             canvasRef={canvasRef}
-          />
+          >
+            {canInsert && !printing && <BlockHandle editor={editor} containerRef={canvasRef} />}
+          </DocxCanvas>
+          {canInsert && editor && (
+            <>
+              <BubbleToolbar editor={editor} actions={actions} />
+              <TableToolbar editor={editor} />
+              <SlashMenu editor={editor} slashKeys={slashKeys} onPickImage={pickImage} />
+              <input
+                ref={imageInput}
+                type="file"
+                accept={IMAGE_TYPES.join(",")}
+                multiple
+                hidden
+                onChange={(event) => {
+                  const files = [...(event.target.files ?? [])];
+                  event.target.value = "";
+                  if (files.length) {
+                    setUploadFailed(false);
+                    void insertImages(editor, files);
+                  }
+                }}
+              />
+            </>
+          )}
         </div>
       ) : (
         <article className="mx-auto w-full max-w-3xl px-10 pt-12 pb-32 sm:px-16">
@@ -857,7 +980,7 @@ function WordCountDialog({
     let characters = 0;
     let noSpaces = 0;
     doc.descendants((node) => {
-      if (node.type.name !== "segment") return true;
+      if (!isCountedText(node)) return true;
       characters += [...node.textContent].length;
       noSpaces += [...node.textContent.replace(/\s/g, "")].length;
       return false;

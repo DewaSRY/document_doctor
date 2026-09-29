@@ -23,11 +23,15 @@ class DocumentHandler(ABC):
         target_language: str,
         styles: dict[str, dict] | None = None,
         runs: dict[str, list[dict]] | None = None,
+        insertions: list[dict] | None = None,
+        media: dict[str, bytes] | None = None,
     ) -> bytes:
         """Create translated document preserving original structure.
 
         styles: optional per-segment style overrides, by key.
         runs: optional formatting of ranges of a segment's text, by key.
+        insertions: blocks added in the editor (DOCX only), with the images
+        they use in `media`, by name.
         """
 
     @staticmethod

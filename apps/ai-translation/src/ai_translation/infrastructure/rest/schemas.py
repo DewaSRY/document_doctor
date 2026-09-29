@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -125,8 +125,74 @@ class SegmentEdit(BaseModel):
         return self
 
 
+_InsertedTextKind = Literal[
+    "normal", "title", "subtitle", "h1", "h2", "h3", "h4", "h5", "h6",
+    "bullet", "numbered", "todo", "quote", "code",
+]
+
+
+class _InsertedBase(BaseModel):
+    after: int = Field(
+        ...,
+        ge=-1,
+        description="Index of the element of the original body (the layout's body_index) "
+        "the block follows; -1 for the start of the document.",
+    )
+
+
+class InsertedParagraph(_InsertedBase):
+    type: Literal["paragraph"]
+    kind: _InsertedTextKind = "normal"
+    runs: list[SegmentRun] = Field(default_factory=list, max_length=500)
+    align: Literal["left", "center", "right", "justify"] | None = None
+    level: int = Field(default=0, ge=0, le=4, description="Nesting of a list item")
+    checked: bool = False
+
+
+class InsertedTableCell(BaseModel):
+    paragraphs: list[list[SegmentRun]] = Field(default_factory=lambda: [[]], min_length=1, max_length=50)
+
+
+class InsertedTableRow(BaseModel):
+    cells: list[InsertedTableCell] = Field(..., min_length=1, max_length=30)
+
+
+class InsertedTable(_InsertedBase):
+    type: Literal["table"]
+    header_row: bool = False
+    rows: list[InsertedTableRow] = Field(..., min_length=1, max_length=200)
+
+
+class InsertedImage(_InsertedBase):
+    type: Literal["image"]
+    src: str = Field(..., pattern=r"^upload/[0-9a-f]{32}\.(png|jpeg|gif)$", description="A name from the media upload")
+    width: float = Field(..., gt=0, le=2000, description="In points")
+    height: float = Field(..., gt=0, le=3000, description="In points")
+    align: Literal["left", "center", "right"] = "center"
+    alt: str = Field(default="", max_length=500)
+
+
+class InsertedDivider(_InsertedBase):
+    type: Literal["divider"]
+
+
+class InsertedPageBreak(_InsertedBase):
+    type: Literal["page_break"]
+
+
+InsertedBlock = Annotated[
+    InsertedParagraph | InsertedTable | InsertedImage | InsertedDivider | InsertedPageBreak,
+    Field(discriminator="type"),
+]
+
+
 class UpdateSegmentsRequest(BaseModel):
     segments: list[SegmentEdit] = Field(..., description="Segments to update")
+    insertions: list[InsertedBlock] | None = Field(
+        default=None,
+        max_length=2000,
+        description="DOCX only: blocks added to the document, in order. Replaces the stored ones when sent.",
+    )
 
 
 class ErrorResponse(BaseModel):

@@ -1,5 +1,6 @@
 import type {
   DocumentSegment,
+  InsertedBlock,
   SegmentEdit,
 } from "@/components/document-editor/type";
 
@@ -32,6 +33,8 @@ export type {
   DocxLayout,
   DocumentLayout,
   SegmentEdit,
+  InsertedBlock,
+  UploadedImage,
 } from "@/components/document-editor/type";
 
 /** The AI service wraps every response as { data, code, message }. */
@@ -60,9 +63,13 @@ export interface DocumentSegments {
   source_language: LanguageCode;
   target_language: LanguageCode;
   segments: DocumentSegment[];
+  /** Blocks added to a Word document in the editor. */
+  insertions?: InsertedBlock[];
   updated_at: string;
 }
 
 export interface UpdateSegmentsBody {
   segments: SegmentEdit[];
+  /** Replaces the added blocks when sent. */
+  insertions?: InsertedBlock[];
 }

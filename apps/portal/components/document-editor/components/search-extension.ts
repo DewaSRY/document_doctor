@@ -30,14 +30,14 @@ export interface SearchState {
 
 export const searchKey = new PluginKey<SearchState>("search");
 
-/** Matches of the query, within segments (never across them). */
+/** Matches of the query, within segments and inserted paragraphs (never across them). */
 function findMatches(doc: ProseMirrorNode, query: string, caseSensitive: boolean): Match[] {
   if (!query) return [];
   const fold = (value: string) => (caseSensitive ? value : value.toLocaleLowerCase());
   const needle = fold(query);
   const matches: Match[] = [];
   doc.descendants((node, pos) => {
-    if (node.type.name !== "segment") return true;
+    if (node.type.name !== "segment" && node.type.name !== "insParagraph") return true;
     const text = fold(node.textContent);
     for (let at = text.indexOf(needle); at !== -1; at = text.indexOf(needle, at + needle.length)) {
       matches.push({ from: pos + 1 + at, to: pos + 1 + at + needle.length });

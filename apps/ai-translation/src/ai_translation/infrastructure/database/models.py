@@ -126,3 +126,43 @@ class DocumentSegments(Base):
         onupdate=func.now(),
         nullable=False
     )
+
+
+class DocumentInsertions(Base):
+    """
+    Blocks a user added to a translated DOCX in the editor (paragraphs, lists,
+    tables, images), each placed after an element of the original body. The
+    rebuild writes them into the file after the translations.
+    """
+
+    __tablename__ = "document_insertions"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    document_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    # [{"type": "paragraph", "after": 3, "kind": "h2", "runs": [...]}, ...] in document order.
+    blocks: Mapped[list[dict]] = mapped_column(JSON, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
+    )
+
+
+class DocumentMedia(Base):
+    """An image uploaded in the editor, to be placed in the document as an inserted block."""
+
+    __tablename__ = "document_media"
+    __table_args__ = (Index("ix_document_media_document_name", "document_id", "name", unique=True),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    document_id: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    # "upload/<hex>.<ext>", the src of an inserted image.
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    content_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )

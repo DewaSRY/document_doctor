@@ -319,6 +319,216 @@
   user-select: none;
 }
 
+/* Blocks the user adds to a Word document (document-editor/components/insert-*.ts).
+   They draw what the service writes into the file (docx_insertions.py). */
+.ins-block {
+  position: relative;
+}
+.ins-p {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+.ins-p::after {
+  content: "\200b";
+}
+.ins-p.is-empty > .ins-text::before {
+  content: var(--placeholder);
+  position: absolute;
+  opacity: 0.35;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.ins-p[data-kind="bullet"]::before,
+.ins-p[data-kind="numbered"]::before {
+  position: absolute;
+  left: var(--marker-left);
+  text-indent: 0;
+}
+.ins-p[data-kind="bullet"]::before {
+  content: "•";
+}
+.ins-p[data-kind="bullet"][data-level="1"]::before,
+.ins-p[data-kind="bullet"][data-level="4"]::before {
+  content: "◦";
+}
+.ins-p[data-kind="bullet"][data-level="2"]::before {
+  content: "▪";
+}
+/* A numbered list is one run of numbered blocks: anything else starts it again. */
+.docx-body > :not(.ins-p[data-kind="numbered"]):not(.docx-page-gap) {
+  counter-reset: ins-l0 ins-l1 ins-l2 ins-l3 ins-l4;
+}
+.ins-p[data-kind="numbered"][data-level="0"] {
+  counter-increment: ins-l0;
+  counter-reset: ins-l1 ins-l2 ins-l3 ins-l4;
+}
+.ins-p[data-kind="numbered"][data-level="1"] {
+  counter-increment: ins-l1;
+  counter-reset: ins-l2 ins-l3 ins-l4;
+}
+.ins-p[data-kind="numbered"][data-level="2"] {
+  counter-increment: ins-l2;
+  counter-reset: ins-l3 ins-l4;
+}
+.ins-p[data-kind="numbered"][data-level="3"] {
+  counter-increment: ins-l3;
+  counter-reset: ins-l4;
+}
+.ins-p[data-kind="numbered"][data-level="4"] {
+  counter-increment: ins-l4;
+}
+.ins-p[data-kind="numbered"][data-level="0"]::before {
+  content: counter(ins-l0, decimal) ".";
+}
+.ins-p[data-kind="numbered"][data-level="1"]::before {
+  content: counter(ins-l1, lower-alpha) ".";
+}
+.ins-p[data-kind="numbered"][data-level="2"]::before {
+  content: counter(ins-l2, lower-roman) ".";
+}
+.ins-p[data-kind="numbered"][data-level="3"]::before {
+  content: counter(ins-l3, decimal) ".";
+}
+.ins-p[data-kind="numbered"][data-level="4"]::before {
+  content: counter(ins-l4, lower-alpha) ".";
+}
+.ins-check {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 0.35em;
+  vertical-align: -0.12em;
+  border: max(1px, 0.08em) solid currentColor;
+  border-radius: 0.15em;
+  cursor: pointer;
+  text-indent: 0;
+}
+.ins-p[data-checked] > .ins-check {
+  background: currentColor
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 90% no-repeat;
+}
+.ins-p[data-checked] > .ins-text {
+  opacity: 0.55;
+}
+.ins-p[data-kind="quote"] {
+  border-left: calc(2.25 * var(--z)) solid #bfbfbf;
+  color: #595959;
+  font-style: italic;
+}
+.ins-p[data-kind="code"] {
+  background-color: #f2f2f2;
+}
+.ins-divider {
+  padding: calc(6 * var(--z)) 0;
+}
+.ins-divider > hr {
+  border: 0;
+  border-top: max(1px, calc(0.75 * var(--z))) solid #bfbfbf;
+}
+.ins-page-break {
+  height: calc(10 * var(--z));
+  border-top: 1px dashed rgb(0 0 0 / 0.2);
+}
+.ins-image {
+  line-height: 0;
+}
+.ins-image-frame {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+.ins-image-frame > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ins-image-frame.is-selected,
+.docx-body .ProseMirror-selectednode.ins-block:not(.ins-image) {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+.ins-image-uploading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(255 255 255 / 0.6);
+  color: #5f6368;
+}
+.ins-image-resize {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #fff;
+  border-radius: 2px;
+  background: #1a73e8;
+  cursor: nwse-resize;
+}
+.ins-image-bar {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 2px;
+  border-radius: 6px;
+  background: rgb(32 33 36 / 0.85);
+  color: #fff;
+  line-height: 1;
+}
+.ins-image-bar > button {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.ins-image-bar > button:hover,
+.ins-image-bar > button.is-on {
+  background: rgb(255 255 255 / 0.2);
+}
+.ins-table {
+  padding: calc(4 * var(--z)) 0;
+}
+.ins-table > table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.ins-table td,
+.ins-table th {
+  position: relative;
+  padding: 0 calc(5.4 * var(--z));
+  border: max(1px, calc(0.5 * var(--z))) solid #000;
+  vertical-align: top;
+  text-align: left;
+  font-weight: inherit;
+}
+.ins-table th {
+  background-color: #f2f2f2;
+  font-weight: 700;
+}
+.ins-table .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(26 115 232 / 0.12);
+  pointer-events: none;
+}
+.docx-body .ProseMirror-dropcursor,
+.prosemirror-dropcursor-block {
+  pointer-events: none;
+}
+
 @media print {
   html,
   body {
@@ -329,5 +539,11 @@
   }
   .docx-body > .docx-region:hover {
     outline: none;
+  }
+  .ins-page-break {
+    border-top: none;
+  }
+  .ins-p.is-empty > .ins-text::before {
+    content: none;
   }
 }

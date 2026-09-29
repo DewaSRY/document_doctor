@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+from io import BytesIO
 
 from fastapi import APIRouter, Depends, UploadFile, File, Request, Query
 from fastapi.responses import Response
@@ -17,7 +18,7 @@ from ai_translation.domain.translation import (
 from ai_translation.domain.document import DocumentHandler, PDFHandler, DOCXHandler
 from ai_translation.infrastructure.rest.response_normalizer import normalize_success_response
 from ai_translation.infrastructure.rest.schemas import SegmentEdit, UpdateSegmentsRequest
-from ai_translation.infrastructure.rest.uploads import content_disposition
+from ai_translation.infrastructure.rest.uploads import content_disposition, read_upload
 from ai_translation.infrastructure.rest.exceptions import (
     APIException,
     ValidationError,
@@ -30,6 +31,7 @@ from ai_translation.infrastructure.database import get_db_session
 from ai_translation.infrastructure.database.repositories import (
     TranslatedDocumentRepository,
     DocumentSegmentsRepository,
+    DocumentInsertionsRepository,
 )
 from ai_translation.infrastructure.database.schemas import TranslatedDocumentResponse
 from ai_translation.infrastructure.database.models import TranslatedDocument, DocumentSegments
@@ -245,7 +247,7 @@ async def get_document_info(
         )
 
 
-def _segments_response(document: TranslatedDocument, stored: DocumentSegments) -> dict:
+def _segments_response(document: TranslatedDocument, stored: DocumentSegments, insertions: list[dict]) -> dict:
     return {
         "document_id": document.document_id,
         "file_name": document.original_file_name,
@@ -253,6 +255,7 @@ def _segments_response(document: TranslatedDocument, stored: DocumentSegments) -
         "source_language": document.source_language,
         "target_language": document.target_language,
         "segments": stored.segments,
+        "insertions": insertions,
         "updated_at": stored.updated_at.isoformat(),
     }
 
@@ -276,8 +279,9 @@ async def get_document_segments(
     """Get the source and translated text of every segment, in document order."""
     try:
         document, stored = await _get_document_with_segments(session, document_id)
+        insertions = await DocumentInsertionsRepository(session).get_blocks(document_id)
         return normalize_success_response(
-            data=_segments_response(document, stored),
+            data=_segments_response(document, stored, insertions),
             message="Document segments retrieved successfully",
             code=200,
         )
@@ -361,12 +365,19 @@ async def get_document_media(
     name: str,
     session: AsyncSession = Depends(get_db_session),
 ):
-    """DOCX only: an image of the original upload, by the part name the layout returns."""
+    """
+    DOCX only: an image of the original upload, by the part name the layout
+    returns, or one uploaded in the editor (upload/<name>).
+    """
     try:
         document, stored = await _get_document_with_segments(session, document_id)
         if document.document_type != "docx":
             raise NotFoundError("Media", name)
-        found = await asyncio.to_thread(DOCXHandler.media, stored.original_document, name)
+        if name.startswith("upload/"):
+            uploaded = await DocumentInsertionsRepository(session).get_media(document_id, name)
+            found = (uploaded.data, uploaded.content_type) if uploaded else None
+        else:
+            found = await asyncio.to_thread(DOCXHandler.media, stored.original_document, name)
         if found is None:
             raise NotFoundError("Media", name)
         blob, content_type = found
@@ -417,6 +428,61 @@ async def get_page_image(
         )
 
 
+_IMAGE_TYPES = {"PNG": ("png", "image/png"), "JPEG": ("jpeg", "image/jpeg"), "GIF": ("gif", "image/gif")}
+
+
+@router.post("/translated-document/{document_id}/media")
+@limiter.limit("60/minute")
+async def upload_document_media(
+    request: Request,
+    document_id: str,
+    file: UploadFile = File(...),
+    session: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    DOCX only: store an image (PNG, JPEG or GIF, up to 5 MB) to place in the
+    document as an inserted block. Returns its name, the src of the block,
+    and its size in pixels.
+    """
+    try:
+        document, _ = await _get_document_with_segments(session, document_id)
+        if document.document_type != "docx":
+            raise ValidationError(
+                message="Images can only be added to Word documents",
+                details={"document_type": document.document_type},
+            )
+        content, _ = await read_upload(file, max_size_mb=5, allowed_extensions=["png", "jpeg", "gif"])
+        # Trust the content, not the file name: Word only embeds real images.
+        from PIL import Image, UnidentifiedImageError
+
+        try:
+            with Image.open(BytesIO(content)) as image:
+                kind = _IMAGE_TYPES.get(image.format or "")
+                width, height = image.size
+        except UnidentifiedImageError:
+            kind = None
+        if kind is None:
+            raise ValidationError(message="The file is not a PNG, JPEG or GIF image")
+        extension, content_type = kind
+        name = f"upload/{uuid.uuid4().hex}.{extension}"
+        await DocumentInsertionsRepository(session).add_media(document_id, name, content_type, content)
+        await session.commit()
+        return normalize_success_response(
+            data={"name": name, "width": width, "height": height},
+            message="Image uploaded successfully",
+            code=200,
+        )
+    except APIException:
+        await session.rollback()
+        raise
+    except Exception as exc:
+        await session.rollback()
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
+
+
 @router.put("/translated-document/{document_id}/segments")
 @limiter.limit("30/minute")
 async def update_document_segments(
@@ -431,6 +497,7 @@ async def update_document_segments(
 
     Segments that are not sent keep their current translation. A segment sent
     with empty text keeps the original (untranslated) text in the document.
+    `insertions` (DOCX only), when sent, replace the blocks added in the editor.
     """
     try:
         document, stored = await _get_document_with_segments(session, document_id)
@@ -444,6 +511,27 @@ async def update_document_segments(
                 details={"unknown_keys": unknown_keys},
             )
 
+        insertions_repository = DocumentInsertionsRepository(session)
+        if body.insertions is not None:
+            if document.document_type != "docx" and body.insertions:
+                raise ValidationError(
+                    message="Blocks can only be added to Word documents",
+                    details={"document_type": document.document_type},
+                )
+            insertions = [block.model_dump(exclude_none=True) for block in body.insertions]
+            await insertions_repository.set_blocks(document_id, insertions)
+        else:
+            insertions = await insertions_repository.get_blocks(document_id)
+
+        image_names = {block["src"] for block in insertions if block.get("type") == "image"}
+        media = await insertions_repository.get_media_data(document_id, image_names)
+        missing = sorted(image_names - media.keys())
+        if missing and body.insertions is not None:
+            raise ValidationError(
+                message=f"Unknown images: {', '.join(missing)}",
+                details={"unknown_images": missing},
+            )
+
         # Reassign rather than mutate so SQLAlchemy sees the JSON change.
         stored.segments = [_apply_edit(segment, edits.get(segment["key"])) for segment in stored.segments]
 
@@ -454,12 +542,14 @@ async def update_document_segments(
             document.target_language,
             styles={segment["key"]: segment["style"] for segment in stored.segments if segment.get("style")},
             runs={segment["key"]: segment["runs"] for segment in stored.segments if segment.get("runs")},
+            insertions=insertions,
+            media=media,
         )
         await session.commit()
         await session.refresh(stored)
 
         return normalize_success_response(
-            data=_segments_response(document, stored),
+            data=_segments_response(document, stored, insertions),
             message="Document segments updated successfully",
             code=200,
         )

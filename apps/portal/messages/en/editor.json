@@ -149,5 +149,74 @@
     "sourceCharacters": "Characters in the original",
     "segments": "Translated blocks"
   },
-  "retry": "Try again"
+  "retry": "Try again",
+  "blocks": {
+    "insert": "Insert",
+    "insertHint": "Insert a table, image, list or other block",
+    "block": "Block type",
+    "menu": "Blocks",
+    "basic": "Basic blocks",
+    "noResults": "No matching blocks",
+    "placeholder": "Type “/” for commands",
+    "placeholders": {
+      "bullet": "List",
+      "numbered": "List",
+      "todo": "To-do",
+      "quote": "Quote",
+      "code": "Code"
+    },
+    "items": {
+      "text": "Text",
+      "h1": "Heading 1",
+      "h2": "Heading 2",
+      "h3": "Heading 3",
+      "bullet": "Bulleted list",
+      "numbered": "Numbered list",
+      "todo": "To-do list",
+      "quote": "Quote",
+      "code": "Code",
+      "table": "Table",
+      "image": "Image",
+      "divider": "Divider",
+      "pageBreak": "Page break"
+    },
+    "hints": {
+      "text": "Plain text in the document's style",
+      "h1": "Big section heading",
+      "h2": "Medium section heading",
+      "h3": "Small section heading",
+      "bullet": "A simple bulleted list",
+      "numbered": "A list numbered 1, 2, 3",
+      "todo": "Tasks with checkboxes",
+      "quote": "Set a passage apart",
+      "code": "Monospaced text",
+      "table": "Rows and columns",
+      "image": "Upload a PNG, JPEG or GIF",
+      "divider": "A line between sections",
+      "pageBreak": "Continue on the next page"
+    },
+    "addBelow": "Add a block below",
+    "dragOrMenu": "Drag to move · click for options",
+    "turnInto": "Turn into",
+    "duplicate": "Duplicate",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete",
+    "uploading": "Uploading image…",
+    "resizeImage": "Resize image",
+    "uploadError": "The image couldn't be added. Use a PNG, JPEG or GIF of at most 5 MB, and try again.",
+    "dismiss": "Dismiss",
+    "table": {
+      "size": "Choose a size",
+      "dimensions": "{{rows}} × {{cols}}",
+      "rowAbove": "Insert row above",
+      "rowBelow": "Insert row below",
+      "columnLeft": "Insert column left",
+      "columnRight": "Insert column right",
+      "deleteRow": "Delete row",
+      "deleteColumn": "Delete column",
+      "headerRow": "Toggle header row",
+      "delete": "Delete table"
+    }
+  }
 }

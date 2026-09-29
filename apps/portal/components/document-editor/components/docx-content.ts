@@ -8,8 +8,10 @@ import type {
   DocxParagraph,
   DocxRunStyle,
   DocxSection,
+  InsertedBlock,
 } from "../type";
 import { runsToContent, type BaseRun } from "./format-marks";
+import { placeInsertions } from "./insert-content";
 
 /** Content of a paragraph that is not translated, as a node attribute. */
 export type InlinePart =
@@ -68,12 +70,13 @@ export function baseRunOf(run: DocxRunStyle): BaseRun {
 /**
  * Editor content of a Word document: its headers and footers (placed on the
  * pages by the pagination), then the body, with each translatable piece of
- * text a segment. Returns null when a segment would be missing, so the caller
- * can fall back to editing blocks.
+ * text a segment, and the blocks the user added in their places. Returns null
+ * when a segment would be missing, so the caller can fall back to editing blocks.
  */
 export function docxToContent(
   layout: DocxLayout,
   segments: DocumentSegment[],
+  insertions: InsertedBlock[] = [],
 ): { content: JSONContent; setup: DocxSetup } | null {
   const byKey = new Map(segments.map((segment) => [segment.key, segment]));
   const placed = new Set<string>();
@@ -333,12 +336,15 @@ export function docxToContent(
       left: section.margin.left,
       width: section.page.width - section.margin.left - section.margin.right,
     };
-    body.push(
-      ...blocks(section.blocks, inset, index, {
-        left: section.margin.left,
-        top: section.margin.top,
-      }),
-    );
+    const nodes = blocks(section.blocks, inset, index, {
+      left: section.margin.left,
+      top: section.margin.top,
+    });
+    // One node per block: inserted blocks are placed by the body index of the one before them.
+    nodes.forEach((node, at) => {
+      node.attrs = { ...node.attrs, bodyIndex: section.blocks[at].body_index ?? null };
+    });
+    body.push(...nodes);
   });
   if (!body.length) return null;
 
@@ -372,7 +378,10 @@ export function docxToContent(
   }
 
   return {
-    content: { type: "doc", content: [...regionContent, ...body] },
+    content: {
+      type: "doc",
+      content: [...regionContent, ...placeInsertions(body, insertions)],
+    },
     setup: {
       sections: layout.sections.map(
         ({ page, margin, break: kind, title_page, header, footer }) => ({
@@ -400,7 +409,7 @@ function anchorLeft(
     : position.x.offset;
 }
 
-const EMPTY_PARAGRAPH = {
+export const EMPTY_PARAGRAPH = {
   align: "left",
   indent_left: 0,
   indent_right: 0,

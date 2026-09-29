@@ -209,10 +209,13 @@ class DocxLayoutReader:
             sections.append(self._section(sect_pr, blocks, headers, inherited))
             blocks = []
 
-        for child in body.iterchildren():
+        for index, child in enumerate(body.iterchildren()):
             if child.tag == qn("w:sectPr"):
                 continue
-            blocks.extend(self._block(child, self.doc.part, None))
+            # Blocks the user adds in the editor are placed after an element of the body, by its index.
+            for block in self._block(child, self.doc.part, None):
+                block["body_index"] = index
+                blocks.append(block)
             sect_pr = child.find(f"{qn('w:pPr')}/{qn('w:sectPr')}") if child.tag == qn("w:p") else None
             if sect_pr is not None:
                 close(sect_pr)
