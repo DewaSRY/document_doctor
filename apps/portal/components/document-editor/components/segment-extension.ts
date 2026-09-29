@@ -1,5 +1,5 @@
 import { Node, mergeAttributes, type JSONContent } from "@tiptap/core";
-import type { DOMOutputSpec, Mark, Node as ProseMirrorNode, Schema } from "@tiptap/pm/model";
+import type { DOMOutputSpec, Mark, Node as ProseMirrorNode, Schema, Slice } from "@tiptap/pm/model";
 import {
   Plugin,
   PluginKey,
@@ -36,6 +36,7 @@ import {
   runsToContent,
   type BaseRun,
 } from "./format-marks";
+import { INSERTED_NODES, isInserted } from "./insert-content";
 import { PageView } from "./page-view";
 import { replaceSegmentText, resolveStyle } from "./segment-style";
 import { SegmentView } from "./segment-view";
@@ -91,7 +92,8 @@ const activeSegmentKey = new PluginKey<DecorationSet>("activeSegment");
  * One translatable segment of the document (a piece of a DOCX paragraph or a
  * PDF line group). The service rebuilds the file by segment key, so segments
  * may be edited and formatted but never split, merged, added or removed: any
- * transaction that changes the document's structure is dropped.
+ * transaction that changes the document's structure is dropped. Blocks the
+ * user adds to a Word document (insert-extension.ts) are not part of it.
  *
  * PDF segments carry their `layout`; DOCX segments on pages their `run` (the
  * formatting in the file) and `prefix` (fixed content before them), and are
@@ -304,7 +306,8 @@ export const Segment = Node.create<{ docx: DocxStyles | null }>({
               return true;
             },
           },
-          handleDrop: () => true,
+          // Only blocks the user added can be moved (by their handle); nothing else is dropped.
+          handleDrop: (view, _event, slice, moved) => !(moved && isInsertedSlice(slice)),
         },
       }),
       // Marks the segment holding the cursor, for its node view and styles.
@@ -428,22 +431,50 @@ function selectedParagraphSegments(
   return [...result].map(([pos, node]) => ({ node, pos }));
 }
 
+function isTextBlock(node: ProseMirrorNode): boolean {
+  return node.type.name === "segment" || node.type.name === "insParagraph";
+}
+
+/** A selection that the default editing would merge segments across. */
 function spansSegments(state: EditorState): boolean {
-  const { $from, $to, empty } = state.selection;
+  const { $from, $to, empty, from, to } = state.selection;
   if (empty) return false;
-  return !($from.sameParent($to) && $from.parent.type.name === "segment");
+  if ($from.sameParent($to) && isTextBlock($from.parent)) return false;
+  // Within blocks the user added, the default editing (joining, cell selections) is fine.
+  let onlyInserted = true;
+  state.doc.nodesBetween(from, to, (node) => {
+    if (node.type.name !== "docxRegion" && !isInserted(node)) onlyInserted = false;
+    return false;
+  });
+  return !onlyInserted;
+}
+
+/** Moved content that is only whole blocks the user added. */
+function isInsertedSlice(slice: Slice): boolean {
+  if (slice.openStart || slice.openEnd || !slice.content.childCount) return false;
+  let only = true;
+  slice.content.forEach((node) => {
+    if (!isInserted(node) || !node.isBlock) only = false;
+  });
+  return only;
 }
 
 /**
  * Delete the selected text of every segment the selection spans, keeping the
- * segments. Returns where the cursor ends up: the start of the selection in
- * the first segment.
+ * segments; blocks the user added go when the selection covers them whole.
+ * Returns where the cursor ends up: the start of the selection in the first
+ * block that is left.
  */
-function deleteAcrossSegments(tr: Transaction): number {
+export function deleteAcrossSegments(tr: Transaction): number {
   const { from, to } = tr.selection;
   const ranges: [number, number][] = [];
-  tr.doc.nodesBetween(from, to, (node, pos) => {
-    if (node.type.name !== "segment") return true;
+  const { doc } = tr;
+  doc.nodesBetween(from, to, (node, pos, parent) => {
+    if (parent === doc && isInserted(node) && pos >= from && pos + node.nodeSize <= to) {
+      ranges.push([pos, pos + node.nodeSize]);
+      return false;
+    }
+    if (!isTextBlock(node)) return true;
     const start = Math.max(from, pos + 1);
     const end = Math.min(to, pos + node.nodeSize - 1);
     if (end >= start) ranges.push([start, end]);
@@ -453,9 +484,9 @@ function deleteAcrossSegments(tr: Transaction): number {
   for (const [start, end] of [...ranges].reverse()) {
     if (end > start) tr.delete(start, end);
   }
-  const at = ranges[0][0];
-  tr.setSelection(TextSelection.create(tr.doc, at));
-  return at;
+  const selection = TextSelection.near(tr.doc.resolve(Math.min(ranges[0][0], tr.doc.content.size)), 1);
+  tr.setSelection(selection);
+  return selection.from;
 }
 
 function markOf(schema: Schema, name: "bold" | "italic" | "underline" | "strike"): Mark {
@@ -496,15 +527,16 @@ function onlyEditsText(tr: Transaction): boolean {
     const doc = tr.docs[index];
     const $from = doc.resolve(step.from);
     const $to = doc.resolve(step.to);
-    return $from.sameParent($to) && $from.parent.type.name === "segment";
+    return $from.sameParent($to) && isTextBlock($from.parent);
   });
 }
 
-/** Every node but text, in order, with segment keys: what a transaction may not change. */
+/** Every node but text and inserted blocks, in order, with segment keys: what
+ *  a transaction may not change. */
 function structure(doc: ProseMirrorNode): string[] {
   const items: string[] = [];
   doc.descendants((node) => {
-    if (node.isText) return false;
+    if (node.isText || INSERTED_NODES.has(node.type.name)) return false;
     items.push(node.type.name === "segment" ? node.attrs.key : node.type.name);
     return node.type.name !== "segment";
   });

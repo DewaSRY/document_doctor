@@ -43,6 +43,7 @@ export const DocxParagraph = Node.create<{ docx: DocxStyles }>({
       breakAfter: { default: false, rendered: false },
       section: { default: 0, rendered: false },
       inset: { default: null, rendered: false },
+      bodyIndex: { default: null, rendered: false },
     };
   },
 
@@ -84,6 +85,7 @@ export const DocxTable = Node.create({
       rows: { default: [], rendered: false },
       section: { default: 0, rendered: false },
       inset: { default: null, rendered: false },
+      bodyIndex: { default: null, rendered: false },
     };
   },
 
@@ -196,6 +198,7 @@ export const DocxFrame = Node.create({
       border: { default: null, rendered: false },
       section: { default: 0, rendered: false },
       inset: { default: null, rendered: false },
+      bodyIndex: { default: null, rendered: false },
     };
   },
 

@@ -230,8 +230,11 @@ class PDFHandler(DocumentHandler):
         target_language: str,
         styles: dict[str, dict] | None = None,
         runs: dict[str, list[dict]] | None = None,
+        insertions: list[dict] | None = None,
+        media: dict[str, bytes] | None = None,
     ) -> bytes:
-        """Replace each source segment with its translation, keeping the layout."""
+        """Replace each source segment with its translation, keeping the layout.
+        A PDF's pages are fixed, so blocks inserted in the editor do not apply."""
         styles = styles or {}
         runs = runs or {}
         with pymupdf.open(stream=file_content, filetype="pdf") as pdf_document:

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
+import { useEffect, useSyncExternalStore, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { EditorContent, type Editor } from "@tiptap/react";
 
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ export function DocxCanvas({
   zoom,
   printing,
   canvasRef,
+  children,
 }: {
   editor: Editor | null;
   store: PaginationStore;
@@ -32,6 +33,8 @@ export function DocxCanvas({
   zoom: number;
   printing: boolean;
   canvasRef: RefObject<HTMLDivElement | null>;
+  /** Drawn over the pages, positioned in the canvas (e.g. the block handle). */
+  children?: ReactNode;
 }) {
   const snapshot = useSyncExternalStore(store.subscribe, store.get, store.get);
 
@@ -86,6 +89,7 @@ export function DocxCanvas({
         ))}
       </div>
       <EditorContent editor={editor} className="relative" />
+      {children}
     </div>
   );
 }

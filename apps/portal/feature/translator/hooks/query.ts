@@ -5,6 +5,7 @@ import {
   getDocumentSegmentsAction,
   translateDocumentAction,
   updateDocumentSegmentsAction,
+  uploadDocumentMediaAction,
 } from "../actions";
 import type { LanguageCode } from "../constants";
 import type { UpdateSegmentsBody } from "../type";
@@ -73,6 +74,19 @@ export function useUpdateDocumentSegments(documentId: string) {
       updateDocumentSegmentsAction(documentId, body).then(unpackActionResult),
     onSuccess: (data) => {
       queryClient.setQueryData(queryKeys.segments(documentId), data);
+    },
+  });
+}
+
+/** Stores an image for a Word document, to place as an inserted block. */
+export function useUploadDocumentMedia(documentId: string) {
+  return useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return uploadDocumentMediaAction(documentId, formData).then(
+        unpackActionResult,
+      );
     },
   });
 }

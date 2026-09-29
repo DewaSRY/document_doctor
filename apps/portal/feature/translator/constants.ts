@@ -22,6 +22,9 @@ export const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export const ACCEPTED_EXTENSIONS = ["pdf", "docx"] as const;
 
+/** Images that can be added to a Word document in the editor (what Word embeds). */
+export const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif"] as const;
+
 export const ACCEPT_ATTRIBUTE =
   ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 

@@ -7,6 +7,7 @@ import type {
   TranslatedDocument,
   TranslatorResponse,
   UpdateSegmentsBody,
+  UploadedImage,
 } from "./type";
 
 const aiTranslationApi = axios.create({
@@ -48,6 +49,18 @@ export class TranslatorClient extends BaseClient {
   getDocumentLayout(documentId: string) {
     return this.get<TranslatorResponse<DocumentLayout>>({
       endpoint: `/translated-document/${encodeURIComponent(documentId)}/layout`,
+      config: { timeout: 60_000 },
+    });
+  }
+
+  /** Stores an image to place in a Word document as an inserted block. */
+  uploadDocumentMedia(documentId: string, file: File) {
+    const body = new FormData();
+    body.append("file", file, file.name);
+
+    return this.post<TranslatorResponse<UploadedImage>>({
+      endpoint: `/translated-document/${encodeURIComponent(documentId)}/media`,
+      body,
       config: { timeout: 60_000 },
     });
   }

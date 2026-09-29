@@ -17,6 +17,7 @@ from docx.text.run import Run
 from lxml import etree
 
 from .base import DocumentHandler
+from .docx_insertions import InsertionWriter
 from .docx_layout import DocxLayoutReader
 
 # Tabs and line breaks split a paragraph into separately translated pieces,
@@ -114,6 +115,8 @@ class DOCXHandler(DocumentHandler):
         target_language: str,
         styles: dict[str, dict] | None = None,
         runs: dict[str, list[dict]] | None = None,
+        insertions: list[dict] | None = None,
+        media: dict[str, bytes] | None = None,
     ) -> bytes:
         """
         Replace each paragraph with its translation, keeping the formatting.
@@ -121,6 +124,8 @@ class DOCXHandler(DocumentHandler):
         styles: a user's overrides by key: the font and size of the segment's
         text, and the paragraph style, alignment, spacing and indent of its paragraph.
         runs: the formatting of ranges of a segment's text (see _apply_runs).
+        insertions: blocks added in the editor, each after an element of the
+        original body (see InsertionWriter); media: their images, by name.
         """
         styles = styles or {}
         runs = runs or {}
@@ -144,6 +149,10 @@ class DOCXHandler(DocumentHandler):
 
         for element, _ in self._stories(doc):
             self._sync_fallback_text_boxes(element)
+
+        # Last: new paragraphs would change the keys of the segments after them.
+        if insertions:
+            InsertionWriter(doc, media or {}, target_language).write(insertions)
 
         doc.core_properties.subject = (
             f"Translated from {source_language} to {target_language}"

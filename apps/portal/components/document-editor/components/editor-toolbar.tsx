@@ -17,10 +17,14 @@ import {
   IndentDecrease,
   IndentIncrease,
   Italic,
+  List,
   ListCollapse,
+  ListOrdered,
+  ListTodo,
   Minus,
   Omega,
   Plus,
+  SquarePlus,
   Printer,
   Redo2,
   RemoveFormatting,
@@ -53,6 +57,7 @@ import {
   type EditorActions,
   type EditorMode,
 } from "./editor-commands";
+import { BLOCK_ITEMS } from "./block-items";
 import { normalizeColor } from "./format-marks";
 import { useFit, type FitStore } from "./pdf-view-context";
 import { FONT_FAMILIES, FONT_STACKS } from "./segment-style";
@@ -133,6 +138,8 @@ interface EditorToolbarProps {
   onToggleSource: () => void;
   /** Present for a PDF shown as pages. */
   pdf?: PdfToolbarControls;
+  /** Opens the file picker for an image; without it images can't be added. */
+  onInsertImage?: () => void;
   children?: ReactNode;
 }
 
@@ -150,6 +157,7 @@ export function EditorToolbar({
   showSource,
   onToggleSource,
   pdf,
+  onInsertImage,
   children,
 }: EditorToolbarProps) {
   const { t } = useTranslation("editor");
@@ -176,6 +184,8 @@ export function EditorToolbar({
   const fit = useFit(pdf?.fits, active?.key);
   const hasText = !!active;
   const formatted = mode !== "blocks";
+  const inserted = !!active?.inserted;
+  const isList = inserted && ["bullet", "numbered", "todo"].includes(active?.kind ?? "");
 
   const fonts =
     mode === "pdf"
@@ -211,6 +221,8 @@ export function EditorToolbar({
 
         {mode === "docx" && (
           <>
+            <Divider />
+            <InsertMenu actions={actions} onInsertImage={onInsertImage} disabled={!editor} />
             <Divider />
             <StyleMenu
               value={active?.heading ?? null}
@@ -298,8 +310,29 @@ export function EditorToolbar({
 
         {mode === "docx" && (
           <>
+            <ToolButton
+              label={t("blocks.items.bullet")}
+              pressed={active?.kind === "bullet"}
+              onClick={() => actions.setBlockKind("bullet")}
+            >
+              <List />
+            </ToolButton>
+            <ToolButton
+              label={t("blocks.items.numbered")}
+              pressed={active?.kind === "numbered"}
+              onClick={() => actions.setBlockKind("numbered")}
+            >
+              <ListOrdered />
+            </ToolButton>
+            <ToolButton
+              label={t("blocks.items.todo")}
+              pressed={active?.kind === "todo"}
+              onClick={() => actions.setBlockKind("todo")}
+            >
+              <ListTodo />
+            </ToolButton>
             <LineSpacingMenu
-              disabled={!hasText}
+              disabled={!hasText || inserted}
               value={active?.lineSpacing ?? null}
               spaceBefore={active?.spaceBefore ?? 0}
               spaceAfter={active?.spaceAfter ?? 0}
@@ -307,12 +340,16 @@ export function EditorToolbar({
             />
             <ToolButton
               label={t("indentDecrease")}
-              disabled={!hasText || !active?.indentLeft}
+              disabled={!hasText || (inserted ? !isList : !active?.indentLeft)}
               onClick={() => actions.indent(-1)}
             >
               <IndentDecrease />
             </ToolButton>
-            <ToolButton label={t("indentIncrease")} disabled={!hasText} onClick={() => actions.indent(1)}>
+            <ToolButton
+              label={t("indentIncrease")}
+              disabled={!hasText || (inserted && !isList)}
+              onClick={() => actions.indent(1)}
+            >
               <IndentIncrease />
             </ToolButton>
           </>
@@ -328,7 +365,7 @@ export function EditorToolbar({
         <ToolButton label={t("restore")} disabled={!active?.isEdited} onClick={actions.restore}>
           <RotateCcw />
         </ToolButton>
-        <ToolButton label={t("clear")} disabled={!active || active.isEmpty} onClick={actions.clearText}>
+        <ToolButton label={t("clear")} disabled={!active || inserted || active.isEmpty} onClick={actions.clearText}>
           <Eraser />
         </ToolButton>
 
@@ -418,6 +455,99 @@ function Divider() {
 
 const triggerClass =
   "flex h-7 shrink-0 cursor-pointer items-center gap-1 rounded-sm px-1.5 text-sm outline-none hover:bg-foreground/8 focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent data-popup-open:bg-foreground/8";
+
+/** Rows × columns of a new table, chosen by hovering a grid, like Google Docs. */
+export function TableSizePicker({ onPick }: { onPick: (rows: number, cols: number) => void }) {
+  const { t } = useTranslation("editor");
+  const [size, setSize] = useState({ rows: 0, cols: 0 });
+  const max = 8;
+  return (
+    <div className="p-1.5" onMouseLeave={() => setSize({ rows: 0, cols: 0 })}>
+      <div className="grid grid-cols-8 gap-0.5" role="grid" aria-label={t("blocks.table.size")}>
+        {Array.from({ length: max * max }, (_, index) => {
+          const row = Math.floor(index / max) + 1;
+          const col = (index % max) + 1;
+          const on = row <= size.rows && col <= size.cols;
+          return (
+            <button
+              key={index}
+              type="button"
+              aria-label={t("blocks.table.dimensions", { rows: row, cols: col })}
+              onMouseEnter={() => setSize({ rows: row, cols: col })}
+              onFocus={() => setSize({ rows: row, cols: col })}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => onPick(row, col)}
+              className={cn(
+                "size-4.5 cursor-pointer rounded-[2px] border",
+                on ? "border-primary/60 bg-primary/20" : "border-foreground/20 bg-background",
+              )}
+            />
+          );
+        })}
+      </div>
+      <p className="mt-1.5 text-center text-xs text-muted-foreground tabular-nums">
+        {size.rows ? t("blocks.table.dimensions", { rows: size.rows, cols: size.cols }) : t("blocks.table.size")}
+      </p>
+    </div>
+  );
+}
+
+/** Blocks a Word document can be given: tables, images, lists, dividers… */
+function InsertMenu({
+  actions,
+  onInsertImage,
+  disabled,
+}: {
+  actions: EditorActions;
+  onInsertImage?: () => void;
+  disabled: boolean;
+}) {
+  const { t } = useTranslation("editor");
+  const [open, setOpen] = useState(false);
+  const run = (id: string) => {
+    setOpen(false);
+    if (id === "image") onInsertImage?.();
+    else if (id === "divider") actions.insertDivider();
+    else if (id === "pageBreak") actions.insertPageBreak();
+    else {
+      const item = BLOCK_ITEMS.find((candidate) => candidate.id === id);
+      if (item?.kind) actions.setBlockKind(item.kind);
+    }
+  };
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={t("blocks.insert")}
+        title={t("blocks.insertHint")}
+        className={cn(triggerClass, "gap-1")}
+      >
+        <SquarePlus className="size-4" aria-hidden />
+        <span className="hidden lg:inline">{t("blocks.insert")}</span>
+        <ChevronDown className="size-3 text-muted-foreground" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-60">
+        <DropdownMenuLabel>{t("blocks.items.table")}</DropdownMenuLabel>
+        <TableSizePicker
+          onPick={(rows, cols) => {
+            setOpen(false);
+            actions.insertTable(rows, cols);
+          }}
+        />
+        <DropdownMenuSeparator />
+        {BLOCK_ITEMS.filter((item) => item.id !== "table" && (item.id !== "image" || onInsertImage)).map((item) => {
+          const Icon = item.icon;
+          return (
+            <DropdownMenuItem key={item.id} onClick={() => run(item.id)}>
+              <Icon aria-hidden />
+              {t(`blocks.items.${item.id}`)}
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function ZoomMenu({ zoom }: { zoom: ZoomControls }) {
   const { t } = useTranslation("editor");

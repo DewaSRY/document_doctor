@@ -17,11 +17,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import type { HeadingKind, TextAlign } from "../type";
+import { BLOCK_ITEMS } from "./block-items";
 import type { EditorActions, EditorMode } from "./editor-commands";
 import {
   HEADINGS,
   LINE_SPACINGS,
   SPECIAL_CHARACTERS,
+  TableSizePicker,
   ZOOM_PRESETS,
   type PdfToolbarControls,
   type ZoomControls,
@@ -48,6 +50,8 @@ interface MenuBarProps {
   showSource: boolean;
   onToggleSource: () => void;
   pdf?: PdfToolbarControls;
+  /** Opens the file picker for an image; without it images can't be added. */
+  onInsertImage?: () => void;
 }
 
 /** File, Edit, View, Insert, Format and Tools, like Google Docs. */
@@ -66,6 +70,7 @@ export function MenuBar({
   showSource,
   onToggleSource,
   pdf,
+  onInsertImage,
 }: MenuBarProps) {
   const { t } = useTranslation("editor");
   const docx = mode === "docx";
@@ -143,6 +148,44 @@ export function MenuBar({
       </Menu>
 
       <Menu label={t("menu.insert")}>
+        {docx && (
+          <>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>{t("blocks.items.table")}</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="w-auto">
+                <TableSizePicker onPick={(rows, cols) => actions.insertTable(rows, cols)} />
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            {onInsertImage && <Item onClick={onInsertImage}>{t("blocks.items.image")}</Item>}
+            <Item onClick={actions.insertDivider}>{t("blocks.items.divider")}</Item>
+            <Item onClick={actions.insertPageBreak} shortcut={`${mod}↵`}>
+              {t("blocks.items.pageBreak")}
+            </Item>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>{t("blocks.block")}</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="w-56">
+                {BLOCK_ITEMS.filter((item) => item.kind).map((item) => (
+                  <Item
+                    key={item.id}
+                    onClick={() => actions.setBlockKind(item.kind!)}
+                    shortcut={
+                      item.id === "numbered"
+                        ? `${mod}${shift}7`
+                        : item.id === "bullet"
+                          ? `${mod}${shift}8`
+                          : item.id === "todo"
+                            ? `${mod}${shift}9`
+                            : undefined
+                    }
+                  >
+                    {t(`blocks.items.${item.id}`)}
+                  </Item>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>{t("specialCharacters")}</DropdownMenuSubTrigger>
           <DropdownMenuSubContent className="w-72 p-2">

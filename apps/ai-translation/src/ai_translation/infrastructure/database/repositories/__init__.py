@@ -10,10 +10,14 @@ from ai_translation.infrastructure.database.repositories.translated_document_rep
 from ai_translation.infrastructure.database.repositories.document_segments_repository import (
     DocumentSegmentsRepository,
 )
+from ai_translation.infrastructure.database.repositories.document_insertions_repository import (
+    DocumentInsertionsRepository,
+)
 
 __all__ = [
     "TranslationRecordRepository",
     "TranslationJobRepository",
     "TranslatedDocumentRepository",
     "DocumentSegmentsRepository",
+    "DocumentInsertionsRepository",
 ]

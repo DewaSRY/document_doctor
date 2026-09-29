@@ -2,8 +2,19 @@ import { Extension, type Editor } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import type { EditorState } from "@tiptap/pm/state";
 
-import type { HeadingKind, SegmentLayout, SegmentStyle, TextAlign } from "../type";
+import type { HeadingKind, InsertedTextKind, SegmentLayout, SegmentStyle, TextAlign } from "../type";
 import { effectiveStyle, paragraphStyleOf, type DocxStyles } from "./docx-style";
+import {
+  HEADING_KINDS,
+  applyKind,
+  changeLevel,
+  insertDivider,
+  insertPageBreak,
+  insertTable,
+  insertedParagraphAt,
+  setInsertedAlign,
+  setKind,
+} from "./insert-extension";
 import { findActiveSegment, selectedSegments } from "./segment-extension";
 import { resolveStyle } from "./segment-style";
 
@@ -31,6 +42,10 @@ export interface ActiveFormat {
   isEdited: boolean;
   isEmpty: boolean;
   source: string;
+  /** In a block the user added (DOCX): no segment, font or spacing of its own. */
+  inserted: boolean;
+  /** The kind of that block. */
+  kind: InsertedTextKind | null;
 }
 
 function segmentFormat(
@@ -84,7 +99,29 @@ function segmentFormat(
 
 export function activeFormat(state: EditorState, docx: DocxStyles | null): ActiveFormat | null {
   const found = findActiveSegment(state);
-  if (!found) return null;
+  if (!found) {
+    const inserted = insertedParagraphAt(state);
+    if (!inserted) return null;
+    const { kind, align } = inserted.node.attrs as { kind: InsertedTextKind; align: TextAlign | null };
+    return {
+      key: "",
+      family: null,
+      fontSize: null,
+      align: align ?? "left",
+      heading: (HEADING_KINDS as string[]).includes(kind) ? (kind as HeadingKind) : null,
+      lineSpacing: null,
+      spaceBefore: null,
+      spaceAfter: null,
+      indentLeft: null,
+      color: null,
+      hasStyle: false,
+      isEdited: false,
+      isEmpty: inserted.node.content.size === 0,
+      source: "",
+      inserted: true,
+      kind,
+    };
+  }
   const { node, pos } = found;
   const parent = state.doc.resolve(pos).parent;
   return {
@@ -94,6 +131,8 @@ export function activeFormat(state: EditorState, docx: DocxStyles | null): Activ
     isEdited: node.textContent !== node.attrs.initial,
     isEmpty: node.content.size === 0,
     source: node.attrs.source,
+    inserted: false,
+    kind: null,
   };
 }
 
@@ -102,10 +141,16 @@ export function editorActions(editor: Editor | null, mode: EditorMode, docx: Doc
   const chain = () => editor!.chain().focus();
   const ready = () => !!editor && !editor.isDestroyed;
 
-  /** Align or indent: the paragraph in a Word document, the segment in a PDF. */
-  const setBlockStyle = (patch: SegmentStyle) =>
+  /** Align: the paragraph in a Word document (and the blocks the user added), the segment in a PDF. */
+  const setAlign = (align: TextAlign) =>
     ready() &&
-    (mode === "docx" ? chain().setParagraphStyle(patch).run() : chain().setSegmentStyle(patch).run());
+    chain()
+      .command(({ tr, commands }) => {
+        const inserted = mode === "docx" && setInsertedAlign(tr, align);
+        const segments = mode === "docx" ? commands.setParagraphStyle({ align }) : commands.setSegmentStyle({ align });
+        return inserted || segments;
+      })
+      .run();
 
   const changeFontSize = (delta: number) => {
     if (!ready()) return false;
@@ -133,7 +178,8 @@ export function editorActions(editor: Editor | null, mode: EditorMode, docx: Doc
   const indent = (direction: 1 | -1) =>
     ready() &&
     chain()
-      .command(({ state, commands }) => {
+      .command(({ state, tr, commands }) => {
+        if (changeLevel(tr, direction)) return true;
         const found = findActiveSegment(state);
         if (!found) return false;
         const current = segmentFormat(found.node, state.doc.resolve(found.pos).parent, docx).indentLeft ?? 0;
@@ -158,8 +204,16 @@ export function editorActions(editor: Editor | null, mode: EditorMode, docx: Doc
     setFontSize: (size: number) =>
       ready() && chain().setSegmentStyle({ font_size: clampFontSize(size) }).run(),
     changeFontSize,
-    setAlign: (align: TextAlign) => setBlockStyle({ align }),
-    setHeading: (heading: HeadingKind) => ready() && mode === "docx" && chain().setHeading(heading).run(),
+    setAlign,
+    setHeading: (heading: HeadingKind) =>
+      ready() &&
+      mode === "docx" &&
+      chain()
+        .command(({ tr, commands }) => {
+          const inserted = setKind(tr, heading, false);
+          return commands.setHeading(heading) || inserted;
+        })
+        .run(),
     setLineSpacing: (line_spacing: number) =>
       ready() && mode === "docx" && chain().setParagraphStyle({ line_spacing }).run(),
     setSpaceBefore: (space_before: number) =>
@@ -167,19 +221,28 @@ export function editorActions(editor: Editor | null, mode: EditorMode, docx: Doc
     setSpaceAfter: (space_after: number) =>
       ready() && mode === "docx" && chain().setParagraphStyle({ space_after }).run(),
     indent: (direction: 1 | -1) => mode === "docx" && indent(direction),
-    clearFormatting: () => ready() && chain().clearFormatting().run(),
+    clearFormatting: () =>
+      ready() &&
+      chain()
+        .command(({ commands }) => commands.clearFormatting() || commands.unsetAllMarks())
+        .run(),
     resetStyle: () => ready() && chain().setSegmentStyle(null).run(),
     insertText: (text: string) =>
       ready() &&
       chain()
         .command(({ state, tr, dispatch }) => {
-          if (!findActiveSegment(state)) return false;
+          if (!findActiveSegment(state) && !insertedParagraphAt(state)) return false;
           if (dispatch) tr.insertText(text);
           return true;
         })
         .run(),
     restore: () => ready() && chain().restoreSegment().run(),
     clearText: () => ready() && chain().setSegmentText("").run(),
+    // Blocks the user adds (Word documents only).
+    setBlockKind: (kind: InsertedTextKind) => ready() && mode === "docx" && applyKind(editor!, kind),
+    insertTable: (rows: number, cols: number) => ready() && mode === "docx" && insertTable(editor!, rows, cols),
+    insertDivider: () => ready() && mode === "docx" && insertDivider(editor!),
+    insertPageBreak: () => ready() && mode === "docx" && insertPageBreak(editor!),
   };
 }
 

@@ -1,10 +1,10 @@
-You are a senior product designer and frontend engineer.
+- @/components/document-editor/\*
 
-Redesign my existing Next.js application into a **modern, premium-looking AI document workspace**. The application provides online services that help users work with documents, powered by AI.
+Update my editor to have editing expiriance like notion
 
-## Task i want to accompolist
+it should able to create
 
-- for the brand i will love to have brand color of red.
-- i want the applicaiton have internationalization
+- table
+- embade the image
 
-- make me the landing page with greet seo who tell about the application is about help user to translate the docs
+and other usefull tools to edit document

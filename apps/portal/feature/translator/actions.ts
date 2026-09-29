@@ -3,6 +3,7 @@
 import { translatorClient } from "./client";
 import {
   ACCEPTED_EXTENSIONS,
+  ACCEPTED_IMAGE_TYPES,
   MAX_FILE_SIZE,
   getFileExtension,
   isLanguageCode,
@@ -64,6 +65,30 @@ export async function updateDocumentSegmentsAction(
     const response = await translatorClient.updateDocumentSegments(
       documentId,
       body,
+    );
+    return response.data.data;
+  });
+}
+
+export async function uploadDocumentMediaAction(
+  documentId: string,
+  formData: FormData,
+) {
+  const file = formData.get("file");
+  // The service checks the content too; a Server Action is a public endpoint.
+  if (
+    !(file instanceof File) ||
+    file.size === 0 ||
+    file.size > MAX_FILE_SIZE ||
+    !(ACCEPTED_IMAGE_TYPES as readonly string[]).includes(file.type)
+  ) {
+    throw new Error("Invalid image");
+  }
+
+  return runMaskingServerAction(async () => {
+    const response = await translatorClient.uploadDocumentMedia(
+      documentId,
+      file,
     );
     return response.data.data;
   });

@@ -18,8 +18,14 @@ import {
   useDocumentLayout,
   useDocumentSegments,
   useUpdateDocumentSegments,
+  useUploadDocumentMedia,
 } from "../hooks/query";
-import type { DocumentLayout, DocumentSegments, SegmentEdit } from "../type";
+import type {
+  DocumentLayout,
+  DocumentSegments,
+  InsertedBlock,
+  SegmentEdit,
+} from "../type";
 import { getTranslatorErrorStatus } from "../utils";
 
 /** Edits a translated document in the shared document editor. */
@@ -94,6 +100,7 @@ function TranslationEditor({
   const { t } = useTranslation("translator");
   const id = document.document_id;
   const update = useUpdateDocumentSegments(id);
+  const upload = useUploadDocumentMedia(id);
 
   const pageImageHref = useCallback<PageImageHref>(
     (page, options) => getPageImageHref(id, page, options),
@@ -110,7 +117,12 @@ function TranslationEditor({
     <DocumentEditor
       document={document}
       layout={layout}
-      onSave={(edits: SegmentEdit[]) => update.mutateAsync({ segments: edits })}
+      onSave={(edits: SegmentEdit[], insertions?: InsertedBlock[]) =>
+        update.mutateAsync({ segments: edits, insertions })
+      }
+      onUploadImage={
+        document.document_type === "docx" ? upload.mutateAsync : undefined
+      }
       pageImageHref={pageImageHref}
       mediaHref={mediaHref}
       downloadHref={getDownloadHref(id)}

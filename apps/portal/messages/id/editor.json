@@ -149,5 +149,74 @@
     "sourceCharacters": "Karakter di teks asli",
     "segments": "Blok terjemahan"
   },
-  "retry": "Coba lagi"
+  "retry": "Coba lagi",
+  "blocks": {
+    "insert": "Sisipkan",
+    "insertHint": "Sisipkan tabel, gambar, daftar, atau blok lain",
+    "block": "Jenis blok",
+    "menu": "Blok",
+    "basic": "Blok dasar",
+    "noResults": "Tidak ada blok yang cocok",
+    "placeholder": "Ketik “/” untuk perintah",
+    "placeholders": {
+      "bullet": "Daftar",
+      "numbered": "Daftar",
+      "todo": "Tugas",
+      "quote": "Kutipan",
+      "code": "Kode"
+    },
+    "items": {
+      "text": "Teks",
+      "h1": "Judul 1",
+      "h2": "Judul 2",
+      "h3": "Judul 3",
+      "bullet": "Daftar berpoin",
+      "numbered": "Daftar bernomor",
+      "todo": "Daftar tugas",
+      "quote": "Kutipan",
+      "code": "Kode",
+      "table": "Tabel",
+      "image": "Gambar",
+      "divider": "Pemisah",
+      "pageBreak": "Hentian halaman"
+    },
+    "hints": {
+      "text": "Teks biasa dengan gaya dokumen",
+      "h1": "Judul bagian besar",
+      "h2": "Judul bagian sedang",
+      "h3": "Judul bagian kecil",
+      "bullet": "Daftar berpoin sederhana",
+      "numbered": "Daftar bernomor 1, 2, 3",
+      "todo": "Tugas dengan kotak centang",
+      "quote": "Pisahkan sebuah kutipan",
+      "code": "Teks monospasi",
+      "table": "Baris dan kolom",
+      "image": "Unggah PNG, JPEG, atau GIF",
+      "divider": "Garis di antara bagian",
+      "pageBreak": "Lanjut di halaman berikutnya"
+    },
+    "addBelow": "Tambahkan blok di bawah",
+    "dragOrMenu": "Seret untuk memindahkan · klik untuk opsi",
+    "turnInto": "Ubah menjadi",
+    "duplicate": "Duplikat",
+    "moveUp": "Pindah ke atas",
+    "moveDown": "Pindah ke bawah",
+    "delete": "Hapus",
+    "uploading": "Mengunggah gambar…",
+    "resizeImage": "Ubah ukuran gambar",
+    "uploadError": "Gambar tidak dapat ditambahkan. Gunakan PNG, JPEG, atau GIF maksimal 5 MB, lalu coba lagi.",
+    "dismiss": "Tutup",
+    "table": {
+      "size": "Pilih ukuran",
+      "dimensions": "{{rows}} × {{cols}}",
+      "rowAbove": "Sisipkan baris di atas",
+      "rowBelow": "Sisipkan baris di bawah",
+      "columnLeft": "Sisipkan kolom di kiri",
+      "columnRight": "Sisipkan kolom di kanan",
+      "deleteRow": "Hapus baris",
+      "deleteColumn": "Hapus kolom",
+      "headerRow": "Alihkan baris header",
+      "delete": "Hapus tabel"
+    }
+  }
 }

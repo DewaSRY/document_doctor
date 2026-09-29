@@ -179,6 +179,8 @@ export interface DocxParagraph {
   parts: DocxPart[];
   break_before: boolean;
   break_after: boolean;
+  /** Top-level blocks only: index of their element in the document body. */
+  body_index?: number;
 }
 
 export interface DocxCell {
@@ -195,6 +197,7 @@ export interface DocxCell {
 
 export interface DocxTable {
   type: "table";
+  body_index?: number;
   columns: number[];
   align: "left" | "center" | "right";
   indent: number;
@@ -209,6 +212,7 @@ export interface DocxTable {
 /** A text box. */
 export interface DocxFrame {
   type: "frame";
+  body_index?: number;
   width: number;
   height: number;
   position: DocxAnchor | null;
@@ -258,6 +262,63 @@ export interface DocxLayout {
 
 export type DocumentLayout = PdfLayout | DocxLayout;
 
+// ---------------------------------------------------------------- inserted blocks
+// Content a user adds to a Word document. See apps/ai-translation/.../docx_insertions.py.
+
+export type InsertedTextKind =
+  | HeadingKind
+  | "bullet"
+  | "numbered"
+  | "todo"
+  | "quote"
+  | "code";
+
+export interface InsertedParagraph {
+  type: "paragraph";
+  kind: InsertedTextKind;
+  /** Only the toggles that are on; "\n" is a line break. */
+  runs: SegmentRun[];
+  align?: TextAlign;
+  /** Nesting of a list item, 0–4. */
+  level?: number;
+  checked?: boolean;
+}
+
+export interface InsertedTable {
+  type: "table";
+  header_row: boolean;
+  rows: { cells: { paragraphs: SegmentRun[][] }[] }[];
+}
+
+export interface InsertedImage {
+  type: "image";
+  /** The name the media upload returned. */
+  src: string;
+  /** In points. */
+  width: number;
+  height: number;
+  align: "left" | "center" | "right";
+  alt: string;
+}
+
+/** A block added to a Word document, placed after an element of the original
+ *  body: `after` is its `body_index`, or -1 for the start of the document. */
+export type InsertedBlock = (
+  | InsertedParagraph
+  | InsertedTable
+  | InsertedImage
+  | { type: "divider" }
+  | { type: "page_break" }
+) & { after: number };
+
+/** An image stored for the document, to place as an inserted block. */
+export interface UploadedImage {
+  name: string;
+  /** In pixels. */
+  width: number;
+  height: number;
+}
+
 /** A document as the editor edits it: its segments and, optionally, their layout. */
 export interface EditorDocument {
   document_id: string;
@@ -266,6 +327,8 @@ export interface EditorDocument {
   /** BCP 47 code of the text being edited, for spellchecking. */
   target_language: string;
   segments: DocumentSegment[];
+  /** Blocks added to a Word document. */
+  insertions?: InsertedBlock[];
 }
 
 /** A segment changed in the editor since it was last saved. */
