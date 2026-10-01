@@ -32,10 +32,9 @@
     "menuTitle": "Menu",
     "menuDescription": "Navigate to a section of the page, or change language.",
     "allTools": "All tools",
-    "quick": ["translator", "summarizer", "converter", "pdf"],
+    "quick": ["translator", "converter", "pdf"],
     "quickLabels": {
       "translator": "Translate",
-      "summarizer": "Summarize",
       "converter": "Convert",
       "pdf": "Merge PDF"
     }
