@@ -44,6 +44,7 @@ class _Line:
     family: str
     first_word_width: float
     has_marker: bool
+    align_right: bool = False
 
 
 @dataclass
@@ -380,48 +381,71 @@ class PDFHandler(DocumentHandler):
                     for char in span["chars"]
                 ]
                 visible = [
-                    (char, span) for char, span in chars if not char["c"].isspace()
+                    (index, char, span)
+                    for index, (char, span) in enumerate(chars)
+                    if not char["c"].isspace()
                 ]
                 if not visible:
                     continue
 
                 marker = _LIST_MARKER.match("".join(char["c"] for char, _ in chars))
                 start = marker.end() if marker else 0
-                content = [(c, s) for c, s in chars[start:] if not c["c"].isspace()]
+                content = [entry for entry in visible if entry[0] >= start]
                 if not content:
                     # The line is only a marker (or looks like one): keep it whole.
-                    marker, start, content = None, 0, visible
+                    marker, content = None, visible
 
-                text = " ".join("".join(c["c"] for c, _ in chars[start:]).split())
-                # The span with the most characters defines the style of the line.
-                span = max(
-                    {id(s): s for _, s in content}.values(),
-                    key=lambda s: sum(1 for _, cs in content if cs is s),
-                )
-                first_word = [c for c, _ in content[: len(text.split(" ", 1)[0])]]
+                groups: list[list[tuple[int, dict, dict]]] = []
+                for entry in content:
+                    if groups:
+                        previous = groups[-1][-1]
+                        gap = entry[1]["bbox"][0] - previous[1]["bbox"][2]
+                        threshold = max(3.0, max(entry[2]["size"], previous[2]["size"]) * 1.5)
+                        if gap > threshold:
+                            groups.append([])
+                    if not groups:
+                        groups.append([])
+                    groups[-1].append(entry)
 
-                font = span["font"].lower()
-                lines.append(
-                    _Line(
-                        block=block_num,
-                        text=text,
-                        rect=cls._chars_rect(c for c, _ in content),
-                        full_rect=cls._chars_rect(c for c, _ in visible),
-                        baseline=content[0][0]["origin"][1],
-                        font_size=span["size"],
-                        color=span["color"],
-                        bold=bool(span["flags"] & pymupdf.TEXT_FONT_BOLD)
-                        or any(
-                            w in font for w in ("bold", "black", "heavy", "semibold")
-                        ),
-                        italic=bool(span["flags"] & pymupdf.TEXT_FONT_ITALIC)
-                        or any(w in font for w in ("italic", "oblique")),
-                        family=cls._font_family(font, span["flags"]),
-                        first_word_width=first_word[-1]["bbox"][2]
-                        - first_word[0]["bbox"][0],
-                        has_marker=marker is not None,
+                for group_index, group in enumerate(groups):
+                    first_index, last_index = group[0][0], group[-1][0]
+                    group_chars = [char for _, char, _ in group]
+                    full_chars = group_chars
+                    if marker and group_index == 0:
+                        full_chars = [
+                            char for index, char, _ in visible if index < start
+                        ] + full_chars
+                    text = " ".join(
+                        "".join(char["c"] for char, _ in chars[first_index : last_index + 1]).split()
                     )
-                )
+                    span = max(
+                        {id(item[2]): item[2] for item in group}.values(),
+                        key=lambda candidate: sum(1 for item in group if item[2] is candidate),
+                    )
+                    first_word = group[: len(text.split(" ", 1)[0])]
+                    font = span["font"].lower()
+                    lines.append(
+                        _Line(
+                            block=block_num,
+                            text=text,
+                            rect=cls._chars_rect(group_chars),
+                            full_rect=cls._chars_rect(full_chars),
+                            baseline=group[0][1]["origin"][1],
+                            font_size=span["size"],
+                            color=span["color"],
+                            bold=bool(span["flags"] & pymupdf.TEXT_FONT_BOLD)
+                            or any(
+                                w in font for w in ("bold", "black", "heavy", "semibold")
+                            ),
+                            italic=bool(span["flags"] & pymupdf.TEXT_FONT_ITALIC)
+                            or any(w in font for w in ("italic", "oblique")),
+                            family=cls._font_family(font, span["flags"]),
+                            first_word_width=first_word[-1][1]["bbox"][2]
+                            - first_word[0][1]["bbox"][0],
+                            has_marker=marker is not None and group_index == 0,
+                            align_right=len(groups) > 1 and group_index == len(groups) - 1,
+                        )
+                    )
         return lines
 
     @staticmethod
@@ -545,8 +569,13 @@ class PDFHandler(DocumentHandler):
             x0, x1 = center - half, center + half
         elif (
             len(segment.lines) == 1
-            and abs(right - bbox.x1) <= tolerance
-            and bbox.x0 - left > (right - left) * 0.4
+            and (
+                segment.style.align_right
+                or (
+                    abs(layout.text_right - bbox.x1) <= tolerance
+                    and bbox.x0 - bounds.x0 > (bounds.x1 - bounds.x0) * 0.4
+                )
+            )
         ):
             align = "right"
             x0, x1 = left, bbox.x1

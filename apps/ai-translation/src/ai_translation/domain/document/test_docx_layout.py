@@ -143,6 +143,67 @@ def test_pdf_export_writes_formatted_runs():
     assert "Bold" in first["font"] and first["color"] == 0xC00000
 
 
+def test_pdf_separates_company_name_from_right_aligned_date():
+    pdf = pymupdf.open()
+    page = pdf.new_page(width=595, height=842)
+    page.insert_htmlbox(
+        pymupdf.Rect(50, 100, 580, 150),
+        '<a href="https://labamu.example"><span style="font-weight:bold;color:#0040cc">'
+        "Labamu MRP (Venture By Standard Chartered)"
+        "</span></a>"
+        + "&nbsp;" * 20
+        + '<span style="font-style:italic;color:#000000">'
+        "17 Juni 2026 - 30 September 2026</span>",
+        css="* {font-family: Times; font-size: 12px; margin: 0; padding: 0;}",
+    )
+    page.insert_link(
+        {
+            "kind": pymupdf.LINK_URI,
+            "from": pymupdf.Rect(51, 99, 302, 117),
+            "uri": "https://labamu.example",
+        }
+    )
+    page.insert_text((540, 300), "x", fontsize=12)
+
+    handler = PDFHandler()
+    content = pdf.tobytes()
+    with pymupdf.open(stream=content, filetype="pdf") as source:
+        page = source[0]
+        segments, layout = handler._page_segments(page)
+
+        assert [segment.text for segment in segments[:2]] == [
+            "Labamu MRP (Venture By Standard Chartered)",
+            "17 Juni 2026 - 30 September 2026",
+        ]
+        company, date = segments[:2]
+        assert company.style.bold and not company.style.italic
+        assert date.style.italic and not date.style.bold
+        assert company.style.color != date.style.color
+        assert date.bbox.x0 - company.bbox.x1 > 50
+        assert layout.text_right > date.bbox.x1 + date.style.font_size * 0.35
+        assert handler._place(date, layout).align == "right"
+        assert max(link["from"].x1 for link in page.get_links()) < date.bbox.x0
+
+    translations = {segment.key: segment.text for segment in segments}
+    output = asyncio.run(
+        handler.create_translated_document(content, translations, "en", "id")
+    )
+    with pymupdf.open(stream=output, filetype="pdf") as translated:
+        page = translated[0]
+        spans = [
+            span
+            for block in page.get_text("dict")["blocks"]
+            if block.get("type") == 0
+            for line in block["lines"]
+            for span in line["spans"]
+        ]
+        company_span = next(span for span in spans if span["text"].startswith("Labamu"))
+        date_span = next(span for span in spans if span["text"].startswith("17 Juni"))
+        assert "Bold" in company_span["font"] and company_span["color"] == 0x0040CC
+        assert "Italic" in date_span["font"] and date_span["color"] == 0
+        assert max(link["from"].x1 for link in page.get_links()) < date_span["bbox"][0]
+
+
 def test_segment_edit_runs_must_match_text():
     SegmentEdit(key="para_1", translated_text="ab", runs=[{"text": "a"}, {"text": "b", "style": {"bold": True}}])
     with pytest.raises(ValidationError):

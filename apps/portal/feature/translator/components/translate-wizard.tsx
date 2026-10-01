@@ -1,19 +1,17 @@
 "use client";
 
+import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
   ArrowLeftRight,
   Check,
-  CheckCircle2,
-  Download,
   Loader2,
-  PencilLine,
   RotateCcw,
 } from "lucide-react";
 
-import { Link } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import {
   FieldError,
@@ -32,7 +30,7 @@ import {
   MAX_FILE_SIZE,
   type LanguageCode,
 } from "../constants";
-import { useDownloadDocument, useTranslateDocument } from "../hooks/query";
+import { useTranslateDocument } from "../hooks/query";
 import {
   translateFileSchema,
   translateSchema,
@@ -47,15 +45,14 @@ const STEPS: { id: Step; label: string }[] = [
   { id: "upload", label: "steps.upload" },
   { id: "languages", label: "steps.languages" },
   { id: "translating", label: "steps.translate" },
-  { id: "done", label: "steps.done" },
 ];
 
 const MAX_FILE_SIZE_MB = MAX_FILE_SIZE / 1024 / 1024;
 
 export function TranslateWizard() {
   const { t } = useTranslation("translator");
+  const router = useRouter();
   const translate = useTranslateDocument();
-  const download = useDownloadDocument();
   const validate = useFileValidator(translateFileSchema, "translator");
 
   const form = useForm<TranslateValues, unknown, TranslateOutput>({
@@ -69,6 +66,12 @@ export function TranslateWizard() {
     name: ["file", "sourceLanguage", "targetLanguage"],
   });
   const { errors } = form.formState;
+
+  useEffect(() => {
+    if (translate.isSuccess && translate.data) {
+      router.push(`/translate/${translate.data.document_id}/edit`);
+    }
+  }, [router, translate.data, translate.isSuccess]);
 
   const step: Step = translate.isSuccess
     ? "done"
@@ -234,50 +237,6 @@ export function TranslateWizard() {
         </section>
       )}
 
-      {step === "done" && translate.data && (
-        <section aria-labelledby="done-title" className="flex flex-col gap-6">
-          <div className="flex flex-col items-center text-center">
-            <CheckCircle2 className="size-10 text-brand" aria-hidden />
-            <h1
-              id="done-title"
-              className="mt-3 text-2xl font-semibold tracking-tight"
-            >
-              {t("done.title")}
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              {t("done.description", {
-                fileName: translate.data.file_name,
-                source: languageName(translate.data.source_language),
-                target: languageName(translate.data.target_language),
-              })}
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <ChoiceCard
-              onClick={() => download.mutate(translate.data.document_id)}
-              loading={download.isPending}
-              icon={Download}
-              title={t("done.download")}
-              description={t("done.downloadDescription", {
-                type: translate.data.document_type.toUpperCase(),
-              })}
-            />
-            <ChoiceCard
-              href={`/translate/${translate.data.document_id}/edit`}
-              icon={PencilLine}
-              title={t("done.edit")}
-              description={t("done.editDescription")}
-              internal
-            />
-          </div>
-
-          <Button variant="ghost" className="self-center" onClick={startOver}>
-            <RotateCcw aria-hidden />
-            {t("done.another")}
-          </Button>
-        </section>
-      )}
     </div>
   );
 }
@@ -287,13 +246,14 @@ function StepIndicator({ current }: { current: Step }) {
   const currentIndex = STEPS.findIndex((s) => s.id === current);
 
   return (
-    <nav aria-label={t("steps.label")}>
-      <ol className="flex items-center gap-2 text-xs font-medium sm:text-sm">
+    <nav aria-label={t("steps.label")} className="w-full mx-auto">
+      <ol className="flex w-full items-center text-xs font-medium sm:text-sm">
         {STEPS.map((s, index) => {
           const complete = index < currentIndex || current === "done";
           const active = index === currentIndex;
+
           return (
-            <li key={s.id} className="flex flex-1 items-center gap-2">
+            <li key={s.id} className="flex min-w-0 flex-1 items-center gap-2">
               <span
                 aria-current={active ? "step" : undefined}
                 className={cn(
@@ -303,18 +263,26 @@ function StepIndicator({ current }: { current: Step }) {
                   !active && !complete && "text-muted-foreground",
                 )}
               >
-                {complete ? <Check className="size-3.5" aria-hidden /> : index + 1}
+                {complete ? (
+                  <Check className="size-3.5" aria-hidden />
+                ) : (
+                  index + 1
+                )}
               </span>
+
               <span
                 className={cn(
-                  "hidden sm:inline",
-                  active || complete ? "text-foreground" : "text-muted-foreground",
+                  "hidden truncate sm:inline",
+                  active || complete
+                    ? "text-foreground"
+                    : "text-muted-foreground",
                 )}
               >
                 {t(s.label)}
               </span>
+
               {index < STEPS.length - 1 && (
-                <span aria-hidden className="h-px flex-1 bg-border" />
+                <span aria-hidden className="h-px min-w-4 flex-1 bg-border" />
               )}
             </li>
           );
@@ -323,7 +291,6 @@ function StepIndicator({ current }: { current: Step }) {
     </nav>
   );
 }
-
 function UploadStep({
   onSelect,
   error,
@@ -355,61 +322,3 @@ function UploadStep({
   );
 }
 
-function ChoiceCard({
-  href,
-  icon: Icon,
-  title,
-  description,
-  internal = false,
-  onClick,
-  loading = false,
-}: {
-  href?: string;
-  icon: typeof Download;
-  title: string;
-  description: string;
-  internal?: boolean;
-  onClick?: () => void;
-  loading?: boolean;
-}) {
-  const className =
-    "group flex flex-col gap-3 rounded-xl border bg-card p-5 text-left transition-colors hover:border-brand/50 hover:bg-brand-soft/20 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 cursor-pointer";
-  const content = (
-    <>
-      <span className="grid size-10 place-items-center rounded-lg bg-brand text-primary-foreground">
-        {loading ? (
-          <Loader2 className="size-5 animate-spin" aria-hidden />
-        ) : (
-          <Icon className="size-5" aria-hidden />
-        )}
-      </span>
-      <span className="text-base font-semibold">{title}</span>
-      <span className="text-sm text-muted-foreground">{description}</span>
-    </>
-  );
-
-  if (onClick) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={loading}
-        className={className}
-      >
-        {content}
-      </button>
-    );
-  }
-
-  if (!href) return null;
-
-  return internal ? (
-    <Link href={href} className={className}>
-      {content}
-    </Link>
-  ) : (
-    <a href={href} download className={className}>
-      {content}
-    </a>
-  );
-}
