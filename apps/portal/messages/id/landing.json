@@ -20,7 +20,7 @@
   "nav": {
     "label": "Navigasi utama",
     "home": "Beranda Document Doctor",
-    "comingSoon": "Segera hadir",
+    "comingSoon": "Segera",
     "links": {
       "tools": "Alat",
       "howItWorks": "Cara kerja",
@@ -189,7 +189,7 @@
     "all": "Semua",
     "aiBadge": "AI",
     "outputLabel": "Hasil",
-    "comingSoon": "Segera hadir"
+    "comingSoon": "Segera"
   },
   "howItWorks": {
     "eyebrow": "Cara kerja",

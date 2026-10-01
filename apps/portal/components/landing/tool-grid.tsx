@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useFeatureGroupsQuery } from "@/feature/constant/hooks/query";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ export function ToolGrid({
 }) {
   const [active, setActive] = useState(ALL);
   const filters = [{ id: ALL, title: labels.all }, ...groups];
+
   const tools = groups
     .filter((group) => active === ALL || group.id === active)
     .flatMap((group) =>
@@ -69,8 +71,11 @@ export function ToolGrid({
       </div>
 
       <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tools.map((tool) => {
+        {tools.map((tool, index) => {
           const Icon = TOOL_ICONS[tool.icon] ?? FALLBACK_TOOL_ICON;
+
+          const idKey = `${tool.group}-${tool.icon}-${index}`;
+
           const cardClassName = cn(
             "group relative flex w-full flex-col rounded-xl border border-transparent bg-card p-5 shadow-xs transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none sm:min-h-52 sm:p-6",
             tool.isComingSoon
@@ -129,7 +134,7 @@ export function ToolGrid({
             </>
           );
           return (
-            <li key={tool.icon} className="flex">
+            <li key={idKey} className="flex">
               {tool.isComingSoon ? (
                 <div aria-disabled="true" className={cardClassName}>
                   {cardContent}

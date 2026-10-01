@@ -126,7 +126,7 @@ export async function ToolPage({
         </div>
         <ToolDetails t={t} tool={tool} cards={cards} faqs={faqs} />
       </main>
-      <LandingFooter t={tLanding} appName={tCommon("appName")} />
+      <LandingFooter appName={tCommon("appName")} />
     </>
   );
 }

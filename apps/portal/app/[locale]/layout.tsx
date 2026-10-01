@@ -9,6 +9,7 @@ import { LeaveGuardProvider } from "@/components/leave-guard";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/metadata";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "../globals.css";
+import { QueryClient } from "@tanstack/react-query";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,9 +65,11 @@ export default async function RootLayout({
   const messages = await getMessages(locale);
   const { t } = await getTranslation(locale, "common");
 
+
   return (
     <html
       lang={locale}
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

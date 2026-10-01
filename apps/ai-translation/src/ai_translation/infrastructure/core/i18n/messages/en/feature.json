@@ -31,6 +31,12 @@
   "pdf_merge_split_limit": "Up to 10 MB per file",
   "pdf_merge_split_output": "Merged or split PDF",
 
+  "pdf_converter_name": "Document Converter",
+  "pdf_converter_description": "Turn a PDF into an editable Word file, or a Word file into a PDF that's ready to share.",
+  "pdf_converter_formats": "PDF, DOCX",
+  "pdf_converter_limit": "Up to 10 MB",
+  "pdf_converter_output": "Word or PDF",
+
 
   "resizer_name": "Image Resizer",
   "resizer_description": "Resize to exact dimensions or a preset like 1200 × 630 px, and choose how the image fills the frame.",

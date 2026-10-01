@@ -1,22 +1,32 @@
+"use client";
+
 import { BrandLogo } from "@/components/brand-logo";
 import { Link } from "@/i18n/navigation";
 import { TOOL_HREFS } from "@/feature/tools/constants";
 import type { ToolGroup } from "./tools-section";
 import { SECTION_IDS, START_HREF, tList, type LandingT } from "./types";
+import { useFeatureGroupsQuery } from "@/feature/constant/hooks/query";
+import { getTranslation } from "@/i18n/server";
+import { useTranslation } from "react-i18next";
 
 const LINK_CLASS =
   "text-sm text-background/65 transition-colors hover:text-background";
 
 /** Dark footer with one column per tool category, then the home page's
  *  sections. Shared by the home page and every tool page. */
-export function LandingFooter({
-  t,
-  appName,
-}: {
-  t: LandingT;
-  appName: string;
-}) {
-  const groups = tList<ToolGroup>(t, "tools.groups");
+export function LandingFooter({ appName }: { appName: string }) {
+  const { t, i18n } = useTranslation("landing");
+
+  const { data: featureGroups } = useFeatureGroupsQuery(i18n.language);
+
+  const groups =
+    featureGroups?.data.map(({ id, title, description, features }) => ({
+      id,
+      title,
+      description,
+      items: features,
+    })) ?? [];
+
   const links = [
     { href: `/#${SECTION_IDS.tools}`, label: t("nav.links.tools") },
     { href: `/#${SECTION_IDS.howItWorks}`, label: t("nav.links.howItWorks") },

@@ -30,6 +30,12 @@
   "pdf_merge_split_limit": "Maksimal 10 MB per file",
   "pdf_merge_split_output": "PDF gabungan atau terpisah",
 
+  "pdf_converter_name": "Konverter Dokumen",
+  "pdf_converter_description": "Ubah PDF menjadi file Word yang dapat diedit, atau file Word menjadi PDF yang siap dibagikan.",
+  "pdf_converter_formats": "PDF, DOCX",
+  "pdf_converter_limit": "Maksimal 10 MB",
+  "pdf_converter_output": "Word atau PDF",
+
   "resizer_name": "Pengubah Ukuran Gambar",
   "resizer_description": "Ubah ukuran ke dimensi tertentu atau preset seperti 1200 × 630 px, lalu pilih bagaimana gambar mengisi area yang tersedia.",
   "resizer_formats": "JPG, PNG, WEBP",

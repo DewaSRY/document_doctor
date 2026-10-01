@@ -21,6 +21,9 @@ import { FinalCtaSection } from "@/components/landing/final-cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { tList } from "@/components/landing/types";
 import { TOOL_HREFS } from "@/feature/tools/constants";
+import { QueryClient } from "@tanstack/react-query";
+import { unpackActionResult } from "@/lib/api/unpack-server-result";
+import { getFeatureGroupsAction } from "@/feature/constant/actions";
 
 export async function generateMetadata({
   params,
@@ -88,6 +91,16 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
     faqNode(locale, faqs),
   ]);
 
+
+  const queryClient = new QueryClient();
+
+  queryClient.query({
+    queryKey: ["featureGroups", locale],
+    queryFn: async () => {
+      return getFeatureGroupsAction(locale).then(unpackActionResult);
+    },
+  });
+
   return (
     <>
       <JsonLd data={jsonLd} />
@@ -95,7 +108,18 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       {/* Flat light-gray canvas so the white tool cards carry the page. */}
       <main id="main" className="flex w-full flex-1 flex-col bg-muted">
         <HeroSection t={t} />
-        <ToolsSection t={t} />
+        <ToolsSection
+          locale={locale}
+          labels={{
+            heading: t("nav.links.tools"),
+            all: t("tools.all"),
+            filters: t("tools.filtersLabel"),
+            formats: t("tools.formatsLabel"),
+            output: t("tools.outputLabel"),
+            ai: t("tools.aiBadge"),
+            comingSoon: t("tools.comingSoon"),
+          }}
+        />
         <HowItWorksSection t={t} />
         <ReviewEditSection t={t} />
         <UseCasesSection t={t} />
@@ -103,7 +127,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
         <FaqSection t={t} />
         <FinalCtaSection t={t} />
       </main>
-      <LandingFooter t={t} appName={tCommon("appName")} />
+      <LandingFooter appName={tCommon("appName")} />
     </>
   );
 }

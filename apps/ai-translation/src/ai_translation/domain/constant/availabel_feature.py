@@ -75,7 +75,19 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["PDF"],
             limit=translate("feature.pdf_merge_split_limit"),
             output=translate("feature.pdf_merge_split_output"),
-            isComingSoon=True,
+            isComingSoon=False,
+        ),
+           Feature(
+            group_id="fileTools",
+            group_title=translate("feature.file_tools_title"),
+            group_description=translate("feature.file_tools_description"),
+            icon="converter",
+            name=translate("feature.pdf_converter_name"),
+            description=translate("feature.pdf_converter_description"),
+            formats=["PDF"],
+            limit=translate("feature.pdf_converter_limit"),
+            output=translate("feature.pdf_converter_output"),
+            isComingSoon=False,
         ),
 
         # ─────────────────────────────────────────────
@@ -103,7 +115,7 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["JPG", "PNG", "WEBP"],
             limit=translate("feature.compressor_limit"),
             output=translate("feature.compressor_output"),
-            isComingSoon=True,
+            isComingSoon=False,
         ),
         Feature(
             group_id="imageTools",
@@ -115,7 +127,7 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["PNG", "JPG", "WEBP", "SVG"],
             limit=translate("feature.converter_limit"),
             output=translate("feature.converter_output"),
-            isComingSoon=True,
+            isComingSoon=False,
         ),
         Feature(
             group_id="imageTools",
@@ -127,7 +139,7 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["JPG", "PNG"],
             limit=translate("feature.jpg_to_png_limit"),
             output=translate("feature.jpg_to_png_output"),
-            isComingSoon=True,
+            isComingSoon=False,
         ),
         Feature(
             group_id="imageTools",
@@ -139,7 +151,7 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["JPG", "WEBP"],
             limit=translate("feature.jpg_to_webp_limit"),
             output=translate("feature.jpg_to_webp_output"),
-            isComingSoon=True,
+            isComingSoon=False,
         ),
         Feature(
             group_id="imageTools",
@@ -151,7 +163,7 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["PNG", "WEBP"],
             limit=translate("feature.png_to_webp_limit"),
             output=translate("feature.png_to_webp_output"),
-            isComingSoon=True,
+            isComingSoon=False,
         ),
         Feature(
             group_id="imageTools",
@@ -163,7 +175,7 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["JPG", "SVG"],
             limit=translate("feature.jpg_to_svg_limit"),
             output=translate("feature.jpg_to_svg_output"),
-            isComingSoon=True,
+            isComingSoon=False,
         ),
         Feature(
             group_id="imageTools",
@@ -175,7 +187,7 @@ def list_available_features(translate: Callable[[str], str]) -> list[Feature]:
             formats=["PNG", "SVG"],
             limit=translate("feature.png_to_svg_limit"),
             output=translate("feature.png_to_svg_output"),
-            isComingSoon=True,
+            isComingSoon=False,
         ),
     ]
 

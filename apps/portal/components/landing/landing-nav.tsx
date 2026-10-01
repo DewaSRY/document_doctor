@@ -34,6 +34,7 @@ import {
 } from "./tool-icons";
 import type { ToolGroup } from "./tools-section";
 import { SECTION_IDS, START_HREF } from "./types";
+import { useFeatureGroupsQuery } from "@/feature/constant/hooks/query";
 
 const SECTION_LINKS = [
   { id: SECTION_IDS.useCases, key: "useCases" },
@@ -63,19 +64,22 @@ function ToolIcon({ tool, size = "sm" }: { tool: string; size?: "sm" | "md" }) {
 }
 
 export function LandingNav() {
-
   const COMMING_SOON_LABEL = ["summarizer", "extractor"];
 
-  const { t } = useTranslation("landing");
+  const { t, i18n } = useTranslation("landing");
   const { t: tCommon } = useTranslation("common");
+
+  const { data: featureGroups } = useFeatureGroupsQuery(i18n.language);
+
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
   const quick = t("nav.quick", { returnObjects: true }) as unknown as string[];
-  const groups = t("tools.groups", {
-    returnObjects: true,
-  }) as unknown as ToolGroup[];
-
+  const groups: ToolGroup[] =
+    featureGroups?.data.map(({ features, ...group }) => ({
+      ...group,
+      items: features,
+    })) ?? [];
 
   return (
     <header className="sticky top-0 z-40 border-b bg-card shadow-xs">

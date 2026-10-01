@@ -1,4 +1,3 @@
-import axios from "axios";
 import { BaseClient } from "@/lib/api/base-client";
 import type {
   DeleteDocumentResponse,
@@ -9,8 +8,6 @@ import type {
   UpdateSegmentsBody,
   UploadedImage,
 } from "./type";
-
-
 
 export class TranslatorClient extends BaseClient {
   translateDocument(
