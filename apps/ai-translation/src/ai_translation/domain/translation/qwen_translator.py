@@ -5,10 +5,12 @@ from typing import Any
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+from .base import BaseTranslator
 from .dto import TranslationParams
 from .url_protection import translate_protecting_urls
 
-class QwenTranslatorModel:
+
+class QwenTranslatorModel(BaseTranslator):
     """
     Long-lived Qwen inference engine.
 

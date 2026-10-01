@@ -1,0 +1,80 @@
+
+{
+  "image_tools_id": "Alat gambar",
+  "image_tools_title": "Alat gambar",
+  "image_tools_description": "Sesuaikan gambar dengan ukuran slot, formulir, atau kebutuhan inbox.",
+
+  "document_ai_title": "AI Dokumen",
+  "document_ai_description": "Pahami dan olah kembali isi dokumen Anda.",
+
+  "translation_name": "Penerjemah Dokumen",
+  "translation_description": "Terjemahkan file PDF dan Word ke atau dari 8 bahasa, pertahankan tata letak, dan perbaiki susunan kata sebelum mengunduh.",
+  "translation_limit": "Maksimal 5 MB",
+  "translation_output": "Terjemahan yang dapat diedit",
+
+  "summarizer_name": "Perangkum Dokumen",
+  "summarizer_description": "Dapatkan ringkasan singkat dan poin-poin penting dari dokumen panjang, dengan panjang dan bahasa yang Anda pilih.",
+  "summarizer_limit": "Maksimal 5 MB",
+  "summarizer_output": "Ringkasan & poin penting",
+
+  "extractor_name": "Ekstraktor Dokumen",
+  "extractor_description": "Ekstrak nama orang, organisasi, tanggal, jumlah, tempat, dan detail kontak yang siap disalin atau diunduh.",
+  "extractor_limit": "Maksimal 5 MB",
+  "extractor_output": "Salin, CSV, atau JSON",
+
+  "file_tools_title": "Alat file",
+  "file_tools_description": "Ubah file ke format atau bentuk yang dibutuhkan.",
+
+  "pdf_merge_split_name": "Gabung & Pisah PDF",
+  "pdf_merge_split_description": "Gabungkan hingga 20 file PDF sesuai urutan yang Anda pilih, atau pisahkan satu PDF berdasarkan rentang halaman maupun menjadi halaman terpisah.",
+  "pdf_merge_split_limit": "Maksimal 10 MB per file",
+  "pdf_merge_split_output": "PDF gabungan atau terpisah",
+
+  "resizer_name": "Pengubah Ukuran Gambar",
+  "resizer_description": "Ubah ukuran ke dimensi tertentu atau preset seperti 1200 × 630 px, lalu pilih bagaimana gambar mengisi area yang tersedia.",
+  "resizer_formats": "JPG, PNG, WEBP",
+  "resizer_limit": "Maksimal 10 MB",
+  "resizer_output": "Gambar yang telah diubah ukurannya",
+
+  "compressor_name": "Kompresor Gambar",
+  "compressor_description": "Perkecil ukuran file gambar dengan tingkat kualitas yang dapat Anda atur, agar lebih mudah diunggah atau dikirim sebagai lampiran email.",
+  "compressor_formats": "JPG, PNG, WEBP",
+  "compressor_limit": "Maksimal 10 MB",
+  "compressor_output": "Gambar berukuran lebih kecil",
+
+  "converter_name": "Konverter Gambar",
+  "converter_description": "Konversi gambar PNG, JPG, dan WEBP ke format yang didukung, termasuk membuat path SVG hasil tracing dari PNG.",
+  "converter_formats": "PNG, JPG, WEBP, SVG",
+  "converter_limit": "Maksimal 10 MB",
+  "converter_output": "Gambar hasil konversi",
+
+  "jpg_to_png_name": "JPG ke PNG",
+  "jpg_to_png_description": "Konversi foto JPG menjadi gambar PNG tanpa kehilangan kualitas.",
+  "jpg_to_png_formats": "JPG, PNG",
+  "jpg_to_png_limit": "Maksimal 10 MB",
+  "jpg_to_png_output": "Gambar PNG",
+
+  "jpg_to_webp_name": "JPG ke WEBP",
+  "jpg_to_webp_description": "Konversi foto JPG ke format WEBP yang lebih kecil dan dioptimalkan untuk web.",
+  "jpg_to_webp_formats": "JPG, WEBP",
+  "jpg_to_webp_limit": "Maksimal 10 MB",
+  "jpg_to_webp_output": "Gambar WEBP",
+
+  "png_to_webp_name": "PNG ke WEBP",
+  "png_to_webp_description": "Konversi gambar PNG ke WEBP dengan mempertahankan transparansi sekaligus memperkecil ukuran file.",
+  "png_to_webp_formats": "PNG, WEBP",
+  "png_to_webp_limit": "Maksimal 10 MB",
+  "png_to_webp_output": "Gambar WEBP",
+
+  "jpg_to_svg_name": "JPG ke SVG",
+  "jpg_to_svg_description": "Ubah foto JPG menjadi gambar vektor SVG yang dapat diperbesar tanpa kehilangan kualitas.",
+  "jpg_to_svg_formats": "JPG, SVG",
+  "jpg_to_svg_limit": "Maksimal 10 MB",
+  "jpg_to_svg_output": "Vektor SVG",
+
+  "png_to_svg_name": "PNG ke SVG",
+  "png_to_svg_description": "Ubah gambar PNG menjadi gambar vektor SVG yang dapat diperbesar tanpa kehilangan kualitas.",
+  "png_to_svg_formats": "PNG, SVG",
+  "png_to_svg_limit": "Maksimal 10 MB",
+  "png_to_svg_output": "Vektor SVG"
+}

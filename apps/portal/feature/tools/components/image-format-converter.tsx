@@ -67,13 +67,18 @@ export function ImageFormatConverter({ source, target, id }: SingleImageConversi
 
     const detected = await detectImageFormat(selected);
     if (detected !== source) {
-      form.setError("file", { message: t(`${key}.wrongFormat`) });
+      form.setError("file", {
+        message: t(`${key}.wrongFormat`, { format: detected }),
+      });
       return;
     }
 
     convert.reset();
     form.clearErrors("file");
-    form.setValue("file", selected, { shouldDirty: true, shouldValidate: true });
+    form.setValue("file", selected, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   }
 
   function startOver() {

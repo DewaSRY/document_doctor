@@ -189,7 +189,7 @@
       "errorTitle": "Gambar tidak dapat dikonversi",
       "doneTitle": "PNG Anda sudah siap",
       "another": "Konversi JPG lain",
-      "wrongFormat": "Ini bukan gambar JPG. Pilih file JPG."
+      "wrongFormat": "Kamu memilih file {{format}}. Pilih file JPG."
     },
     "jpg-to-webp": {
       "title": "Konversi JPG ke WEBP",
@@ -199,7 +199,7 @@
       "errorTitle": "Gambar tidak dapat dikonversi",
       "doneTitle": "WEBP Anda sudah siap",
       "another": "Konversi JPG lain",
-      "wrongFormat": "Ini bukan gambar JPG. Pilih file JPG."
+      "wrongFormat": "Kamu memilih file {{format}}. Pilih file JPG."
     },
     "png-to-webp": {
       "title": "Konversi PNG ke WEBP",
@@ -209,7 +209,7 @@
       "errorTitle": "Gambar tidak dapat dikonversi",
       "doneTitle": "WEBP Anda sudah siap",
       "another": "Konversi PNG lain",
-      "wrongFormat": "Ini bukan gambar PNG. Pilih file PNG."
+      "wrongFormat": "Kamu memilih file {{format}}. Pilih file PNG."
     },
     "jpg-to-svg": {
       "title": "Konversi JPG ke SVG",
@@ -219,7 +219,7 @@
       "errorTitle": "Gambar tidak dapat divektorkan",
       "doneTitle": "SVG Anda sudah siap",
       "another": "Konversi JPG lain",
-      "wrongFormat": "Ini bukan gambar JPG. Pilih file JPG."
+      "wrongFormat": "Kamu memilih file {{format}}. Pilih file JPG."
     },
     "png-to-svg": {
       "title": "Konversi PNG ke SVG",
@@ -229,7 +229,7 @@
       "errorTitle": "Gambar tidak dapat divektorkan",
       "doneTitle": "SVG Anda sudah siap",
       "another": "Konversi PNG lain",
-      "wrongFormat": "Ini bukan gambar PNG. Pilih file PNG."
+      "wrongFormat": "Kamu memilih file {{format}}. Pilih file PNG."
     }
   },
   "resizer": {

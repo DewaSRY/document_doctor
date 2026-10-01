@@ -192,8 +192,9 @@ def test_one_link_area_over_two_lines_follows_its_quad_points():
     _write(page, 120, "and it ends here after.")
     first, second = page.search_for("starts here")[0], page.search_for("and it ends")[0]
     page.insert_link({"kind": pymupdf.LINK_URI, "from": first | second, "uri": "https://quads.example/"})
-    (xref,) = [xref for xref, kind, _ in page.annot_xrefs() if kind == pymupdf.PDF_ANNOT_LINK]
-    to_pdf = ~page.transformation_matrix
+    link_kind = getattr(pymupdf, "PDF_ANNOT_LINK")
+    (xref,) = [xref for xref, kind, _ in page.annot_xrefs() if kind == link_kind]
+    to_pdf = ~pymupdf.Matrix(page.transformation_matrix)
     quads = []
     for rect in (first, second):
         for point in (rect.bl, rect.br, rect.tl, rect.tr):
@@ -327,7 +328,11 @@ def test_link_areas_are_read_in_the_coordinates_of_the_displayed_page(rotation):
     (link,) = read_links(page)
 
     assert link.uri == "https://openai.com/"
-    assert tuple(link.areas[0]) == pytest.approx(tuple(area * page.rotation_matrix), abs=0.5)
+    link_area = link.areas[0]
+    expected_area = area * page.rotation_matrix
+    assert (link_area.x0, link_area.y0, link_area.x1, link_area.y1) == pytest.approx(
+        (expected_area.x0, expected_area.y0, expected_area.x1, expected_area.y1), abs=0.5
+    )
 
 
 def test_links_to_other_files_are_kept_as_external_links():

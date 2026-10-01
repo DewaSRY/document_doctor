@@ -74,7 +74,10 @@ def _link_areas(page: pymupdf.Page, link: dict) -> tuple[pymupdf.Rect, ...]:
     of each line that is actually linked.
     """
     rect = pymupdf.Rect(link["from"])
-    kind, value = page.parent.xref_get_key(link["xref"], "QuadPoints") if link.get("xref") else ("null", "")
+    doc = page.parent
+    if doc is None or not link.get("xref"):
+        return (rect,)
+    kind, value = doc.xref_get_key(link["xref"], "QuadPoints")
     if kind != "array":
         return (rect,)
 
@@ -83,7 +86,7 @@ def _link_areas(page: pymupdf.Page, link: dict) -> tuple[pymupdf.Rect, ...]:
     except ValueError:
         return (rect,)
     # QuadPoints are in PDF space: bottom-up and unrotated.
-    to_page = page.transformation_matrix * page.rotation_matrix
+    to_page = pymupdf.Matrix(page.transformation_matrix) * page.rotation_matrix
     areas = []
     for i in range(0, len(numbers) - len(numbers) % 8, 8):
         quad = numbers[i : i + 8]
@@ -98,6 +101,8 @@ def _link_areas(page: pymupdf.Page, link: dict) -> tuple[pymupdf.Rect, ...]:
 
 def _internal_target(page: pymupdf.Page, link: dict) -> tuple[int, float | None] | None:
     doc = page.parent
+    if doc is None:
+        return None
     number, point = link.get("page", -1), link.get("to")
     if (number is None or number < 0) and link.get("nameddest"):
         try:
@@ -110,7 +115,7 @@ def _internal_target(page: pymupdf.Page, link: dict) -> tuple[int, float | None]
     if not point:
         return number, None
     # The target position is on the unrotated target page.
-    y = (pymupdf.Point(point) * doc[number].rotation_matrix).y
+    y = (pymupdf.Point(point) * pymupdf.Matrix(doc[number].rotation_matrix)).y
     return number, max(y, 0.0) or None
 
 

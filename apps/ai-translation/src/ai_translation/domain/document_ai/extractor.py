@@ -1,3 +1,10 @@
+"""
+Extractor module for document AI.
+
+Only works with qwen
+
+"""
+
 import json
 import re
 from dataclasses import dataclass

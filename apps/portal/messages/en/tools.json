@@ -190,7 +190,7 @@
       "errorTitle": "The image couldn't be converted",
       "doneTitle": "Your PNG is ready",
       "another": "Convert another JPG",
-      "wrongFormat": "This isn't a JPG image. Choose a JPG file."
+      "wrongFormat": "You are selecting file {{format}}. Choose a JPG file."
     },
     "jpg-to-webp": {
       "title": "Convert JPG to WEBP",
@@ -200,7 +200,7 @@
       "errorTitle": "The image couldn't be converted",
       "doneTitle": "Your WEBP is ready",
       "another": "Convert another JPG",
-      "wrongFormat": "This isn't a JPG image. Choose a JPG file."
+      "wrongFormat": "You are selecting file {{format}}. Choose a JPG file."
     },
     "png-to-webp": {
       "title": "Convert PNG to WEBP",
@@ -210,7 +210,7 @@
       "errorTitle": "The image couldn't be converted",
       "doneTitle": "Your WEBP is ready",
       "another": "Convert another PNG",
-      "wrongFormat": "This isn't a PNG image. Choose a PNG file."
+      "wrongFormat": "You are selecting file {{format}}. Choose a PNG file."
     },
     "jpg-to-svg": {
       "title": "Convert JPG to SVG",
@@ -220,7 +220,7 @@
       "errorTitle": "The image couldn't be vectorized",
       "doneTitle": "Your SVG is ready",
       "another": "Convert another JPG",
-      "wrongFormat": "This isn't a JPG image. Choose a JPG file."
+      "wrongFormat": "You are selecting file {{format}}. Choose a JPG file."
     },
     "png-to-svg": {
       "title": "Convert PNG to SVG",
@@ -230,7 +230,7 @@
       "errorTitle": "The image couldn't be vectorized",
       "doneTitle": "Your SVG is ready",
       "another": "Convert another PNG",
-      "wrongFormat": "This isn't a PNG image. Choose a PNG file."
+      "wrongFormat": "You are selecting file {{format}}. Choose a PNG file."
     }
   },
   "resizer": {

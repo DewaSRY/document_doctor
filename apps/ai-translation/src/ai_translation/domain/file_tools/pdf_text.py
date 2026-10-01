@@ -73,7 +73,8 @@ def restore_spaces(page) -> None:
             # stretch of justified text.
             width = min(gap, _SPACE_WIDTH * left.size)
             box = (last.bbox.x1, last.bbox.y0, last.bbox.x1 + width, last.bbox.y1)
-            left.chars.append(Char({"c": " ", "bbox": box, "origin": (last.bbox.x1, last.origin[1])}))
+            origin_y = last.origin[1] if last.origin is not None else last.bbox.y1
+            left.chars.append(Char({"c": " ", "bbox": box, "origin": (last.bbox.x1, origin_y)}))
 
 
 def match_char_spacing(page) -> None:

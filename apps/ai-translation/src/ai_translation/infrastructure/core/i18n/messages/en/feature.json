@@ -1,0 +1,82 @@
+{
+
+  "image_tools_id": "Image tools",
+  "image_tools_title": "Image tools",
+  "image_tools_description": "Make images fit the slot, the form, or the inbox.",
+
+  "document_ai_title": "Document AI",
+  "document_ai_description": "Understand and rework what a document says.",
+
+  "translation_name": "Document Translator",
+  "translation_description": "Translate PDF and Word files between 8 languages, keep the layout, and correct the wording before you download.",
+  "translation_limit": "Up to 5 MB",
+  "translation_output": "Editable translation",
+
+  "summarizer_name": "Document Summarizer",
+  "summarizer_description": "Get a short overview and the key points of a long document, in the length and language you choose.",
+  "summarizer_limit": "Up to 5 MB",
+  "summarizer_output": "Overview & key points",
+
+  "extractor_name": "Document Extractor",
+  "extractor_description": "Pull out people, organizations, dates, amounts, places and contact details, ready to copy or download.",
+  "extractor_limit": "Up to 5 MB",
+  "extractor_output": "Copy, CSV or JSON",
+
+  "file_tools_title": "File tools",
+  "file_tools_description": "Get files into the shape someone asked for.",
+
+
+  "pdf_merge_split_name": "PDF Merge & Split",
+  "pdf_merge_split_description": "Combine up to 20 PDFs in the order you choose, or split one PDF by page range or into single pages.",
+  "pdf_merge_split_limit": "Up to 10 MB per file",
+  "pdf_merge_split_output": "Merged or split PDF",
+
+
+  "resizer_name": "Image Resizer",
+  "resizer_description": "Resize to exact dimensions or a preset like 1200 × 630 px, and choose how the image fills the frame.",
+  "resizer_formats": "JPG, PNG, WEBP",
+  "resizer_limit": "Up to 10 MB",
+  "resizer_output": "Resized image",
+
+  "compressor_name": "Image Compressor",
+  "compressor_description": "Make an image file smaller with a quality level you control, so uploads and email attachments go through.",
+  "compressor_formats": "JPG, PNG, WEBP",
+  "compressor_limit": "Up to 10 MB",
+  "compressor_output": "Smaller image",
+
+  "converter_name": "Image Converter",
+  "converter_description": "Convert PNG, JPG and WEBP images to the formats each file supports, including traced SVG paths from PNG.",
+  "converter_formats": "PNG, JPG, WEBP, SVG",
+  "converter_limit": "Up to 10 MB",
+  "converter_output": "Converted image",
+
+  "jpg_to_png_name": "JPG to PNG",
+  "jpg_to_png_description": "Convert a JPG photo to a lossless PNG image.",
+  "jpg_to_png_formats": "JPG, PNG",
+  "jpg_to_png_limit": "Up to 10 MB",
+  "jpg_to_png_output": "PNG image",
+
+  "jpg_to_webp_name": "JPG to WEBP",
+  "jpg_to_webp_description": "Convert a JPG photo to the smaller, web-optimized WEBP format.",
+  "jpg_to_webp_formats": "JPG, WEBP",
+  "jpg_to_webp_limit": "Up to 10 MB",
+  "jpg_to_webp_output": "WEBP image",
+
+  "png_to_webp_name": "PNG to WEBP",
+  "png_to_webp_description": "Convert a PNG image to WEBP, keeping transparency and shrinking the file.",
+  "png_to_webp_formats": "PNG, WEBP",
+  "png_to_webp_limit": "Up to 10 MB",
+  "png_to_webp_output": "WEBP image",
+
+  "jpg_to_svg_name": "JPG to SVG",
+  "jpg_to_svg_description": "Trace a JPG photo into a scalable SVG vector image.",
+  "jpg_to_svg_formats": "JPG, SVG",
+  "jpg_to_svg_limit": "Up to 10 MB",
+  "jpg_to_svg_output": "SVG vector",
+
+  "png_to_svg_name": "PNG to SVG",
+  "png_to_svg_description": "Trace a PNG image into a scalable SVG vector image.",
+  "png_to_svg_formats": "PNG, SVG",
+  "png_to_svg_limit": "Up to 10 MB",
+  "png_to_svg_output": "SVG vector"
+}

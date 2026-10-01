@@ -1,3 +1,10 @@
+"""
+Summarizer module for document AI.
+
+Only works with qwen
+
+"""
+
 import re
 from dataclasses import dataclass
 

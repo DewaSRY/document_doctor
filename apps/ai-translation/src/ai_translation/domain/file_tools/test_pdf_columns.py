@@ -67,6 +67,9 @@ def test_table_columns_are_as_wide_as_the_columns_on_the_page():
 
     grid = [int(column.get(qn("w:w"))) for column in doc.tables[0]._tbl.tblGrid.iter(qn("w:gridCol"))]
     section = doc.sections[0]
+    assert section.page_width is not None
+    assert section.left_margin is not None
+    assert section.right_margin is not None
     assert Twips(sum(grid)).pt == pytest.approx((section.page_width - section.left_margin - section.right_margin) / 12700)
     # The first column ends between the end of the text and the photo, at x=330.
     text_end = 72 + pymupdf.get_text_length("Line 0 of the text beside a photo.", fontsize=10)

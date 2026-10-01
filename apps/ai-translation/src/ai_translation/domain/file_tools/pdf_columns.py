@@ -23,9 +23,12 @@ def columns_to_tables(body) -> None:
     breaks = [i for i, element in enumerate(elements) if _section(element) is not None]
     for previous, first, second in zip([-1, *breaks], breaks, breaks[1:]):
         first_break, second_break = elements[first], elements[second]
-        widths = _column_widths(_section(first_break))
+        first_section, second_section = _section(first_break), _section(second_break)
+        if first_section is None or second_section is None:
+            continue
+        widths = _column_widths(first_section)
         # pdf2docx writes at most two columns.
-        if _type(_section(second_break)) != "nextColumn" or widths is None or len(widths) != 2:
+        if _type(second_section) != "nextColumn" or widths is None or len(widths) != 2:
             continue
         left, right = elements[previous + 1 : first], elements[first + 1 : second]
         table = _table(widths)
@@ -45,8 +48,7 @@ def columns_to_tables(body) -> None:
 
         # The region now fits in one column; the second break keeps the page
         # setup, starting where the first did.
-        second_section = _section(second_break)
-        _set_type(second_section, _type(_section(first_break)))
+        _set_type(second_section, _type(first_section))
         second_section.replace(second_section.find(qn("w:cols")), parse_xml(f'<w:cols {nsdecls("w")} w:space="720"/>'))
         body.remove(first_break)
 
@@ -65,7 +67,7 @@ def merge_sections(body) -> None:
     for holder, following in zip(holders, [*holders[1:], None]):
         current = _section(holder)
         after = _section(following) if following is not None else body.find(qn("w:sectPr"))
-        if after is None or _type(after) != "continuous" or not _same_layout(current, after):
+        if current is None or after is None or _type(after) != "continuous" or not _same_layout(current, after):
             continue
         # The joined section starts where the first one did.
         _set_type(after, _type(current))

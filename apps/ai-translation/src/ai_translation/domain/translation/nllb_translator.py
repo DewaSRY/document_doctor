@@ -6,11 +6,12 @@ import threading
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
+from .base import BaseTranslator
 from .dto import TranslationParams
 from .url_protection import translate_protecting_urls
 
 
-class NllbTranslatorModel:
+class NllbTranslatorModel(BaseTranslator):
     """
     Runtime-optimized NLLB translation model.
 

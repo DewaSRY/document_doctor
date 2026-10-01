@@ -12,6 +12,7 @@ import zipfile
 from functools import cache
 from io import BytesIO
 from pathlib import Path
+from typing import Any, cast
 
 import pymupdf
 from docx import Document as DocxDocument
@@ -56,7 +57,7 @@ def pdf_to_docx(file_content: bytes) -> bytes:
     converter = Converter(stream=file_content)
     try:
         settings = converter.default_settings | {"ignore_page_error": True}
-        converter.parse(**settings)
+        converter.parse(**cast(Any, settings))
 
         links = PdfLinks(converter.fitz_doc)
         for page in converter.pages:
@@ -67,7 +68,7 @@ def pdf_to_docx(file_content: bytes) -> bytes:
                 links.apply(page)
                 # After the links, which split spans: each span needs its own.
                 match_char_scaling(page)
-        links.place_bookmarks(converter.pages)
+        links.place_bookmarks(list(converter.pages))
 
         doc = DocxDocument()
         page_starts: dict[int, Paragraph] = {}
