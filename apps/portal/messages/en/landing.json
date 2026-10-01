@@ -31,12 +31,7 @@
     "menuTitle": "Menu",
     "menuDescription": "Navigate to a section of the page, or change language.",
     "allTools": "All tools",
-    "quick": [
-      "translator",
-      "summarizer",
-      "converter",
-      "pdf"
-    ],
+    "quick": ["translator", "summarizer", "converter", "pdf"],
     "quickLabels": {
       "translator": "Translate",
       "summarizer": "Summarize",
@@ -50,12 +45,7 @@
     "description": "Seven tools for everyday office files. Translate a PDF or Word document and keep its layout, get the key points of a long report, convert PDF ⇄ Word, merge PDFs and resize images, all in your browser.",
     "primaryCta": "Translate a document",
     "secondaryCta": "Browse all tools",
-    "trust": [
-      "No install",
-      "No sign-up",
-      "PDF, Word & images",
-      "8 languages"
-    ],
+    "trust": ["No install", "No sign-up", "PDF, Word & images", "8 languages"],
     "trustLabel": "At a glance"
   },
   "tools": {
@@ -70,10 +60,7 @@
             "icon": "translator",
             "name": "Document Translator",
             "description": "Translate PDF and Word files between 8 languages, keep the layout, and correct the wording before you download.",
-            "formats": [
-              "PDF",
-              "DOCX"
-            ],
+            "formats": ["PDF", "DOCX"],
             "limit": "Up to 5 MB",
             "output": "Editable translation"
           },
@@ -81,10 +68,7 @@
             "icon": "summarizer",
             "name": "Document Summarizer",
             "description": "Get a short overview and the key points of a long document, in the length and language you choose.",
-            "formats": [
-              "PDF",
-              "DOCX"
-            ],
+            "formats": ["PDF", "DOCX"],
             "limit": "Up to 5 MB",
             "output": "Overview & key points"
           },
@@ -92,10 +76,7 @@
             "icon": "extractor",
             "name": "Document Extractor",
             "description": "Pull out people, organizations, dates, amounts, places and contact details, ready to copy or download.",
-            "formats": [
-              "PDF",
-              "DOCX"
-            ],
+            "formats": ["PDF", "DOCX"],
             "limit": "Up to 5 MB",
             "output": "Copy, CSV or JSON"
           }
@@ -110,10 +91,7 @@
             "icon": "converter",
             "name": "Document Converter",
             "description": "Turn a PDF into an editable Word file, or a Word file into a PDF that's ready to share.",
-            "formats": [
-              "PDF",
-              "DOCX"
-            ],
+            "formats": ["PDF", "DOCX"],
             "limit": "Up to 10 MB",
             "output": "Word or PDF"
           },
@@ -121,9 +99,7 @@
             "icon": "pdf",
             "name": "PDF Merge & Split",
             "description": "Combine up to 20 PDFs in the order you choose, or split one PDF by page range or into single pages.",
-            "formats": [
-              "PDF"
-            ],
+            "formats": ["PDF"],
             "limit": "Up to 10 MB per file",
             "output": "Merged or split PDF"
           }
@@ -138,11 +114,7 @@
             "icon": "resizer",
             "name": "Image Resizer",
             "description": "Resize to exact dimensions or a preset like 1200 × 630 px, and choose how the image fills the frame.",
-            "formats": [
-              "JPG",
-              "PNG",
-              "WEBP"
-            ],
+            "formats": ["JPG", "PNG", "WEBP"],
             "limit": "Up to 10 MB",
             "output": "Resized image"
           },
@@ -150,13 +122,17 @@
             "icon": "compressor",
             "name": "Image Compressor",
             "description": "Make an image file smaller with a quality level you control, so uploads and email attachments go through.",
-            "formats": [
-              "JPG",
-              "PNG",
-              "WEBP"
-            ],
+            "formats": ["JPG", "PNG", "WEBP"],
             "limit": "Up to 10 MB",
             "output": "Smaller image"
+          },
+          {
+            "icon": "image-converter",
+            "name": "Image Converter",
+            "description": "Convert PNG, JPG and WEBP images to the formats each file supports, including traced SVG paths from PNG.",
+            "formats": ["PNG", "JPG", "WEBP", "SVG"],
+            "limit": "Up to 10 MB",
+            "output": "Converted image"
           }
         ]
       }
@@ -192,11 +168,7 @@
       "from": "Indonesian",
       "to": "English",
       "length": "Summary length",
-      "lengths": [
-        "Short",
-        "Medium",
-        "Detailed"
-      ],
+      "lengths": ["Short", "Medium", "Detailed"],
       "result": "Annual_Report_EN.pdf",
       "ready": "Ready",
       "download": "Download"
@@ -212,52 +184,37 @@
         "role": "Operations & procurement",
         "situation": "A supplier sent the contract in Chinese.",
         "body": "Translate it into English, then pull out the dates and amounts you need to check.",
-        "tools": [
-          "translator",
-          "extractor"
-        ]
+        "tools": ["translator", "extractor"]
       },
       {
         "role": "Managers & analysts",
         "situation": "The 40-page report is due in your next meeting.",
         "body": "Get the overview and key points in a minute, and walk in knowing what matters.",
-        "tools": [
-          "summarizer"
-        ]
+        "tools": ["summarizer"]
       },
       {
         "role": "Admin & HR",
         "situation": "The form you need to fill in is only a PDF.",
         "body": "Convert it to Word, fill it in, then turn it back into a PDF to send.",
-        "tools": [
-          "converter"
-        ]
+        "tools": ["converter"]
       },
       {
         "role": "Finance",
         "situation": "Twelve invoices, one email.",
         "body": "Merge them into one PDF in the right order, or split a statement into the pages each team needs.",
-        "tools": [
-          "pdf"
-        ]
+        "tools": ["pdf"]
       },
       {
         "role": "Marketing & communications",
         "situation": "The banner has to be exactly 1200 × 630 px.",
         "body": "Resize it with the preset, then compress it so the page stays fast.",
-        "tools": [
-          "resizer",
-          "compressor"
-        ]
+        "tools": ["resizer", "compressor", "image-converter"]
       },
       {
         "role": "Students & researchers",
         "situation": "The paper you need is in Japanese.",
         "body": "Translate it into your language, then summarize it to decide whether it's worth a full read.",
-        "tools": [
-          "translator",
-          "summarizer"
-        ]
+        "tools": ["translator", "summarizer"]
       }
     ]
   },
@@ -393,7 +350,7 @@
     "items": [
       {
         "question": "What is Document Doctor?",
-        "answer": "Document Doctor is one web app with the document and file tools people need at work: a translator, summarizer and extractor for documents, a PDF ⇄ Word converter, PDF merge & split, and an image resizer and compressor."
+        "answer": "Document Doctor is one web app with the document and file tools people need at work: a translator, summarizer and extractor for documents, a PDF ⇄ Word converter, PDF merge & split, and image resizing, compression and format conversion."
       },
       {
         "question": "Do I need to install anything or create an account?",
@@ -401,7 +358,7 @@
       },
       {
         "question": "Which file types and sizes are supported?",
-        "answer": "The translator, summarizer and extractor accept PDF and Word (.docx) files up to 5 MB. The converter and PDF tools accept files up to 10 MB, and you can merge up to 20 PDFs at once. The image tools accept JPG, PNG and WEBP up to 10 MB."
+        "answer": "The translator, summarizer and extractor accept PDF and Word (.docx) files up to 5 MB. The converter and PDF tools accept files up to 10 MB, and you can merge up to 20 PDFs at once. The image tools accept JPG, PNG and WEBP up to 10 MB, with conversion options based on each image's source format."
       },
       {
         "question": "What happens to my files?",

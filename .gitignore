@@ -274,3 +274,8 @@ next-env.d.ts
 !*.tfvars.example
 crash.log
 infra/terraform/_copied_from_simple_bank/
+
+# The portal's shared SEO routes module lives under a path matched by Python's lib/ rule.
+!apps/portal/lib/
+!apps/portal/lib/seo/
+!apps/portal/lib/seo/routes.ts

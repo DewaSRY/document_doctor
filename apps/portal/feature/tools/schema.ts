@@ -53,7 +53,12 @@ export const KEEP_FORMAT = "original";
 
 export function isDimension(value: string): boolean {
   const number = Number(value);
-  return value.trim() !== "" && Number.isInteger(number) && number >= 1 && number <= MAX_IMAGE_DIMENSION;
+  return (
+    value.trim() !== "" &&
+    Number.isInteger(number) &&
+    number >= 1 &&
+    number <= MAX_IMAGE_DIMENSION
+  );
 }
 
 /** Empty means "keep the original" (null); otherwise a size in pixels. */
@@ -94,6 +99,11 @@ export const compressorSchema = z.object({
     .transform(toDimension),
 });
 
+export const imageConverterSchema = z.object({
+  file: requiredFile(imageFileSchema, FILE_REQUIRED),
+  format: z.enum(["webp", "png", "jpg", "svg"]),
+});
+
 export const resizerSchema = z
   .object({
     file: requiredFile(imageFileSchema, FILE_REQUIRED),
@@ -123,7 +133,12 @@ export const resizerSchema = z
     const parsedHeight = toDimension(height);
     // With the ratio locked, only one side is sent and the service keeps the ratio.
     return lockRatio
-      ? { ...values, width: parsedWidth, height: parsedWidth ? null : parsedHeight, fit: null }
+      ? {
+          ...values,
+          width: parsedWidth,
+          height: parsedWidth ? null : parsedHeight,
+          fit: null,
+        }
       : { ...values, width: parsedWidth, height: parsedHeight, fit };
   });
 
@@ -143,7 +158,11 @@ export const splitSchema = z
   })
   .superRefine(({ mode, ranges }, ctx) => {
     if (mode === "ranges" && !ranges) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["ranges"], message: "pdf.split.rangesRequired" });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ranges"],
+        message: "pdf.split.rangesRequired",
+      });
     }
   });
 
@@ -156,6 +175,8 @@ export type SummarizerValues = z.input<typeof summarizerSchema>;
 export type SummarizerOutput = z.output<typeof summarizerSchema>;
 export type CompressorValues = z.input<typeof compressorSchema>;
 export type CompressorOutput = z.output<typeof compressorSchema>;
+export type ImageConverterValues = z.input<typeof imageConverterSchema>;
+export type ImageConverterOutput = z.output<typeof imageConverterSchema>;
 export type ResizerValues = z.input<typeof resizerSchema>;
 export type ResizerOutput = z.output<typeof resizerSchema>;
 export type MergeValues = z.input<typeof mergeSchema>;

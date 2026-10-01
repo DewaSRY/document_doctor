@@ -6,6 +6,7 @@ from .images import (
     ImageResult,
     ImageToolError,
     compress_image,
+    convert_image,
     resize_image,
 )
 
@@ -17,5 +18,6 @@ __all__ = [
     "ImageResult",
     "ImageToolError",
     "compress_image",
+    "convert_image",
     "resize_image",
 ]

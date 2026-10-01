@@ -8,6 +8,7 @@ export const TOOL_HREFS: Record<string, string> = {
   pdf: "/pdf",
   resizer: "/resize-image",
   compressor: "/compress-image",
+  "image-converter": "/convert-image",
 };
 
 /** Tools that return a file (or a small JSON) are proxied by
@@ -19,6 +20,7 @@ export const PROXIED_TOOL_ENDPOINTS = {
   "pdf-split": "/pdf/split",
   "image-resize": "/image/resize",
   "image-compress": "/image/compress",
+  "image-convert": "/image/convert",
 } as const;
 
 export type ProxiedTool = keyof typeof PROXIED_TOOL_ENDPOINTS;
@@ -49,7 +51,8 @@ export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"] as const;
 export const DOCUMENT_ACCEPT =
   ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 export const PDF_ACCEPT = ".pdf,application/pdf";
-export const IMAGE_ACCEPT = ".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";
+export const IMAGE_ACCEPT =
+  ".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";
 
 export const SUMMARY_LENGTHS = ["short", "medium", "detailed"] as const;
 export type SummaryLength = (typeof SUMMARY_LENGTHS)[number];
@@ -89,5 +92,7 @@ export const RESIZE_PRESETS = [
 ] as const;
 
 export function getFileExtension(fileName: string): string {
-  return fileName.includes(".") ? (fileName.split(".").pop()?.toLowerCase() ?? "") : "";
+  return fileName.includes(".")
+    ? (fileName.split(".").pop()?.toLowerCase() ?? "")
+    : "";
 }

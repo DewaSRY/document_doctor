@@ -493,6 +493,75 @@
         }
       ],
       "cta": "Compress an image"
+    },
+    "image-converter": {
+      "meta": {
+        "title": "Convert Images Online — PNG, JPG, WEBP, SVG",
+        "description": "Convert PNG and JPG images to WEBP, WEBP to PNG or JPG, and PNG to SVG vector paths. Free image conversion with a 10 MB upload limit."
+      },
+      "benefitsTitle": "Convert an image to a format that fits",
+      "benefits": [
+        {
+          "title": "Formats matched to your image",
+          "body": "The available output formats depend on the detected PNG, JPG or WEBP source, so unsupported conversion pairs are not offered."
+        },
+        {
+          "title": "Vector paths from PNG",
+          "body": "PNG-to-SVG uses color tracing to create vector paths. The traced result can differ in detail from the original raster image."
+        },
+        {
+          "title": "Preview before download",
+          "body": "See the converted result in your browser, then download it with the correct file extension."
+        }
+      ],
+      "specs": [
+        {
+          "label": "File types",
+          "value": "PNG, JPG and WEBP"
+        },
+        {
+          "label": "Maximum size",
+          "value": "10 MB per image"
+        },
+        {
+          "label": "Conversions",
+          "value": "PNG/JPG to WEBP; WEBP to PNG/JPG; PNG to SVG"
+        },
+        {
+          "label": "Transparency",
+          "value": "Kept where supported; transparent areas become white in JPG"
+        }
+      ],
+      "stepsTitle": "How to convert an image",
+      "steps": [
+        {
+          "title": "Upload the image",
+          "body": "Choose or drop a PNG, JPG or WEBP image of up to 10 MB. The source format is detected from the image data."
+        },
+        {
+          "title": "Choose an output format",
+          "body": "Select from the formats supported for your image. PNG-to-SVG creates traced vector paths."
+        },
+        {
+          "title": "Preview and download",
+          "body": "Check the converted image, then download the result."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Which image formats can I convert?",
+          "answer": "PNG and JPG can be converted to WEBP. WEBP can be converted to PNG or JPG. PNG can also be traced to SVG."
+        },
+        {
+          "question": "Does PNG-to-SVG preserve every detail?",
+          "answer": "It traces the raster image into colored vector paths. Fine detail and gradients may look different from the source image."
+        },
+        {
+          "question": "What happens to transparency when converting to JPG?",
+          "answer": "JPG does not support transparency, so transparent areas are composited over white."
+        }
+      ],
+      "cta": "Convert an image"
     }
   },
   "notFound": {

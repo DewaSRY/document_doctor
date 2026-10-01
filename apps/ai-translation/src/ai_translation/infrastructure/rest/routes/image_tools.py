@@ -1,4 +1,5 @@
 import asyncio
+import re
 
 from fastapi import APIRouter, File, Form, Request, UploadFile
 from fastapi.responses import Response
@@ -11,6 +12,7 @@ from ai_translation.domain.image_tools import (
     ImageResult,
     ImageToolError,
     compress_image,
+    convert_image,
     resize_image,
 )
 from ai_translation.infrastructure.middleware import limiter
@@ -59,6 +61,37 @@ def _image_response(result: ImageResult, filename: str | None, suffix: str, orig
             "X-Output-Size": str(len(result.content)),
         },
     )
+
+
+def _safe_image_stem(filename: str | None) -> str:
+    name = (filename or "image").replace("\\", "/").rsplit("/", 1)[-1]
+    stem = file_stem(name, "image")
+    return re.sub(r"[\x00-\x1f\x7f/\\]", "_", stem).strip(" .")[:120] or "image"
+
+
+@router.post("/convert")
+@limiter.limit("20/minute")
+async def convert(
+    request: Request,
+    file: UploadFile = File(...),
+    format: str = Form(...),
+) -> Response:
+    """Convert a PNG, JPG or WEBP image to a supported target format (max 10MB)."""
+    try:
+        target_format = format.lower()
+        if target_format not in ("webp", "png", "jpg", "jpeg", "svg"):
+            raise ValidationError(message="Format must be one of: webp, png, jpg, svg")
+        content, source_format = await read_upload(
+            file, max_size_mb=MAX_IMAGE_MB, allowed_extensions=list(FORMATS)
+        )
+        result = await asyncio.to_thread(convert_image, content, target_format, source_format)
+        return file_response(
+            result.content,
+            media_type=MEDIA_TYPES[result.format],
+            filename=f"{_safe_image_stem(file.filename)}_converted.{EXTENSIONS[result.format]}",
+        )
+    except Exception as exc:
+        raise _processing_error(exc)
 
 
 @router.post("/resize")

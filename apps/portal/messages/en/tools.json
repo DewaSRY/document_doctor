@@ -166,6 +166,15 @@
       "rangesRequired": "Enter the pages for each part."
     }
   },
+  "imageConverter": {
+    "title": "Convert an image",
+    "description": "Convert PNG, JPG or WEBP images to the supported formats for your file.",
+    "submit": "Convert to {{format}}",
+    "processing": "Converting {{fileName}}",
+    "errorTitle": "The image couldn't be converted",
+    "doneTitle": "Your image is converted",
+    "another": "Convert another image"
+  },
   "resizer": {
     "title": "Resize an image",
     "description": "Resize a JPG, PNG or WEBP image to exact dimensions, like 1200 × 630 px.",

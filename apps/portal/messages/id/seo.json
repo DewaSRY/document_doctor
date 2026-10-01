@@ -493,6 +493,75 @@
         }
       ],
       "cta": "Kompres gambar"
+    },
+    "image-converter": {
+      "meta": {
+        "title": "Konversi Gambar Online — PNG, JPG, WEBP, SVG",
+        "description": "Konversi gambar PNG dan JPG ke WEBP, WEBP ke PNG atau JPG, serta PNG ke jalur vektor SVG. Konversi gambar gratis dengan batas unggahan 10 MB."
+      },
+      "benefitsTitle": "Konversi gambar ke format yang sesuai",
+      "benefits": [
+        {
+          "title": "Format sesuai gambar",
+          "body": "Format hasil yang tersedia bergantung pada sumber PNG, JPG, atau WEBP yang terdeteksi, sehingga pasangan konversi yang tidak didukung tidak ditawarkan."
+        },
+        {
+          "title": "Jalur vektor dari PNG",
+          "body": "Konversi PNG ke SVG menggunakan penelusuran warna untuk membuat jalur vektor. Detail hasil penelusuran dapat berbeda dari gambar raster asli."
+        },
+        {
+          "title": "Pratinjau sebelum mengunduh",
+          "body": "Lihat hasil konversi di browser, lalu unduh dengan ekstensi file yang benar."
+        }
+      ],
+      "specs": [
+        {
+          "label": "Jenis file",
+          "value": "PNG, JPG, dan WEBP"
+        },
+        {
+          "label": "Ukuran maksimum",
+          "value": "10 MB per gambar"
+        },
+        {
+          "label": "Konversi",
+          "value": "PNG/JPG ke WEBP; WEBP ke PNG/JPG; PNG ke SVG"
+        },
+        {
+          "label": "Transparansi",
+          "value": "Dipertahankan jika didukung; area transparan menjadi putih pada JPG"
+        }
+      ],
+      "stepsTitle": "Cara mengonversi gambar",
+      "steps": [
+        {
+          "title": "Unggah gambar",
+          "body": "Pilih atau letakkan gambar PNG, JPG, atau WEBP hingga 10 MB. Format sumber dideteksi dari data gambar."
+        },
+        {
+          "title": "Pilih format hasil",
+          "body": "Pilih format yang didukung untuk gambar Anda. Konversi PNG ke SVG membuat jalur vektor hasil penelusuran."
+        },
+        {
+          "title": "Pratinjau dan unduh",
+          "body": "Periksa gambar hasil konversi, lalu unduh hasilnya."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Format gambar apa yang bisa dikonversi?",
+          "answer": "PNG dan JPG dapat dikonversi ke WEBP. WEBP dapat dikonversi ke PNG atau JPG. PNG juga dapat ditelusuri menjadi SVG."
+        },
+        {
+          "question": "Apakah PNG ke SVG mempertahankan semua detail?",
+          "answer": "Gambar raster ditelusuri menjadi jalur vektor berwarna. Detail halus dan gradasi mungkin terlihat berbeda dari gambar sumber."
+        },
+        {
+          "question": "Apa yang terjadi pada transparansi saat dikonversi ke JPG?",
+          "answer": "JPG tidak mendukung transparansi, jadi area transparan digabungkan dengan latar putih."
+        }
+      ],
+      "cta": "Konversi gambar"
     }
   },
   "notFound": {

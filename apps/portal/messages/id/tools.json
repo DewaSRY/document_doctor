@@ -165,6 +165,15 @@
       "rangesRequired": "Isi halaman untuk setiap bagian."
     }
   },
+  "imageConverter": {
+    "title": "Konversi gambar",
+    "description": "Konversi gambar PNG, JPG, atau WEBP ke format yang didukung untuk file Anda.",
+    "submit": "Konversi ke {{format}}",
+    "processing": "Mengonversi {{fileName}}",
+    "errorTitle": "Gambar tidak dapat dikonversi",
+    "doneTitle": "Gambar Anda sudah dikonversi",
+    "another": "Konversi gambar lain"
+  },
   "resizer": {
     "title": "Ubah ukuran gambar",
     "description": "Ubah ukuran gambar JPG, PNG, atau WEBP ke dimensi yang tepat, misalnya 1200 × 630 px.",

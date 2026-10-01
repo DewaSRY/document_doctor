@@ -1,5 +1,6 @@
 import {
   Combine,
+  ArrowLeftRight,
   FileSearch,
   FileText,
   Image as ImageIcon,
@@ -19,6 +20,7 @@ export const TOOL_ICONS: Record<string, LucideIcon> = {
   pdf: Combine,
   resizer: ImageIcon,
   compressor: Minimize2,
+  "image-converter": ArrowLeftRight,
 };
 
 export const FALLBACK_TOOL_ICON = FileText;
@@ -33,6 +35,7 @@ export const TOOL_COLORS: Record<string, string> = {
   pdf: "bg-[#ea580c]",
   resizer: "bg-[#16a34a]",
   compressor: "bg-[#db2777]",
+  "image-converter": "bg-[#0e7490]",
 };
 
 export const FALLBACK_TOOL_COLOR = "bg-foreground";
