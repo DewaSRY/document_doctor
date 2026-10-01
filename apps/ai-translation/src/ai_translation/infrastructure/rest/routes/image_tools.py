@@ -11,6 +11,9 @@ from ai_translation.domain.image_tools import (
     MEDIA_TYPES,
     ImageResult,
     ImageToolError,
+)
+from ai_translation.domain.image_tools.images import (
+    MAX_DIMENSION,
     compress_image,
     convert_image,
     resize_image,
@@ -99,18 +102,19 @@ async def convert(
 async def resize(
     request: Request,
     file: UploadFile = File(...),
-    width: int | None = Form(None),
-    height: int | None = Form(None),
+    width: int = Form(..., ge=1, le=MAX_DIMENSION),
+    height: int = Form(..., ge=1, le=MAX_DIMENSION),
     fit: str = Form("cover"),
     format: str | None = Form(None),
 ) -> Response:
     """
     Resize a JPG, PNG or WEBP image (max 10MB).
 
-    - **width** / **height**: target size in px; with one of them, the ratio is kept
+    - **width** / **height**: required target dimensions in px (1-10,000)
     - **fit**: 'cover' (crop to the exact size), 'contain' (fit inside) or 'stretch'
     - **format**: 'jpg', 'png' or 'webp'; omit to keep the original format
     """
+
     try:
         if fit not in FIT_MODES:
             raise ValidationError(message=f"Fit must be one of: {', '.join(FIT_MODES)}")

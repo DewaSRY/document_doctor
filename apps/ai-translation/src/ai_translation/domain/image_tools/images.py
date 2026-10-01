@@ -92,8 +92,8 @@ def _save(image: Image.Image, output_format: str, quality: int = 90, lossy_png: 
 
 def resize_image(
     file_content: bytes,
-    width: int | None,
-    height: int | None,
+    width: int ,
+    height: int ,
     fit: str,
     output_format: str | None,
 ) -> ImageResult:
