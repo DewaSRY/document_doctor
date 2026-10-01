@@ -92,6 +92,17 @@ export class BaseClient {
     );
   }
 
+  protected postFormData<TResponse = unknown>(
+    options: Omit<RequestOptions, "body"> & { body: FormData },
+  ): Promise<AxiosResponse<TResponse>> {
+    const { endpoint, body, params, config } = options;
+    return this.instance.post<TResponse>(
+      endpoint,
+      body,
+      this.withParams(config, params),
+    );
+  }
+
   protected put<TResponse = unknown>(
     options: RequestOptions,
   ): Promise<AxiosResponse<TResponse>> {

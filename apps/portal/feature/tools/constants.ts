@@ -21,6 +21,8 @@ export const PROXIED_TOOL_ENDPOINTS = {
   "image-resize": "/image/resize",
   "image-compress": "/image/compress",
   "image-convert": "/image/convert",
+  summarize: "/summarize-document",
+  extract: "/extract-document",
 } as const;
 
 export type ProxiedTool = keyof typeof PROXIED_TOOL_ENDPOINTS;

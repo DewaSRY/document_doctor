@@ -29,11 +29,9 @@ import type {
 } from "../type";
 import { getTranslatorErrorStatus } from "../utils";
 
-/** Edits a translated document in the shared document editor. */
 export function SegmentEditor({ documentId }: { documentId: string }) {
   const { t } = useTranslation("translator");
   const segments = useDocumentSegments(documentId);
-  // Without a layout (it failed to load) the document is edited as blocks.
   const layout = useDocumentLayout(documentId, segments.isSuccess);
 
   if (segments.isPending || (segments.isSuccess && layout.isPending)) {

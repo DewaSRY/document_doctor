@@ -87,7 +87,7 @@ export function installInterceptors(instance: AxiosInstance) {
 export const browserClient: AxiosInstance = installInterceptors(
   axios.create({
     baseURL: API_BASE_URL,
-    timeout: 15_000,
+    timeout: 60_000,
     withCredentials: false,
     headers: { Accept: "application/json" },
   }),

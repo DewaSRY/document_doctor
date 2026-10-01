@@ -18,9 +18,10 @@ export class TranslatorClient extends BaseClient {
     targetLanguage: string,
   ) {
     const body = new FormData();
+
     body.append("file", file, file.name);
 
-    return this.post<TranslatorResponse<TranslatedDocument>>({
+    return this.postFormData<TranslatorResponse<TranslatedDocument>>({
       endpoint: "/translate-document",
       body,
       params: {
@@ -48,7 +49,7 @@ export class TranslatorClient extends BaseClient {
     const body = new FormData();
     body.append("file", file, file.name);
 
-    return this.post<TranslatorResponse<UploadedImage>>({
+    return this.postFormData<TranslatorResponse<UploadedImage>>({
       endpoint: `/translated-document/${encodeURIComponent(documentId)}/media`,
       body,
       config: { timeout: 60_000 },
