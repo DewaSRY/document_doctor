@@ -7,6 +7,7 @@ import {
   translateDocumentAction,
   updateDocumentSegmentsAction,
   uploadDocumentMediaAction,
+  deleteDocumentAction,
 } from "../actions";
 import type { LanguageCode } from "../constants";
 import type { UpdateSegmentsBody } from "../type";
@@ -100,6 +101,16 @@ export function useDownloadDocument() {
         await downloadDocumentAction(documentId).then(unpackActionResult);
       downloadFromBase64(result.base64, result.fileName, result.contentType);
       return result;
+    },
+  });
+}
+
+
+export function useDeleteDocument(documentId: string) {
+  return useMutation({
+    mutationFn: () => deleteDocumentAction(documentId).then(unpackActionResult),
+    onSuccess: (data) => {
+      // queryClient.invalidateQueries(queryKeys.layout(data.document_id));
     },
   });
 }

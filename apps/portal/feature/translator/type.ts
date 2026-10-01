@@ -79,3 +79,7 @@ export interface DownloadDocumentResponse {
   fileName: string;
   contentType: string;
 }
+
+export interface DeleteDocumentResponse {
+  document_id: string;
+}

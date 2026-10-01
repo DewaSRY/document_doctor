@@ -1,17 +1,10 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { TriangleAlert } from "lucide-react";
+import { create } from "zustand";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,42 +17,121 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface LeaveGuardContextValue {
-  block: () => () => void;
+/** A stronger warning variant: leaving now will delete server-side work (e.g. an undownloaded document). */
+type LeaveGuardVariant = "deleteDocument";
+
+interface BlockOptions {
+  variant?: LeaveGuardVariant;
+  /** Runs once the user confirms leaving, before navigation continues. */
+  onConfirmLeave?: () => void;
+}
+
+interface PendingLeave {
+  leave: () => void;
+  variant?: LeaveGuardVariant;
+}
+
+interface LeaveGuardState {
+  blockers: Map<symbol, BlockOptions>;
+  leaving: boolean;
+  pending: PendingLeave | null;
+  block: (options?: BlockOptions) => () => void;
   holdLeave: (leave: () => void) => boolean;
+  cancelLeave: () => void;
+  confirmLeave: () => void;
+  resetLeaving: () => void;
 }
 
-const LeaveGuardContext = createContext<LeaveGuardContextValue>({
-  block: () => () => {},
-  holdLeave: () => false,
-});
+export const useLeaveGuardStore = create<LeaveGuardState>((set, get) => ({
+  blockers: new Map(),
+  leaving: false,
+  pending: null,
 
-export function useLeaveGuardContext() {
-  return useContext(LeaveGuardContext);
-}
+  block(options) {
+    const id = Symbol();
+    set((state) => ({
+      blockers: new Map(state.blockers).set(id, options ?? {}),
+    }));
 
-export function useLeaveGuard(active: boolean) {
-  const { block } = useLeaveGuardContext();
+    return () => {
+      set((state) => {
+        const blockers = new Map(state.blockers);
+        blockers.delete(id);
+        return { blockers };
+      });
+    };
+  },
 
-  useEffect(() => (active ? block() : undefined), [active, block]);
+  holdLeave(leave) {
+    const { blockers, leaving } = get();
+    if (blockers.size === 0 || leaving) return false;
+
+    const active = [...blockers.values()];
+    set({
+      pending: {
+        leave: () => {
+          for (const blocker of active) blocker.onConfirmLeave?.();
+          leave();
+        },
+        variant: active.find((blocker) => blocker.variant)?.variant,
+      },
+    });
+    return true;
+  },
+
+  cancelLeave() {
+    set({ pending: null });
+  },
+
+  confirmLeave() {
+    const pending = get().pending;
+    if (!pending) return;
+
+    set({ leaving: true, pending: null });
+    pending.leave();
+  },
+
+  resetLeaving() {
+    set({ leaving: false });
+  },
+}));
+
+export function useLeaveGuard(active: boolean, options?: BlockOptions) {
+  const block = useLeaveGuardStore((state) => state.block);
+  const optionsRef = useRef(options);
+
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
+  useEffect(
+    () =>
+      active
+        ? block({
+            variant: optionsRef.current?.variant,
+            onConfirmLeave: () => optionsRef.current?.onConfirmLeave?.(),
+          })
+        : undefined,
+    [active, block],
+  );
 }
 
 export function LeaveGuardProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation("common");
   const pathname = usePathname();
-
-  const blockers = useRef(new Set<symbol>());
-  const leaving = useRef(false);
-
-  const [pending, setPending] = useState<{ leave: () => void } | null>(null);
+  const pending = useLeaveGuardStore((state) => state.pending);
+  const confirmLeave = useLeaveGuardStore((state) => state.confirmLeave);
+  const cancelLeave = useLeaveGuardStore((state) => state.cancelLeave);
+  const resetLeaving = useLeaveGuardStore((state) => state.resetLeaving);
 
   useEffect(() => {
-    leaving.current = false;
-  }, [pathname]);
+    resetLeaving();
+  }, [pathname, resetLeaving]);
 
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
-      if (blockers.current.size > 0 && !leaving.current) {
+      const { blockers, leaving } = useLeaveGuardStore.getState();
+      if (blockers.size > 0 && !leaving) {
         event.preventDefault();
       }
     };
@@ -71,45 +143,14 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const value = useMemo<LeaveGuardContextValue>(
-    () => ({
-      block() {
-        const id = Symbol();
-
-        blockers.current.add(id);
-
-        return () => blockers.current.delete(id);
-      },
-
-      holdLeave(leave) {
-        if (blockers.current.size === 0 || leaving.current) {
-          return false;
-        }
-
-        setPending({ leave });
-
-        return true;
-      },
-    }),
-    [],
-  );
-
-  function leave() {
-    if (!pending) return;
-
-    leaving.current = true;
-    setPending(null);
-    pending.leave();
-  }
-
   return (
-    <LeaveGuardContext.Provider value={value}>
+    <>
       {children}
 
       <Dialog
         open={pending !== null}
         onOpenChange={(open) => {
-          if (!open) setPending(null);
+          if (!open) cancelLeave();
         }}
       >
         <DialogContent
@@ -136,11 +177,19 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
 
               <DialogHeader className="space-y-2">
                 <DialogTitle className="text-xl font-semibold tracking-tight">
-                  {t("leaveGuard.title")}
+                  {t(
+                    pending?.variant === "deleteDocument"
+                      ? "leaveGuard.deleteDocument.title"
+                      : "leaveGuard.title",
+                  )}
                 </DialogTitle>
 
                 <DialogDescription className="text-center text-sm leading-6 text-muted-foreground">
-                  {t("leaveGuard.description")}
+                  {t(
+                    pending?.variant === "deleteDocument"
+                      ? "leaveGuard.deleteDocument.description"
+                      : "leaveGuard.description",
+                  )}
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -156,7 +205,7 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
 
             <Button
               variant="destructive"
-              onClick={leave}
+              onClick={confirmLeave}
               className="w-full shadow-sm sm:w-auto"
             >
               {t("leaveGuard.leave")}
@@ -164,6 +213,6 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </LeaveGuardContext.Provider>
+    </>
   );
 }

@@ -27,7 +27,11 @@
     "title": "Leave this page?",
     "description": "Your work here isn't finished yet. If you leave now, the file and settings you've entered will be lost.",
     "stay": "Stay on page",
-    "leave": "Leave anyway"
+    "leave": "Leave anyway",
+    "deleteDocument": {
+      "title": "Leave without downloading?",
+      "description": "You haven't downloaded this document yet. If you leave now, it will be permanently deleted."
+    }
   },
   "availableBalance": "Available balance",
   "searchPlaceholder": "Search...",

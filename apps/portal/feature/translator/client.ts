@@ -1,6 +1,7 @@
 import axios from "axios";
 import { BaseClient } from "@/lib/api/base-client";
 import type {
+  DeleteDocumentResponse,
   DocumentLayout,
   DocumentSegments,
   TranslatedDocument,
@@ -70,6 +71,12 @@ export class TranslatorClient extends BaseClient {
       config: {
         responseType: "arraybuffer",
       },
+    });
+  }
+
+  deleteDocument(documentId: string) {
+    return this.delete<TranslatorResponse<DeleteDocumentResponse>>({
+      endpoint: `/translated-document/${encodeURIComponent(documentId)}`,
     });
   }
 }

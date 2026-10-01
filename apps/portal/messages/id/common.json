@@ -27,7 +27,11 @@
     "title": "Tinggalkan halaman ini?",
     "description": "Proses Anda di sini belum selesai. Jika Anda keluar sekarang, file dan pengaturan yang sudah Anda masukkan akan hilang.",
     "stay": "Tetap di halaman",
-    "leave": "Tetap tinggalkan"
+    "leave": "Tetap tinggalkan",
+    "deleteDocument": {
+      "title": "Tinggalkan tanpa mengunduh?",
+      "description": "Anda belum mengunduh dokumen ini. Jika Anda keluar sekarang, dokumen ini akan dihapus secara permanen."
+    }
   },
   "availableBalance": "Saldo tersedia",
   "searchPlaceholder": "Cari...",

@@ -7,6 +7,7 @@ import { AlertCircle, Languages, Loader2 } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import ErrorState from "@/components/ui/error-state";
+import { useLeaveGuard } from "@/components/leave-guard";
 import {
   DocumentEditor,
   type PageImageHref,
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 import { getMediaHref, getPageImageHref } from "../constants";
 import {
+  useDeleteDocument,
   useDocumentLayout,
   useDocumentSegments,
   useDownloadDocument,
@@ -102,6 +104,13 @@ function TranslationEditor({
   const update = useUpdateDocumentSegments(id);
   const upload = useUploadDocumentMedia(id);
   const download = useDownloadDocument();
+  const deleteDocument = useDeleteDocument(id);
+
+  // Leaving before the document is downloaded forfeits it: warn, then delete on confirmed leave.
+  useLeaveGuard(!download.isSuccess, {
+    variant: "deleteDocument",
+    onConfirmLeave: () => deleteDocument.mutate(),
+  });
 
   const pageImageHref = useCallback<PageImageHref>(
     (page, options) => getPageImageHref(id, page, options),

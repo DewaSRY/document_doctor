@@ -8,7 +8,11 @@ import {
   getFileExtension,
   isLanguageCode,
 } from "./constants";
-import type { DownloadDocumentResponse, UpdateSegmentsBody } from "./type";
+import type {
+  DeleteDocumentResponse,
+  DownloadDocumentResponse,
+  UpdateSegmentsBody,
+} from "./type";
 
 // Masking server action for handling API requests with packed results
 import { runMaskingServerAction } from "@/lib/api/pack-server-action";
@@ -136,5 +140,14 @@ export async function downloadDocumentAction(
       fileName,
       contentType,
     };
+  });
+}
+
+export async function deleteDocumentAction(
+  documentId: string,
+): Promise<MaskingActionResult<DeleteDocumentResponse>> {
+  return runMaskingServerAction(async () => {
+    const response = await translatorClient.deleteDocument(documentId);
+    return response.data.data;
   });
 }

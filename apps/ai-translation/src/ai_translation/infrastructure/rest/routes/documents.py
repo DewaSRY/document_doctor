@@ -277,6 +277,37 @@ async def get_document_info(
         )
 
 
+@router.delete("/translated-document/{document_id}")
+async def delete_translated_document(
+    document_id: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Delete a translated document and its editor data."""
+    try:
+        document = await TranslatedDocumentRepository(session).get_by_document_id(document_id)
+        if not document:
+            raise NotFoundError("Document", document_id)
+
+        for model in (DocumentMedia, DocumentInsertions, DocumentSegments, TranslatedDocument):
+            await session.execute(delete(model).where(model.document_id == document_id))
+        await session.commit()
+
+        return normalize_success_response(
+            data={"document_id": document_id},
+            message="Document deleted successfully",
+            code=200,
+        )
+    except APIException:
+        await session.rollback()
+        raise
+    except Exception as exc:
+        await session.rollback()
+        raise DocumentProcessingError(
+            message=str(exc),
+            details={"exception_type": type(exc).__name__},
+        )
+
+
 def _segments_response(document: TranslatedDocument, stored: DocumentSegments, insertions: list[dict]) -> dict:
     return {
         "document_id": document.document_id,

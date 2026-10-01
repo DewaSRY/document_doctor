@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { ChevronDown, Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -63,6 +63,9 @@ function ToolIcon({ tool, size = "sm" }: { tool: string; size?: "sm" | "md" }) {
 }
 
 export function LandingNav() {
+
+  const COMMING_SOON_LABEL = ["summarizer", "extractor"];
+
   const { t } = useTranslation("landing");
   const { t: tCommon } = useTranslation("common");
   const [open, setOpen] = useState(false);
@@ -72,6 +75,7 @@ export function LandingNav() {
   const groups = t("tools.groups", {
     returnObjects: true,
   }) as unknown as ToolGroup[];
+
 
   return (
     <header className="sticky top-0 z-40 border-b bg-card shadow-xs">
@@ -91,8 +95,13 @@ export function LandingNav() {
                 <li key={tool}>
                   <Link
                     href={TOOL_HREFS[tool] ?? START_HREF}
-                    aria-current={pathname === TOOL_HREFS[tool] ? "page" : undefined}
-                    className={cn(QUICK_LINK_CLASS, "aria-[current=page]:text-brand")}
+                    aria-current={
+                      pathname === TOOL_HREFS[tool] ? "page" : undefined
+                    }
+                    className={cn(
+                      QUICK_LINK_CLASS,
+                      "aria-[current=page]:text-brand",
+                    )}
                   >
                     {t(`nav.quickLabels.${tool}`)}
                   </Link>
@@ -122,13 +131,34 @@ export function LandingNav() {
                         {group.items.map((tool) => (
                           <DropdownMenuItem
                             key={tool.icon}
-                            className="cursor-pointer gap-2.5 rounded-md py-2"
-                            render={
-                              <Link href={TOOL_HREFS[tool.icon] ?? START_HREF} />
-                            }
+                            disabled={COMMING_SOON_LABEL.includes(tool.icon)}
+                            className={cn(
+                              "cursor-pointer gap-2.5 rounded-md py-2",
+                              COMMING_SOON_LABEL.includes(tool.icon) &&
+                                "cursor-not-allowed opacity-60",
+                            )}
                           >
-                            <ToolIcon tool={tool.icon} />
-                            <span className="font-medium">{tool.name}</span>
+                            {COMMING_SOON_LABEL.includes(tool.icon) ? (
+                              <div className="flex w-full items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                  <ToolIcon tool={tool.icon} />
+                                  <span className="font-medium">
+                                    {tool.name}
+                                  </span>
+                                </div>
+                                <span className="rounded-full border bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                                  {t("nav.comingSoon")}
+                                </span>
+                              </div>
+                            ) : (
+                              <Link
+                                href={TOOL_HREFS[tool.icon] ?? START_HREF}
+                                className="flex w-full items-center gap-2.5"
+                              >
+                                <ToolIcon tool={tool.icon} />
+                                <span className="font-medium">{tool.name}</span>
+                              </Link>
+                            )}
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuGroup>
@@ -175,7 +205,10 @@ export function LandingNav() {
                   {t("nav.menuDescription")}
                 </SheetDescription>
               </SheetHeader>
-              <nav aria-label={t("nav.label")} className="flex flex-col gap-6 px-4 pb-6">
+              <nav
+                aria-label={t("nav.label")}
+                className="flex flex-col gap-6 px-4 pb-6"
+              >
                 {groups.map((group) => (
                   <div key={group.id}>
                     <p className="px-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
@@ -187,7 +220,9 @@ export function LandingNav() {
                           <Link
                             href={TOOL_HREFS[tool.icon] ?? START_HREF}
                             aria-current={
-                              pathname === TOOL_HREFS[tool.icon] ? "page" : undefined
+                              pathname === TOOL_HREFS[tool.icon]
+                                ? "page"
+                                : undefined
                             }
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 rounded-md px-2 py-2.5 text-base font-medium transition-colors hover:bg-muted"
