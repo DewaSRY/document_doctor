@@ -32,10 +32,9 @@
     "menuTitle": "Menu",
     "menuDescription": "Buka bagian halaman, atau ubah bahasa.",
     "allTools": "Semua alat",
-    "quick": ["translator", "summarizer", "converter", "pdf"],
+    "quick": ["translator", "converter", "pdf"],
     "quickLabels": {
       "translator": "Terjemahkan",
-      "summarizer": "Ringkas",
       "converter": "Konversi",
       "pdf": "Gabung PDF"
     }

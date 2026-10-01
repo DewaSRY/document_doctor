@@ -16,6 +16,7 @@ const LINK_CLASS =
  *  sections. Shared by the home page and every tool page. */
 export function LandingFooter({ appName }: { appName: string }) {
   const { t, i18n } = useTranslation("landing");
+  const { t: tCommon } = useTranslation("common");
 
   const { data: featureGroups } = useFeatureGroupsQuery(i18n.language);
 
@@ -55,13 +56,26 @@ export function LandingFooter({ appName }: { appName: string }) {
             </p>
             <ul className="mt-4 flex flex-col gap-2.5">
               {group.items.map((tool) => (
-                <li key={tool.icon}>
-                  <Link
-                    href={TOOL_HREFS[tool.icon] ?? START_HREF}
-                    className={LINK_CLASS}
-                  >
-                    {tool.name}
-                  </Link>
+                <li key={tool.icon} className="mt-3 text-sm text-background/65">
+                  <>
+                    {tool.isComingSoon && (
+                      <div className="flex gap-0.5 items-center">
+                        <span> {tool.name}</span>
+                        <span className="p-1 rounded bg-background/10 text-xs">
+                          {tCommon("comingSoon")}
+                        </span>
+                      </div>
+                    )}
+
+                    {!tool.isComingSoon && (
+                      <Link
+                        href={TOOL_HREFS[tool.icon] ?? START_HREF}
+                        className={LINK_CLASS}
+                      >
+                        {tool.name}
+                      </Link>
+                    )}
+                  </>
                 </li>
               ))}
             </ul>

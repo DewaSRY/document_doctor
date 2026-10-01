@@ -11,7 +11,7 @@ export function HeroSection({ t }: { t: LandingT }) {
 
   return (
     <section aria-labelledby="hero-title">
-      <div className="mx-auto flex w-full max-w-4xl flex-col items-center px-4 pt-12 pb-4 text-center sm:px-6 sm:pt-20">
+      <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 pt-6 pb-4 text-center sm:px-6 sm:pt-20">
         <h1
           id="hero-title"
           className="text-[1.75rem] leading-tight font-bold tracking-tight text-balance sm:text-4xl lg:text-[2.75rem] lg:leading-[1.15]"
@@ -19,7 +19,7 @@ export function HeroSection({ t }: { t: LandingT }) {
           {t("hero.title")}
           <span className="text-brand">{t("hero.titleAccent")}</span>
         </h1>
-        <p className="mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
+        <p className="mt-4 max-w-4xl text-base text-pretty text-muted-foreground sm:text-lg">
           {t("hero.description")}
         </p>
 
