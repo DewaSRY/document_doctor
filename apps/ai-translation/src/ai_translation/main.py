@@ -59,12 +59,12 @@ def create_app() -> FastAPI:
     setup_request_logging_middleware(app)
 
     # Include routers
-    app.include_router(health_router)
-    app.include_router(translation_router)
-    app.include_router(documents_router)
-    app.include_router(document_ai_router)
-    app.include_router(file_tools_router)
-    app.include_router(image_tools_router)
+    app.include_router(health_router, prefix="/api")
+    app.include_router(translation_router, prefix="/api")
+    app.include_router(documents_router, prefix="/api")
+    app.include_router(document_ai_router, prefix="/api")
+    app.include_router(file_tools_router, prefix="/api")
+    app.include_router(image_tools_router, prefix="/api")
 
     # Register exception handlers
     register_exception_handlers(app)
