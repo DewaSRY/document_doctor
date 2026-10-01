@@ -25,7 +25,12 @@
     "keepFormat": "Same as the original",
     "previewAlt": "Preview of {{name}}",
     "resultAlt": "Preview of the result",
-    "fileRequired": "Choose a file first."
+    "fileRequired": "Choose a file first.",
+    "resolutionTips": {
+      "title": "Suggested resolutions for the web",
+      "description": "Common sizes developers use to optimize images for web pages, social sharing and thumbnails.",
+      "cta": "Resize this image"
+    }
   },
   "categories": {
     "documentAi": "Document AI",
@@ -173,7 +178,60 @@
     "processing": "Converting {{fileName}}",
     "errorTitle": "The image couldn't be converted",
     "doneTitle": "Your image is converted",
-    "another": "Convert another image"
+    "another": "Convert another image",
+    "quickLinksLabel": "Or use a single-purpose converter"
+  },
+  "singleImageConversion": {
+    "jpg-to-png": {
+      "title": "Convert JPG to PNG",
+      "description": "Turn a JPG photo into a lossless PNG, useful when you need a transparent background or exact pixel colors for the web.",
+      "submit": "Convert to PNG",
+      "processing": "Converting {{fileName}}",
+      "errorTitle": "The image couldn't be converted",
+      "doneTitle": "Your PNG is ready",
+      "another": "Convert another JPG",
+      "wrongFormat": "This isn't a JPG image. Choose a JPG file."
+    },
+    "jpg-to-webp": {
+      "title": "Convert JPG to WEBP",
+      "description": "Convert a JPG photo to WEBP for a smaller file size and faster-loading web pages.",
+      "submit": "Convert to WEBP",
+      "processing": "Converting {{fileName}}",
+      "errorTitle": "The image couldn't be converted",
+      "doneTitle": "Your WEBP is ready",
+      "another": "Convert another JPG",
+      "wrongFormat": "This isn't a JPG image. Choose a JPG file."
+    },
+    "png-to-webp": {
+      "title": "Convert PNG to WEBP",
+      "description": "Convert a PNG to WEBP to keep transparency while shrinking the file for faster web pages.",
+      "submit": "Convert to WEBP",
+      "processing": "Converting {{fileName}}",
+      "errorTitle": "The image couldn't be converted",
+      "doneTitle": "Your WEBP is ready",
+      "another": "Convert another PNG",
+      "wrongFormat": "This isn't a PNG image. Choose a PNG file."
+    },
+    "jpg-to-svg": {
+      "title": "Convert JPG to SVG",
+      "description": "Trace a JPG photo into a scalable SVG vector, useful for logos, icons and artwork that need to scale without pixelating.",
+      "submit": "Convert to SVG",
+      "processing": "Vectorizing {{fileName}}",
+      "errorTitle": "The image couldn't be vectorized",
+      "doneTitle": "Your SVG is ready",
+      "another": "Convert another JPG",
+      "wrongFormat": "This isn't a JPG image. Choose a JPG file."
+    },
+    "png-to-svg": {
+      "title": "Convert PNG to SVG",
+      "description": "Trace a PNG into a scalable SVG vector with color paths, useful for logos and icons that need to scale cleanly.",
+      "submit": "Convert to SVG",
+      "processing": "Vectorizing {{fileName}}",
+      "errorTitle": "The image couldn't be vectorized",
+      "doneTitle": "Your SVG is ready",
+      "another": "Convert another PNG",
+      "wrongFormat": "This isn't a PNG image. Choose a PNG file."
+    }
   },
   "resizer": {
     "title": "Resize an image",

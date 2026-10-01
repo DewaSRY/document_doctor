@@ -1,11 +1,16 @@
-i alredy have the ai tranlator on my apps/ai-tranlsation
 
-now i need to integrate it with my portal
 
-the flow is when user clikc the services on langing page, there will be a button to pic document want to upload
+on my codebase, i want you to split the convert image to they own single services. 
 
-then user will ask about what the source language and target language,
+so the services should be
 
-after the translation process is done user have option to translate the doc or to eidt the translated doc first,
+- jpg to png
+- jpg to webp
+- png to webp 
+- jpg to svg 
+- png to svg 
 
-if user want to translated the doc firs there will be a integrated titptap editor for that.
+the objective of the services is to give the tool for developer to optmize the image for they web. 
+
+i want to have resolution suggestion for the product also. 
+

@@ -4,7 +4,7 @@ export {
   usePdfInfo,
   useSummarizeDocument,
 } from "./hooks/query";
-export { TOOL_HREFS } from "./constants";
+export { TOOL_HREFS, SINGLE_IMAGE_CONVERSIONS } from "./constants";
 export type {
   DocumentExtraction,
   DocumentSummary,
@@ -18,3 +18,4 @@ export { PdfTools } from "./components/pdf-tools";
 export { ImageResizer } from "./components/image-resizer";
 export { ImageCompressor } from "./components/image-compressor";
 export { ImageConverter } from "./components/image-converter";
+export { ImageFormatConverter } from "./components/image-format-converter";

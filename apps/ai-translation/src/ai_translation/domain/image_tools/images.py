@@ -17,7 +17,7 @@ MEDIA_TYPES["svg"] = "image/svg+xml"
 EXTENSIONS["svg"] = "svg"
 
 CONVERSION_TARGETS = {
-    "jpeg": ("webp",),
+    "jpeg": ("webp", "png", "svg"),
     "png": ("webp", "svg"),
     "webp": ("png", "jpeg"),
 }
@@ -202,7 +202,7 @@ def convert_image(
 
     if target_format == "svg":
         if image.width * image.height > MAX_VECTOR_PIXELS:
-            raise ImageToolError("PNG images above 25 million pixels cannot be vectorized")
+            raise ImageToolError("Images above 25 million pixels cannot be vectorized")
         content = _trace_png_to_svg(image)
     else:
         content = _save(image, target_format, quality=95)

@@ -562,6 +562,285 @@
         }
       ],
       "cta": "Konversi gambar"
+    },
+    "jpg-to-png": {
+      "meta": {
+        "title": "Konversi JPG ke PNG Online — Konverter Gambar Gratis",
+        "description": "Konversi foto JPG menjadi gambar PNG tanpa kehilangan kualitas, dengan dukungan transparansi. Gratis, batas unggahan 10 MB."
+      },
+      "benefitsTitle": "Konversi JPG ke PNG tanpa kehilangan kualitas",
+      "benefits": [
+        {
+          "title": "Hasil tanpa kehilangan kualitas",
+          "body": "PNG menggunakan kompresi lossless, sehingga tidak ada detail tambahan yang hilang saat dikonversi dari JPG."
+        },
+        {
+          "title": "Dibuat untuk developer",
+          "body": "Alat dengan satu tujuan tanpa opsi tambahan, sehingga cepat dipakai dalam alur optimasi gambar untuk web."
+        },
+        {
+          "title": "Pratinjau sebelum mengunduh",
+          "body": "Lihat PNG hasil konversi di browser, lalu unduh dengan ekstensi file yang benar."
+        }
+      ],
+      "specs": [
+        { "label": "Jenis file", "value": "JPG" },
+        { "label": "Ukuran maksimum", "value": "10 MB per gambar" },
+        { "label": "Hasil", "value": "Gambar PNG" },
+        {
+          "label": "Transparansi",
+          "value": "JPG tidak memilikinya, jadi hasil PNG sepenuhnya buram"
+        }
+      ],
+      "stepsTitle": "Cara mengonversi JPG ke PNG",
+      "steps": [
+        {
+          "title": "Unggah JPG",
+          "body": "Pilih atau letakkan gambar JPG hingga 10 MB."
+        },
+        { "title": "Konversi", "body": "Mulai konversi ke PNG." },
+        { "title": "Unduh", "body": "Periksa PNG hasil konversi, lalu unduh." }
+      ],
+      "faq": [
+        {
+          "question": "Apakah konversi JPG ke PNG meningkatkan kualitas gambar?",
+          "answer": "Tidak. PNG tidak memulihkan detail yang hilang saat JPG pertama kali disimpan, tetapi tidak akan kehilangan detail lebih lanjut."
+        },
+        {
+          "question": "Mengapa mengonversi JPG ke PNG untuk web?",
+          "answer": "PNG berguna untuk tangkapan layar, grafis, dan gambar yang butuh tepi tajam atau akan diedit lebih lanjut tanpa dikompresi ulang."
+        },
+        {
+          "question": "Apakah gambar saya disimpan setelah dikonversi?",
+          "answer": "Tidak. Konverter mengembalikan hasilnya tanpa menyimpan salinan gambar Anda."
+        }
+      ],
+      "cta": "Konversi JPG ke PNG"
+    },
+    "jpg-to-webp": {
+      "meta": {
+        "title": "Konversi JPG ke WEBP Online — Konverter Gambar Gratis",
+        "description": "Konversi foto JPG ke format WEBP yang lebih kecil dan dioptimalkan untuk web. Gratis, batas unggahan 10 MB."
+      },
+      "benefitsTitle": "Konversi JPG ke WEBP yang lebih kecil",
+      "benefits": [
+        {
+          "title": "Ukuran file lebih kecil",
+          "body": "WEBP biasanya menghasilkan file lebih kecil daripada JPG dengan kualitas visual yang serupa, mempercepat pemuatan halaman."
+        },
+        {
+          "title": "Dibuat untuk developer",
+          "body": "Alat dengan satu tujuan tanpa opsi tambahan, sehingga cepat dipakai dalam alur optimasi gambar untuk web."
+        },
+        {
+          "title": "Pratinjau sebelum mengunduh",
+          "body": "Lihat WEBP hasil konversi di browser, lalu unduh dengan ekstensi file yang benar."
+        }
+      ],
+      "specs": [
+        { "label": "Jenis file", "value": "JPG" },
+        { "label": "Ukuran maksimum", "value": "10 MB per gambar" },
+        { "label": "Hasil", "value": "Gambar WEBP" },
+        {
+          "label": "Penghematan umum",
+          "value": "Sering 25-35% lebih kecil dari JPG asli"
+        }
+      ],
+      "stepsTitle": "Cara mengonversi JPG ke WEBP",
+      "steps": [
+        {
+          "title": "Unggah JPG",
+          "body": "Pilih atau letakkan gambar JPG hingga 10 MB."
+        },
+        { "title": "Konversi", "body": "Mulai konversi ke WEBP." },
+        { "title": "Unduh", "body": "Periksa WEBP hasil konversi, lalu unduh." }
+      ],
+      "faq": [
+        {
+          "question": "Apakah WEBP didukung oleh browser?",
+          "answer": "Ya, WEBP didukung oleh semua browser modern dan banyak dipakai untuk gambar web yang lebih cepat dimuat."
+        },
+        {
+          "question": "Apakah konversi ke WEBP menurunkan kualitas gambar?",
+          "answer": "Konversi memakai kualitas tinggi, sehingga perbedaannya biasanya tidak terlihat."
+        },
+        {
+          "question": "Apakah gambar saya disimpan setelah dikonversi?",
+          "answer": "Tidak. Konverter mengembalikan hasilnya tanpa menyimpan salinan gambar Anda."
+        }
+      ],
+      "cta": "Konversi JPG ke WEBP"
+    },
+    "png-to-webp": {
+      "meta": {
+        "title": "Konversi PNG ke WEBP Online — Konverter Gambar Gratis",
+        "description": "Konversi gambar PNG ke format WEBP yang lebih kecil dan dioptimalkan untuk web, tetap mempertahankan transparansi. Gratis, batas unggahan 10 MB."
+      },
+      "benefitsTitle": "Konversi PNG ke WEBP yang lebih kecil",
+      "benefits": [
+        {
+          "title": "Ukuran file lebih kecil",
+          "body": "WEBP mengompresi gambar bergaya PNG lebih jauh, mempercepat pemuatan halaman tanpa penurunan kualitas yang terlihat."
+        },
+        {
+          "title": "Transparansi tetap dipertahankan",
+          "body": "WEBP mendukung transparansi, sehingga area transparan pada PNG tetap transparan."
+        },
+        {
+          "title": "Pratinjau sebelum mengunduh",
+          "body": "Lihat WEBP hasil konversi di browser, lalu unduh dengan ekstensi file yang benar."
+        }
+      ],
+      "specs": [
+        { "label": "Jenis file", "value": "PNG" },
+        { "label": "Ukuran maksimum", "value": "10 MB per gambar" },
+        { "label": "Hasil", "value": "Gambar WEBP" },
+        { "label": "Transparansi", "value": "Dipertahankan" }
+      ],
+      "stepsTitle": "Cara mengonversi PNG ke WEBP",
+      "steps": [
+        {
+          "title": "Unggah PNG",
+          "body": "Pilih atau letakkan gambar PNG hingga 10 MB."
+        },
+        { "title": "Konversi", "body": "Mulai konversi ke WEBP." },
+        { "title": "Unduh", "body": "Periksa WEBP hasil konversi, lalu unduh." }
+      ],
+      "faq": [
+        {
+          "question": "Apakah WEBP mempertahankan transparansi PNG?",
+          "answer": "Ya. WEBP mendukung kanal alfa, sehingga area transparan tetap dipertahankan."
+        },
+        {
+          "question": "Mengapa mengonversi PNG ke WEBP untuk web?",
+          "answer": "File WEBP biasanya lebih kecil dari PNG pada kualitas visual yang sama, membantu halaman dimuat lebih cepat."
+        },
+        {
+          "question": "Apakah gambar saya disimpan setelah dikonversi?",
+          "answer": "Tidak. Konverter mengembalikan hasilnya tanpa menyimpan salinan gambar Anda."
+        }
+      ],
+      "cta": "Konversi PNG ke WEBP"
+    },
+    "jpg-to-svg": {
+      "meta": {
+        "title": "Konversi JPG ke SVG Online — Konverter Vektor Gratis",
+        "description": "Telusuri foto JPG menjadi gambar vektor SVG yang bisa diskalakan menggunakan penelusuran warna. Gratis, batas unggahan 10 MB."
+      },
+      "benefitsTitle": "Telusuri JPG menjadi SVG yang bisa diskalakan",
+      "benefits": [
+        {
+          "title": "Skala tanpa pecah",
+          "body": "SVG adalah format vektor, sehingga hasilnya tetap tajam di ukuran berapa pun, cocok untuk logo dan ikon."
+        },
+        {
+          "title": "Penelusuran warna",
+          "body": "Foto ditelusuri menjadi jalur vektor berwarna. Hasil terbaik pada gambar dengan bentuk jelas dan warna lebih sedikit."
+        },
+        {
+          "title": "Pratinjau sebelum mengunduh",
+          "body": "Lihat SVG hasil penelusuran di browser, lalu unduh dengan ekstensi file yang benar."
+        }
+      ],
+      "specs": [
+        { "label": "Jenis file", "value": "JPG" },
+        { "label": "Ukuran maksimum", "value": "10 MB per gambar" },
+        { "label": "Hasil", "value": "Vektor SVG hasil penelusuran" },
+        {
+          "label": "Paling cocok untuk",
+          "value": "Logo, ikon, dan grafis sederhana, bukan foto detail"
+        }
+      ],
+      "stepsTitle": "Cara mengonversi JPG ke SVG",
+      "steps": [
+        {
+          "title": "Unggah JPG",
+          "body": "Pilih atau letakkan gambar JPG hingga 10 MB."
+        },
+        {
+          "title": "Konversi",
+          "body": "Gambar ditelusuri menjadi jalur vektor."
+        },
+        {
+          "title": "Unduh",
+          "body": "Periksa SVG hasil penelusuran, lalu unduh."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Apakah JPG ke SVG mempertahankan semua detail?",
+          "answer": "Tidak. Gambar raster ditelusuri menjadi jalur vektor berwarna, sehingga detail halus dan gradasi mungkin terlihat berbeda dari sumbernya."
+        },
+        {
+          "question": "Gambar seperti apa yang paling cocok ditelusuri?",
+          "answer": "Logo, ikon, dan grafis dengan bentuk jelas serta sedikit warna ditelusuri lebih bersih dibanding foto detail."
+        },
+        {
+          "question": "Apakah gambar saya disimpan setelah dikonversi?",
+          "answer": "Tidak. Konverter mengembalikan hasilnya tanpa menyimpan salinan gambar Anda."
+        }
+      ],
+      "cta": "Konversi JPG ke SVG"
+    },
+    "png-to-svg": {
+      "meta": {
+        "title": "Konversi PNG ke SVG Online — Konverter Vektor Gratis",
+        "description": "Telusuri gambar PNG menjadi gambar vektor SVG yang bisa diskalakan menggunakan penelusuran warna. Gratis, batas unggahan 10 MB."
+      },
+      "benefitsTitle": "Telusuri PNG menjadi SVG yang bisa diskalakan",
+      "benefits": [
+        {
+          "title": "Skala tanpa pecah",
+          "body": "SVG adalah format vektor, sehingga hasilnya tetap tajam di ukuran berapa pun, cocok untuk logo dan ikon."
+        },
+        {
+          "title": "Penelusuran warna",
+          "body": "Gambar ditelusuri menjadi jalur vektor berwarna. Hasil terbaik pada gambar dengan bentuk jelas dan warna lebih sedikit."
+        },
+        {
+          "title": "Pratinjau sebelum mengunduh",
+          "body": "Lihat SVG hasil penelusuran di browser, lalu unduh dengan ekstensi file yang benar."
+        }
+      ],
+      "specs": [
+        { "label": "Jenis file", "value": "PNG" },
+        { "label": "Ukuran maksimum", "value": "10 MB per gambar" },
+        { "label": "Hasil", "value": "Vektor SVG hasil penelusuran" },
+        {
+          "label": "Paling cocok untuk",
+          "value": "Logo, ikon, dan grafis sederhana, bukan foto detail"
+        }
+      ],
+      "stepsTitle": "Cara mengonversi PNG ke SVG",
+      "steps": [
+        {
+          "title": "Unggah PNG",
+          "body": "Pilih atau letakkan gambar PNG hingga 10 MB."
+        },
+        {
+          "title": "Konversi",
+          "body": "Gambar ditelusuri menjadi jalur vektor."
+        },
+        {
+          "title": "Unduh",
+          "body": "Periksa SVG hasil penelusuran, lalu unduh."
+        }
+      ],
+      "faq": [
+        {
+          "question": "Apakah PNG ke SVG mempertahankan semua detail?",
+          "answer": "Tidak. Gambar raster ditelusuri menjadi jalur vektor berwarna, sehingga detail halus dan gradasi mungkin terlihat berbeda dari sumbernya."
+        },
+        {
+          "question": "Gambar seperti apa yang paling cocok ditelusuri?",
+          "answer": "Logo, ikon, dan grafis dengan bentuk jelas serta sedikit warna ditelusuri lebih bersih dibanding foto detail."
+        },
+        {
+          "question": "Apakah gambar saya disimpan setelah dikonversi?",
+          "answer": "Tidak. Konverter mengembalikan hasilnya tanpa menyimpan salinan gambar Anda."
+        }
+      ],
+      "cta": "Konversi PNG ke SVG"
     }
   },
   "notFound": {

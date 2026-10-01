@@ -138,6 +138,46 @@
             "formats": ["PNG", "JPG", "WEBP", "SVG"],
             "limit": "Maks. 10 MB",
             "output": "Gambar hasil konversi"
+          },
+          {
+            "icon": "jpg-to-png",
+            "name": "JPG ke PNG",
+            "description": "Konversi foto JPG menjadi gambar PNG tanpa kehilangan kualitas.",
+            "formats": ["JPG", "PNG"],
+            "limit": "Maks. 10 MB",
+            "output": "Gambar PNG"
+          },
+          {
+            "icon": "jpg-to-webp",
+            "name": "JPG ke WEBP",
+            "description": "Konversi foto JPG ke format WEBP yang lebih kecil dan dioptimalkan untuk web.",
+            "formats": ["JPG", "WEBP"],
+            "limit": "Maks. 10 MB",
+            "output": "Gambar WEBP"
+          },
+          {
+            "icon": "png-to-webp",
+            "name": "PNG ke WEBP",
+            "description": "Konversi gambar PNG ke WEBP, tetap mempertahankan transparansi dan memperkecil file.",
+            "formats": ["PNG", "WEBP"],
+            "limit": "Maks. 10 MB",
+            "output": "Gambar WEBP"
+          },
+          {
+            "icon": "jpg-to-svg",
+            "name": "JPG ke SVG",
+            "description": "Telusuri foto JPG menjadi gambar vektor SVG yang bisa diskalakan.",
+            "formats": ["JPG", "SVG"],
+            "limit": "Maks. 10 MB",
+            "output": "Vektor SVG"
+          },
+          {
+            "icon": "png-to-svg",
+            "name": "PNG ke SVG",
+            "description": "Telusuri gambar PNG menjadi gambar vektor SVG yang bisa diskalakan.",
+            "formats": ["PNG", "SVG"],
+            "limit": "Maks. 10 MB",
+            "output": "Vektor SVG"
           }
         ]
       }

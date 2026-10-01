@@ -562,6 +562,279 @@
         }
       ],
       "cta": "Convert an image"
+    },
+    "jpg-to-png": {
+      "meta": {
+        "title": "Convert JPG to PNG Online — Free Image Converter",
+        "description": "Convert a JPG photo to a lossless PNG image, with support for transparency. Free, with a 10 MB upload limit."
+      },
+      "benefitsTitle": "Convert JPG to a lossless PNG",
+      "benefits": [
+        {
+          "title": "Lossless output",
+          "body": "PNG uses lossless compression, so no additional detail is lost when converting from JPG."
+        },
+        {
+          "title": "Built for developers",
+          "body": "A single-purpose tool with no extra options, so it's quick to use in a web optimization workflow."
+        },
+        {
+          "title": "Preview before download",
+          "body": "See the converted PNG in your browser, then download it with the correct file extension."
+        }
+      ],
+      "specs": [
+        { "label": "File type", "value": "JPG" },
+        { "label": "Maximum size", "value": "10 MB per image" },
+        { "label": "Result", "value": "PNG image" },
+        {
+          "label": "Transparency",
+          "value": "JPG has none, so the PNG result is fully opaque"
+        }
+      ],
+      "stepsTitle": "How to convert JPG to PNG",
+      "steps": [
+        {
+          "title": "Upload the JPG",
+          "body": "Choose or drop a JPG image of up to 10 MB."
+        },
+        { "title": "Convert", "body": "Start the conversion to PNG." },
+        { "title": "Download", "body": "Preview the PNG and download it." }
+      ],
+      "faq": [
+        {
+          "question": "Does converting JPG to PNG improve image quality?",
+          "answer": "No. PNG won't recover detail lost when the JPG was first saved, but it won't lose any more detail from this point on."
+        },
+        {
+          "question": "Why convert JPG to PNG for the web?",
+          "answer": "PNG is useful for screenshots, graphics and images that need sharp edges or will be edited further without re-compressing."
+        },
+        {
+          "question": "Is my image kept after converting?",
+          "answer": "No. The converter returns the result without keeping a copy of your image."
+        }
+      ],
+      "cta": "Convert JPG to PNG"
+    },
+    "jpg-to-webp": {
+      "meta": {
+        "title": "Convert JPG to WEBP Online — Free Image Converter",
+        "description": "Convert a JPG photo to the smaller, web-optimized WEBP format. Free, with a 10 MB upload limit."
+      },
+      "benefitsTitle": "Convert JPG to a smaller WEBP",
+      "benefits": [
+        {
+          "title": "Smaller file size",
+          "body": "WEBP typically produces smaller files than JPG at a similar visual quality, which speeds up page loads."
+        },
+        {
+          "title": "Built for developers",
+          "body": "A single-purpose tool with no extra options, so it's quick to use in a web optimization workflow."
+        },
+        {
+          "title": "Preview before download",
+          "body": "See the converted WEBP in your browser, then download it with the correct file extension."
+        }
+      ],
+      "specs": [
+        { "label": "File type", "value": "JPG" },
+        { "label": "Maximum size", "value": "10 MB per image" },
+        { "label": "Result", "value": "WEBP image" },
+        {
+          "label": "Typical savings",
+          "value": "Often 25-35% smaller than the original JPG"
+        }
+      ],
+      "stepsTitle": "How to convert JPG to WEBP",
+      "steps": [
+        {
+          "title": "Upload the JPG",
+          "body": "Choose or drop a JPG image of up to 10 MB."
+        },
+        { "title": "Convert", "body": "Start the conversion to WEBP." },
+        { "title": "Download", "body": "Preview the WEBP and download it." }
+      ],
+      "faq": [
+        {
+          "question": "Is WEBP supported by browsers?",
+          "answer": "Yes, WEBP is supported by all modern browsers and is widely used for faster-loading web images."
+        },
+        {
+          "question": "Will converting to WEBP reduce image quality?",
+          "answer": "The conversion uses a high quality setting, so any difference is usually not visible."
+        },
+        {
+          "question": "Is my image kept after converting?",
+          "answer": "No. The converter returns the result without keeping a copy of your image."
+        }
+      ],
+      "cta": "Convert JPG to WEBP"
+    },
+    "png-to-webp": {
+      "meta": {
+        "title": "Convert PNG to WEBP Online — Free Image Converter",
+        "description": "Convert a PNG image to the smaller, web-optimized WEBP format, keeping transparency. Free, with a 10 MB upload limit."
+      },
+      "benefitsTitle": "Convert PNG to a smaller WEBP",
+      "benefits": [
+        {
+          "title": "Smaller file size",
+          "body": "WEBP compresses PNG-style images further, which speeds up page loads without a visible quality loss."
+        },
+        {
+          "title": "Transparency kept",
+          "body": "WEBP supports transparency, so transparent areas in the PNG stay transparent."
+        },
+        {
+          "title": "Preview before download",
+          "body": "See the converted WEBP in your browser, then download it with the correct file extension."
+        }
+      ],
+      "specs": [
+        { "label": "File type", "value": "PNG" },
+        { "label": "Maximum size", "value": "10 MB per image" },
+        { "label": "Result", "value": "WEBP image" },
+        { "label": "Transparency", "value": "Kept" }
+      ],
+      "stepsTitle": "How to convert PNG to WEBP",
+      "steps": [
+        {
+          "title": "Upload the PNG",
+          "body": "Choose or drop a PNG image of up to 10 MB."
+        },
+        { "title": "Convert", "body": "Start the conversion to WEBP." },
+        { "title": "Download", "body": "Preview the WEBP and download it." }
+      ],
+      "faq": [
+        {
+          "question": "Does WEBP keep PNG transparency?",
+          "answer": "Yes. WEBP supports an alpha channel, so transparent areas are preserved."
+        },
+        {
+          "question": "Why convert PNG to WEBP for the web?",
+          "answer": "WEBP files are usually smaller than PNG at the same visual quality, which helps pages load faster."
+        },
+        {
+          "question": "Is my image kept after converting?",
+          "answer": "No. The converter returns the result without keeping a copy of your image."
+        }
+      ],
+      "cta": "Convert PNG to WEBP"
+    },
+    "jpg-to-svg": {
+      "meta": {
+        "title": "Convert JPG to SVG Online — Free Vector Converter",
+        "description": "Trace a JPG photo into a scalable SVG vector image using color tracing. Free, with a 10 MB upload limit."
+      },
+      "benefitsTitle": "Trace a JPG into a scalable SVG",
+      "benefits": [
+        {
+          "title": "Scales without pixelating",
+          "body": "SVG is a vector format, so the result stays sharp at any size, useful for logos and icons."
+        },
+        {
+          "title": "Color tracing",
+          "body": "The photo is traced into colored vector paths. Results work best on images with clear shapes and fewer colors."
+        },
+        {
+          "title": "Preview before download",
+          "body": "See the traced SVG in your browser, then download it with the correct file extension."
+        }
+      ],
+      "specs": [
+        { "label": "File type", "value": "JPG" },
+        { "label": "Maximum size", "value": "10 MB per image" },
+        { "label": "Result", "value": "Traced SVG vector" },
+        {
+          "label": "Best for",
+          "value": "Logos, icons and simple graphics rather than detailed photos"
+        }
+      ],
+      "stepsTitle": "How to convert JPG to SVG",
+      "steps": [
+        {
+          "title": "Upload the JPG",
+          "body": "Choose or drop a JPG image of up to 10 MB."
+        },
+        {
+          "title": "Convert",
+          "body": "The image is traced into vector paths."
+        },
+        { "title": "Download", "body": "Preview the SVG and download it." }
+      ],
+      "faq": [
+        {
+          "question": "Does JPG-to-SVG preserve every detail?",
+          "answer": "No. It traces the raster image into colored vector paths, so fine detail and gradients may look different from the source."
+        },
+        {
+          "question": "What images work best for tracing?",
+          "answer": "Logos, icons and graphics with clear shapes and few colors trace more cleanly than detailed photos."
+        },
+        {
+          "question": "Is my image kept after converting?",
+          "answer": "No. The converter returns the result without keeping a copy of your image."
+        }
+      ],
+      "cta": "Convert JPG to SVG"
+    },
+    "png-to-svg": {
+      "meta": {
+        "title": "Convert PNG to SVG Online — Free Vector Converter",
+        "description": "Trace a PNG image into a scalable SVG vector image using color tracing. Free, with a 10 MB upload limit."
+      },
+      "benefitsTitle": "Trace a PNG into a scalable SVG",
+      "benefits": [
+        {
+          "title": "Scales without pixelating",
+          "body": "SVG is a vector format, so the result stays sharp at any size, useful for logos and icons."
+        },
+        {
+          "title": "Color tracing",
+          "body": "The image is traced into colored vector paths. Results work best on images with clear shapes and fewer colors."
+        },
+        {
+          "title": "Preview before download",
+          "body": "See the traced SVG in your browser, then download it with the correct file extension."
+        }
+      ],
+      "specs": [
+        { "label": "File type", "value": "PNG" },
+        { "label": "Maximum size", "value": "10 MB per image" },
+        { "label": "Result", "value": "Traced SVG vector" },
+        {
+          "label": "Best for",
+          "value": "Logos, icons and simple graphics rather than detailed photos"
+        }
+      ],
+      "stepsTitle": "How to convert PNG to SVG",
+      "steps": [
+        {
+          "title": "Upload the PNG",
+          "body": "Choose or drop a PNG image of up to 10 MB."
+        },
+        {
+          "title": "Convert",
+          "body": "The image is traced into vector paths."
+        },
+        { "title": "Download", "body": "Preview the SVG and download it." }
+      ],
+      "faq": [
+        {
+          "question": "Does PNG-to-SVG preserve every detail?",
+          "answer": "No. It traces the raster image into colored vector paths, so fine detail and gradients may look different from the source."
+        },
+        {
+          "question": "What images work best for tracing?",
+          "answer": "Logos, icons and graphics with clear shapes and few colors trace more cleanly than detailed photos."
+        },
+        {
+          "question": "Is my image kept after converting?",
+          "answer": "No. The converter returns the result without keeping a copy of your image."
+        }
+      ],
+      "cta": "Convert PNG to SVG"
     }
   },
   "notFound": {

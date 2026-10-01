@@ -7,6 +7,11 @@ export const TOOL_IDS = [
   "resizer",
   "compressor",
   "image-converter",
+  "jpg-to-png",
+  "jpg-to-webp",
+  "png-to-webp",
+  "jpg-to-svg",
+  "png-to-svg",
 ] as const;
 
 export type ToolId = (typeof TOOL_IDS)[number];
@@ -20,6 +25,11 @@ const TOOL_PATHS: Record<ToolId, string> = {
   resizer: "/resize-image",
   compressor: "/compress-image",
   "image-converter": "/convert-image",
+  "jpg-to-png": "/convert-image/jpg-to-png",
+  "jpg-to-webp": "/convert-image/jpg-to-webp",
+  "png-to-webp": "/convert-image/png-to-webp",
+  "jpg-to-svg": "/convert-image/jpg-to-svg",
+  "png-to-svg": "/convert-image/png-to-svg",
 };
 
 export function toolPath(tool: ToolId): string {
@@ -37,6 +47,11 @@ export const TOOL_CATEGORIES: Record<ToolId, string> = {
   resizer: "UtilitiesApplication",
   compressor: "UtilitiesApplication",
   "image-converter": "UtilitiesApplication",
+  "jpg-to-png": "UtilitiesApplication",
+  "jpg-to-webp": "UtilitiesApplication",
+  "png-to-webp": "UtilitiesApplication",
+  "jpg-to-svg": "UtilitiesApplication",
+  "png-to-svg": "UtilitiesApplication",
 };
 
 export const RELATED_TOOLS: Record<ToolId, readonly ToolId[]> = {
@@ -48,4 +63,9 @@ export const RELATED_TOOLS: Record<ToolId, readonly ToolId[]> = {
   resizer: ["compressor", "image-converter", "pdf"],
   compressor: ["resizer", "image-converter", "pdf"],
   "image-converter": ["resizer", "compressor", "converter"],
+  "jpg-to-png": ["jpg-to-webp", "jpg-to-svg", "resizer"],
+  "jpg-to-webp": ["png-to-webp", "jpg-to-png", "compressor"],
+  "png-to-webp": ["jpg-to-webp", "png-to-svg", "compressor"],
+  "jpg-to-svg": ["png-to-svg", "jpg-to-png", "jpg-to-webp"],
+  "png-to-svg": ["jpg-to-svg", "png-to-webp", "resizer"],
 };

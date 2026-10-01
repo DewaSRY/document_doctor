@@ -25,7 +25,12 @@
     "keepFormat": "Sama dengan aslinya",
     "previewAlt": "Pratinjau {{name}}",
     "resultAlt": "Pratinjau hasil",
-    "fileRequired": "Pilih file terlebih dahulu."
+    "fileRequired": "Pilih file terlebih dahulu.",
+    "resolutionTips": {
+      "title": "Saran resolusi untuk web",
+      "description": "Ukuran umum yang dipakai pengembang untuk mengoptimalkan gambar di halaman web, berbagi media sosial, dan thumbnail.",
+      "cta": "Ubah ukuran gambar ini"
+    }
   },
   "categories": {
     "documentAi": "AI Dokumen",
@@ -172,7 +177,60 @@
     "processing": "Mengonversi {{fileName}}",
     "errorTitle": "Gambar tidak dapat dikonversi",
     "doneTitle": "Gambar Anda sudah dikonversi",
-    "another": "Konversi gambar lain"
+    "another": "Konversi gambar lain",
+    "quickLinksLabel": "Atau gunakan konverter satu tujuan"
+  },
+  "singleImageConversion": {
+    "jpg-to-png": {
+      "title": "Konversi JPG ke PNG",
+      "description": "Ubah foto JPG menjadi PNG tanpa kehilangan kualitas, berguna saat Anda butuh latar transparan atau warna piksel yang presisi untuk web.",
+      "submit": "Konversi ke PNG",
+      "processing": "Mengonversi {{fileName}}",
+      "errorTitle": "Gambar tidak dapat dikonversi",
+      "doneTitle": "PNG Anda sudah siap",
+      "another": "Konversi JPG lain",
+      "wrongFormat": "Ini bukan gambar JPG. Pilih file JPG."
+    },
+    "jpg-to-webp": {
+      "title": "Konversi JPG ke WEBP",
+      "description": "Konversi foto JPG ke WEBP agar ukuran file lebih kecil dan halaman web lebih cepat dimuat.",
+      "submit": "Konversi ke WEBP",
+      "processing": "Mengonversi {{fileName}}",
+      "errorTitle": "Gambar tidak dapat dikonversi",
+      "doneTitle": "WEBP Anda sudah siap",
+      "another": "Konversi JPG lain",
+      "wrongFormat": "Ini bukan gambar JPG. Pilih file JPG."
+    },
+    "png-to-webp": {
+      "title": "Konversi PNG ke WEBP",
+      "description": "Konversi PNG ke WEBP untuk tetap mempertahankan transparansi sekaligus memperkecil file demi halaman web yang lebih cepat.",
+      "submit": "Konversi ke WEBP",
+      "processing": "Mengonversi {{fileName}}",
+      "errorTitle": "Gambar tidak dapat dikonversi",
+      "doneTitle": "WEBP Anda sudah siap",
+      "another": "Konversi PNG lain",
+      "wrongFormat": "Ini bukan gambar PNG. Pilih file PNG."
+    },
+    "jpg-to-svg": {
+      "title": "Konversi JPG ke SVG",
+      "description": "Telusuri foto JPG menjadi vektor SVG yang bisa diskalakan, berguna untuk logo, ikon, dan karya yang perlu diskalakan tanpa pecah.",
+      "submit": "Konversi ke SVG",
+      "processing": "Memvektorkan {{fileName}}",
+      "errorTitle": "Gambar tidak dapat divektorkan",
+      "doneTitle": "SVG Anda sudah siap",
+      "another": "Konversi JPG lain",
+      "wrongFormat": "Ini bukan gambar JPG. Pilih file JPG."
+    },
+    "png-to-svg": {
+      "title": "Konversi PNG ke SVG",
+      "description": "Telusuri PNG menjadi vektor SVG dengan jalur warna, berguna untuk logo dan ikon yang perlu diskalakan dengan bersih.",
+      "submit": "Konversi ke SVG",
+      "processing": "Memvektorkan {{fileName}}",
+      "errorTitle": "Gambar tidak dapat divektorkan",
+      "doneTitle": "SVG Anda sudah siap",
+      "another": "Konversi PNG lain",
+      "wrongFormat": "Ini bukan gambar PNG. Pilih file PNG."
+    }
   },
   "resizer": {
     "title": "Ubah ukuran gambar",

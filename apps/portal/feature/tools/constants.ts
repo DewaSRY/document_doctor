@@ -9,6 +9,11 @@ export const TOOL_HREFS: Record<string, string> = {
   resizer: "/resize-image",
   compressor: "/compress-image",
   "image-converter": "/convert-image",
+  "jpg-to-png": "/convert-image/jpg-to-png",
+  "jpg-to-webp": "/convert-image/jpg-to-webp",
+  "png-to-webp": "/convert-image/png-to-webp",
+  "jpg-to-svg": "/convert-image/jpg-to-svg",
+  "png-to-svg": "/convert-image/png-to-svg",
 };
 
 /** Tools that return a file (or a small JSON) are proxied by
@@ -92,6 +97,21 @@ export const RESIZE_PRESETS = [
   { id: "hd", width: 1920, height: 1080 },
   { id: "thumbnail", width: 400, height: 300 },
 ] as const;
+
+/** One conversion pair per single-purpose service, split out of the
+ *  multi-format image-converter tool. `source` is the detected binary
+ *  format (see utils.ts → detectImageFormat); `target` matches what the
+ *  AI service's /image/convert endpoint accepts. */
+export const SINGLE_IMAGE_CONVERSIONS = [
+  { id: "jpg-to-png", source: "jpeg", target: "png" },
+  { id: "jpg-to-webp", source: "jpeg", target: "webp" },
+  { id: "png-to-webp", source: "png", target: "webp" },
+  { id: "jpg-to-svg", source: "jpeg", target: "svg" },
+  { id: "png-to-svg", source: "png", target: "svg" },
+] as const;
+
+export type SingleImageConversion = (typeof SINGLE_IMAGE_CONVERSIONS)[number];
+export type SingleImageConversionId = SingleImageConversion["id"];
 
 export function getFileExtension(fileName: string): string {
   return fileName.includes(".")

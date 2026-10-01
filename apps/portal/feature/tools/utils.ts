@@ -69,3 +69,36 @@ export function fileStem(fileName: string): string {
   const index = fileName.lastIndexOf(".");
   return index > 0 ? fileName.slice(0, index) : fileName || "document";
 }
+
+export type ImageFormat = "png" | "jpeg" | "webp";
+
+/** Reads the first bytes of a file to tell PNG, JPEG and WEBP apart,
+ *  since the extension alone can't be trusted. */
+export async function detectImageFormat(
+  file: File,
+): Promise<ImageFormat | null> {
+  const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  if (
+    bytes.length >= 8 &&
+    pngSignature.every((value, index) => bytes[index] === value)
+  ) {
+    return "png";
+  }
+  if (
+    bytes.length >= 3 &&
+    bytes[0] === 0xff &&
+    bytes[1] === 0xd8 &&
+    bytes[2] === 0xff
+  ) {
+    return "jpeg";
+  }
+  if (
+    bytes.length >= 12 &&
+    String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
+    String.fromCharCode(...bytes.slice(8, 12)) === "WEBP"
+  ) {
+    return "webp";
+  }
+  return null;
+}

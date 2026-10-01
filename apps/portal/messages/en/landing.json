@@ -133,6 +133,46 @@
             "formats": ["PNG", "JPG", "WEBP", "SVG"],
             "limit": "Up to 10 MB",
             "output": "Converted image"
+          },
+          {
+            "icon": "jpg-to-png",
+            "name": "JPG to PNG",
+            "description": "Convert a JPG photo to a lossless PNG image.",
+            "formats": ["JPG", "PNG"],
+            "limit": "Up to 10 MB",
+            "output": "PNG image"
+          },
+          {
+            "icon": "jpg-to-webp",
+            "name": "JPG to WEBP",
+            "description": "Convert a JPG photo to the smaller, web-optimized WEBP format.",
+            "formats": ["JPG", "WEBP"],
+            "limit": "Up to 10 MB",
+            "output": "WEBP image"
+          },
+          {
+            "icon": "png-to-webp",
+            "name": "PNG to WEBP",
+            "description": "Convert a PNG image to WEBP, keeping transparency and shrinking the file.",
+            "formats": ["PNG", "WEBP"],
+            "limit": "Up to 10 MB",
+            "output": "WEBP image"
+          },
+          {
+            "icon": "jpg-to-svg",
+            "name": "JPG to SVG",
+            "description": "Trace a JPG photo into a scalable SVG vector image.",
+            "formats": ["JPG", "SVG"],
+            "limit": "Up to 10 MB",
+            "output": "SVG vector"
+          },
+          {
+            "icon": "png-to-svg",
+            "name": "PNG to SVG",
+            "description": "Trace a PNG image into a scalable SVG vector image.",
+            "formats": ["PNG", "SVG"],
+            "limit": "Up to 10 MB",
+            "output": "SVG vector"
           }
         ]
       }

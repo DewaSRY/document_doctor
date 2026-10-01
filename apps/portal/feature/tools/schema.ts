@@ -104,6 +104,12 @@ export const imageConverterSchema = z.object({
   format: z.enum(["webp", "png", "jpg", "svg"]),
 });
 
+/** A single-purpose conversion (e.g. jpg-to-png) only needs the file; the
+ *  source and target formats are fixed by the tool, not chosen by the user. */
+export const singleImageConversionSchema = z.object({
+  file: requiredFile(imageFileSchema, FILE_REQUIRED),
+});
+
 export const resizerSchema = z
   .object({
     file: requiredFile(imageFileSchema, FILE_REQUIRED),
@@ -177,6 +183,12 @@ export type CompressorValues = z.input<typeof compressorSchema>;
 export type CompressorOutput = z.output<typeof compressorSchema>;
 export type ImageConverterValues = z.input<typeof imageConverterSchema>;
 export type ImageConverterOutput = z.output<typeof imageConverterSchema>;
+export type SingleImageConversionValues = z.input<
+  typeof singleImageConversionSchema
+>;
+export type SingleImageConversionOutput = z.output<
+  typeof singleImageConversionSchema
+>;
 export type ResizerValues = z.input<typeof resizerSchema>;
 export type ResizerOutput = z.output<typeof resizerSchema>;
 export type MergeValues = z.input<typeof mergeSchema>;
