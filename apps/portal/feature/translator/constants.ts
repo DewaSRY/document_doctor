@@ -49,8 +49,3 @@ export function getMediaHref(documentId: string, name: string): string {
   const path = name.split("/").map(encodeURIComponent).join("/");
   return `/api/documents/${encodeURIComponent(documentId)}/media/${path}`;
 }
-
-/** Route handler that streams the translated file from the service. */
-export function getDownloadHref(documentId: string): string {
-  return `/api/documents/${encodeURIComponent(documentId)}/download`;
-}

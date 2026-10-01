@@ -6,23 +6,10 @@ import axios, {
 } from "axios";
 import { toApiError } from "./error";
 
-/**
- * Browser transport for signed-in calls (ADR-008 §7.2).
- *
- * - `Authorization: Bearer <Firebase ID token>` from the token provider that
- *   `feature/auth` installs with `setTokenProvider()` — `lib/` never imports
- *   `feature/` (rule I1).
- * - `X-Timezone` from `Intl`.
- * - `401` → force-refresh the token and retry **once**; a second `401` calls
- *   the unauthorized handler (sign out → `/logout`).
- * - Every failure is rejected as an `ApiError` (status, message, field
- *   errors, `X-Trace-Id`).
- *
- * No cookies are sent to the API (`withCredentials: false`, ADR-003 §3.6).
- */
+
 
 export const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8088/v1"
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/v1"
 ).replace(/\/+$/, "");
 
 export type TokenProvider = (forceRefresh: boolean) => Promise<string | null>;

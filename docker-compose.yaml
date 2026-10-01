@@ -1,28 +1,28 @@
 services:
-  ai-translation:
-    image: sdewa/ai-translation:latest
-    container_name: ai-translation
-    restart: unless-stopped
+  # ai-translation:
+  #   image: sdewa/ai-translation:latest
+  #   container_name: ai-translation
+  #   restart: unless-stopped
 
-    ports:
-      - "8081:8000"
+  #   ports:
+  #     - "8081:8000"
 
-    volumes:
-      - ai-translation-model-cache:/models/huggingface
+  #   volumes:
+  #     - ai-translation-model-cache:/models/huggingface
 
-    env_file:
-      - apps/ai-translation/.env
+  #   env_file:
+  #     - apps/ai-translation/.env
 
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
 
-    depends_on:
-      postgres:
-        condition: service_healthy
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
 
-    networks:
-      - translation-network
+  #   networks:
+  #     - translation-network
 
   postgres:
     image: postgres:16

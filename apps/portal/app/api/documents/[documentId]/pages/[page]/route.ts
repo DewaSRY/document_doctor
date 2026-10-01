@@ -1,4 +1,7 @@
-import { AI_TRANSLATION_API_URL } from "@/feature/translator/config";
+import {
+  getPageImageUpstreamUrl,
+  isValidPageNumber,
+} from "@/feature/translator/media";
 
 /** Streams one rendered page of the original PDF from the AI service, for the
  *  editor's page backgrounds. */
@@ -7,20 +10,13 @@ export async function GET(
   ctx: RouteContext<"/api/documents/[documentId]/pages/[page]">,
 ) {
   const { documentId, page } = await ctx.params;
-  if (!/^\d+$/.test(page)) {
+  if (!isValidPageNumber(page)) {
     return new Response(null, { status: 404 });
   }
 
   const { searchParams } = new URL(request.url);
-  const params = new URLSearchParams();
-  const scale = Number(searchParams.get("scale"));
-  if (Number.isFinite(scale) && scale >= 0.5 && scale <= 4) {
-    params.set("scale", String(scale));
-  }
-  if (searchParams.get("original") === "true") params.set("original", "true");
-
   const upstream = await fetch(
-    `${AI_TRANSLATION_API_URL}/translated-document/${encodeURIComponent(documentId)}/pages/${page}/image?${params}`,
+    getPageImageUpstreamUrl(documentId, page, searchParams),
   ).catch(() => null);
 
   if (!upstream?.ok || !upstream.body) {

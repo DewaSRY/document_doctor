@@ -13,10 +13,11 @@ import {
 } from "@/components/document-editor";
 import { cn } from "@/lib/utils";
 
-import { getDownloadHref, getMediaHref, getPageImageHref } from "../constants";
+import { getMediaHref, getPageImageHref } from "../constants";
 import {
   useDocumentLayout,
   useDocumentSegments,
+  useDownloadDocument,
   useUpdateDocumentSegments,
   useUploadDocumentMedia,
 } from "../hooks/query";
@@ -101,6 +102,7 @@ function TranslationEditor({
   const id = document.document_id;
   const update = useUpdateDocumentSegments(id);
   const upload = useUploadDocumentMedia(id);
+  const download = useDownloadDocument();
 
   const pageImageHref = useCallback<PageImageHref>(
     (page, options) => getPageImageHref(id, page, options),
@@ -125,7 +127,7 @@ function TranslationEditor({
       }
       pageImageHref={pageImageHref}
       mediaHref={mediaHref}
-      downloadHref={getDownloadHref(id)}
+      onDownload={() => download.mutateAsync(id).then(() => {})}
       backHref="/translate"
       badge={languagePair}
       details={[

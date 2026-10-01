@@ -73,3 +73,9 @@ export interface UpdateSegmentsBody {
   /** Replaces the added blocks when sent. */
   insertions?: InsertedBlock[];
 }
+
+export interface DownloadDocumentResponse {
+  base64: string;
+  fileName: string;
+  contentType: string;
+}

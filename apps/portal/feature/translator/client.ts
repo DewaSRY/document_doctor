@@ -72,6 +72,15 @@ export class TranslatorClient extends BaseClient {
       config: { timeout: 60_000 },
     });
   }
+
+  downloadDocument(documentId: string) {
+    return this.get<ArrayBuffer>({
+      endpoint: `/translated-document/${encodeURIComponent(documentId)}`,
+      config: {
+        responseType: "arraybuffer",
+      },
+    });
+  }
 }
 
 export const translatorClient = new TranslatorClient();

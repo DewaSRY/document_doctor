@@ -30,10 +30,9 @@ import {
   ACCEPT_ATTRIBUTE,
   LANGUAGE_CODES,
   MAX_FILE_SIZE,
-  getDownloadHref,
   type LanguageCode,
 } from "../constants";
-import { useTranslateDocument } from "../hooks/query";
+import { useDownloadDocument, useTranslateDocument } from "../hooks/query";
 import {
   translateFileSchema,
   translateSchema,
@@ -56,6 +55,7 @@ const MAX_FILE_SIZE_MB = MAX_FILE_SIZE / 1024 / 1024;
 export function TranslateWizard() {
   const { t } = useTranslation("translator");
   const translate = useTranslateDocument();
+  const download = useDownloadDocument();
   const validate = useFileValidator(translateFileSchema, "translator");
 
   const form = useForm<TranslateValues, unknown, TranslateOutput>({
@@ -125,7 +125,10 @@ export function TranslateWizard() {
           className="flex flex-col gap-6"
         >
           <div>
-            <h1 id="languages-title" className="text-2xl font-semibold tracking-tight">
+            <h1
+              id="languages-title"
+              className="text-2xl font-semibold tracking-tight"
+            >
               {t("languageStep.title")}
             </h1>
             <p className="mt-2 text-muted-foreground">
@@ -158,7 +161,10 @@ export function TranslateWizard() {
               className="justify-self-center rounded-lg"
               aria-label={t("languageStep.swap")}
               onClick={() =>
-                setLanguages({ sourceLanguage: targetLanguage, targetLanguage: sourceLanguage })
+                setLanguages({
+                  sourceLanguage: targetLanguage,
+                  targetLanguage: sourceLanguage,
+                })
               }
             >
               <ArrowLeftRight aria-hidden />
@@ -184,11 +190,15 @@ export function TranslateWizard() {
               role="alert"
               className="flex gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm"
             >
-              <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
+              <AlertCircle
+                className="mt-0.5 size-4 shrink-0 text-destructive"
+                aria-hidden
+              />
               <div>
                 <p className="font-medium">{t("error.title")}</p>
                 <p className="mt-1 text-muted-foreground">
-                  {getTranslatorErrorMessage(translate.error) ?? t("error.description")}
+                  {getTranslatorErrorMessage(translate.error) ??
+                    t("error.description")}
                 </p>
               </div>
             </div>
@@ -228,7 +238,10 @@ export function TranslateWizard() {
         <section aria-labelledby="done-title" className="flex flex-col gap-6">
           <div className="flex flex-col items-center text-center">
             <CheckCircle2 className="size-10 text-brand" aria-hidden />
-            <h1 id="done-title" className="mt-3 text-2xl font-semibold tracking-tight">
+            <h1
+              id="done-title"
+              className="mt-3 text-2xl font-semibold tracking-tight"
+            >
               {t("done.title")}
             </h1>
             <p className="mt-2 text-muted-foreground">
@@ -242,7 +255,8 @@ export function TranslateWizard() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <ChoiceCard
-              href={getDownloadHref(translate.data.document_id)}
+              onClick={() => download.mutate(translate.data.document_id)}
+              loading={download.isPending}
               icon={Download}
               title={t("done.download")}
               description={t("done.downloadDescription", {
@@ -347,24 +361,47 @@ function ChoiceCard({
   title,
   description,
   internal = false,
+  onClick,
+  loading = false,
 }: {
-  href: string;
+  href?: string;
   icon: typeof Download;
   title: string;
   description: string;
   internal?: boolean;
+  onClick?: () => void;
+  loading?: boolean;
 }) {
   const className =
-    "group flex flex-col gap-3 rounded-xl border bg-card p-5 text-left transition-colors hover:border-brand/50 hover:bg-brand-soft/20 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none";
+    "group flex flex-col gap-3 rounded-xl border bg-card p-5 text-left transition-colors hover:border-brand/50 hover:bg-brand-soft/20 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 cursor-pointer";
   const content = (
     <>
       <span className="grid size-10 place-items-center rounded-lg bg-brand text-primary-foreground">
-        <Icon className="size-5" aria-hidden />
+        {loading ? (
+          <Loader2 className="size-5 animate-spin" aria-hidden />
+        ) : (
+          <Icon className="size-5" aria-hidden />
+        )}
       </span>
       <span className="text-base font-semibold">{title}</span>
       <span className="text-sm text-muted-foreground">{description}</span>
     </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={loading}
+        className={className}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  if (!href) return null;
 
   return internal ? (
     <Link href={href} className={className}>

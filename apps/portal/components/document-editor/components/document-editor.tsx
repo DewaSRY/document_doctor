@@ -257,13 +257,18 @@ export interface DocumentEditorProps {
   layout?: DocumentLayout;
   /** Stores the edits, and the blocks added to a Word document when they
    *  changed (all of them, in order). The editor keeps them unsaved when it rejects. */
-  onSave: (edits: SegmentEdit[], insertions?: InsertedBlock[]) => Promise<unknown>;
+  onSave: (
+    edits: SegmentEdit[],
+    insertions?: InsertedBlock[],
+  ) => Promise<unknown>;
   /** Stores an image to add to a Word document; without it images can't be added. */
   onUploadImage?: (file: File) => Promise<UploadedImage>;
   /** The image of a PDF page; needed to edit a PDF on its pages. */
   pageImageHref?: PageImageHref;
   /** An image of a Word document, by its part name; needed to edit a DOCX on pages. */
   mediaHref?: (name: string) => string;
+  /** Function to download the document; takes precedence over downloadHref. */
+  onDownload?: () => Promise<unknown> | unknown;
   /** The edited file; without it there is no download. */
   downloadHref?: string;
   /** Where the back button and File › Close lead. */
@@ -290,6 +295,7 @@ export function DocumentEditor({
   onUploadImage,
   pageImageHref,
   mediaHref,
+  onDownload,
   downloadHref,
   backHref,
   badge,
@@ -301,6 +307,7 @@ export function DocumentEditor({
   const { t } = useTranslation("editor");
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
 
   const prepared = useMemo(
@@ -332,7 +339,9 @@ export function DocumentEditor({
   const [insertionChanges, setInsertionChanges] = useState(0);
   const [uploadFailed, setUploadFailed] = useState(false);
   const imageInput = useRef<HTMLInputElement>(null);
-  const [uploader] = useState(() => new Latest<[File], Promise<UploadedImage>>());
+  const [uploader] = useState(
+    () => new Latest<[File], Promise<UploadedImage>>(),
+  );
   useEffect(() => uploader.set(onUploadImage));
   const [slashKeys] = useState(() => new SlashKeys());
   const [findOpen, setFindOpen] = useState(false);
@@ -438,7 +447,10 @@ export function DocumentEditor({
       setChanges(changedSegments(editor.state.doc, saved.current));
       if (canInsert) {
         setInsertionChanges(
-          countInsertionChanges(savedInsertions.current, insertionKeys(editor.state.doc).keys),
+          countInsertionChanges(
+            savedInsertions.current,
+            insertionKeys(editor.state.doc).keys,
+          ),
         );
       }
       clearTimeout(wordTimer.current);
@@ -471,7 +483,10 @@ export function DocumentEditor({
   async function save() {
     if (!editor || !hasChanges) return;
     const sent = changes;
-    const inserted = canInsert && insertionChanges > 0 ? insertionKeys(editor.state.doc) : null;
+    const inserted =
+      canInsert && insertionChanges > 0
+        ? insertionKeys(editor.state.doc)
+        : null;
     setSaving(true);
     setSaveFailed(false);
     try {
@@ -494,16 +509,34 @@ export function DocumentEditor({
     setChanges(changedSegments(editor.state.doc, saved.current));
     if (canInsert) {
       setInsertionChanges(
-        countInsertionChanges(savedInsertions.current, insertionKeys(editor.state.doc).keys),
+        countInsertionChanges(
+          savedInsertions.current,
+          insertionKeys(editor.state.doc).keys,
+        ),
       );
     }
   }
 
+  const canDownload = Boolean(onDownload || downloadHref);
+
+  async function triggerDownload() {
+    if (onDownload) {
+      setDownloading(true);
+      try {
+        await onDownload();
+      } finally {
+        setDownloading(false);
+      }
+    } else if (downloadHref) {
+      window.location.assign(downloadHref);
+    }
+  }
+
   async function saveAndDownload() {
-    if (!downloadHref) return;
+    if (!canDownload) return;
     try {
       await save();
-      window.location.assign(downloadHref);
+      await triggerDownload();
     } catch {
       // saveFailed shows the message.
     }
@@ -714,11 +747,13 @@ export function DocumentEditor({
               canSave={hasChanges && !saving}
               onSave={() => save().catch(() => {})}
               onDownload={
-                !downloadHref
+                !canDownload
                   ? undefined
                   : hasChanges
                     ? saveAndDownload
-                    : () => window.location.assign(downloadHref)
+                    : () => {
+                        void triggerDownload();
+                      }
               }
               onPrint={print}
               onBack={() => router.push(backHref)}
@@ -763,15 +798,27 @@ export function DocumentEditor({
               {linkCopied ? <Check aria-hidden /> : <Link2 aria-hidden />}
               {linkCopied ? t("linkCopied") : t("copyLink")}
             </Button>
-            {!downloadHref ? null : hasChanges ? (
+            {!canDownload ? null : hasChanges ? (
               <Button
                 size="sm"
                 className="rounded-full"
-                disabled={saving}
+                disabled={saving || downloading}
                 onClick={saveAndDownload}
               >
                 <Download aria-hidden />
                 {t("saveAndDownload")}
+              </Button>
+            ) : onDownload ? (
+              <Button
+                size="sm"
+                className="rounded-full"
+                disabled={saving || downloading}
+                onClick={() => {
+                  void triggerDownload();
+                }}
+              >
+                <Download aria-hidden />
+                {t("download")}
               </Button>
             ) : (
               <a
@@ -883,13 +930,19 @@ export function DocumentEditor({
             printing={printing}
             canvasRef={canvasRef}
           >
-            {canInsert && !printing && <BlockHandle editor={editor} containerRef={canvasRef} />}
+            {canInsert && !printing && (
+              <BlockHandle editor={editor} containerRef={canvasRef} />
+            )}
           </DocxCanvas>
           {canInsert && editor && (
             <>
               <BubbleToolbar editor={editor} actions={actions} />
               <TableToolbar editor={editor} />
-              <SlashMenu editor={editor} slashKeys={slashKeys} onPickImage={pickImage} />
+              <SlashMenu
+                editor={editor}
+                slashKeys={slashKeys}
+                onPickImage={pickImage}
+              />
               <input
                 ref={imageInput}
                 type="file"
