@@ -3,8 +3,10 @@ import itertools
 import math
 import re
 import statistics
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass, field
 from functools import cache
+from typing import Any, cast
 
 import pymupdf
 
@@ -134,7 +136,7 @@ class _PageLayout:
             else pymupdf.Rect(self.area)
         )
 
-    def _beside(self, rect: pymupdf.Rect, ignore: set[int]) -> list[pymupdf.Rect]:
+    def _beside(self, rect: pymupdf.Rect, ignore: AbstractSet[int]) -> list[pymupdf.Rect]:
         band = rect.height * 0.25
         return [
             o
@@ -142,15 +144,21 @@ class _PageLayout:
             if id(o) not in ignore and o.y0 < rect.y1 - band and o.y1 > rect.y0 + band
         ]
 
-    def right_limit(self, rect: pymupdf.Rect, ignore: set[int] = frozenset()) -> float:
+    def right_limit(
+        self, rect: pymupdf.Rect, ignore: AbstractSet[int] = frozenset[int]()
+    ) -> float:
         limits = [o.x0 for o in self._beside(rect, ignore) if o.x0 >= rect.x1 - 0.5]
         return min([self.bounds(rect).x1, *limits])
 
-    def left_limit(self, rect: pymupdf.Rect, ignore: set[int] = frozenset()) -> float:
+    def left_limit(
+        self, rect: pymupdf.Rect, ignore: AbstractSet[int] = frozenset[int]()
+    ) -> float:
         limits = [o.x1 for o in self._beside(rect, ignore) if o.x1 <= rect.x0 + 0.5]
         return max([self.bounds(rect).x0, *limits])
 
-    def bottom_limit(self, rect: pymupdf.Rect, ignore: set[int] = frozenset()) -> float:
+    def bottom_limit(
+        self, rect: pymupdf.Rect, ignore: AbstractSet[int] = frozenset[int]()
+    ) -> float:
         limits = [
             o.y0
             for o in self.obstacles
@@ -351,10 +359,10 @@ class PDFHandler(DocumentHandler):
         for segment in segments:
             for line in segment.lines:
                 band = line.rect.height * 0.3
-                page.add_redact_annot(line.rect + (0, band, 0, -band), fill=False)
+                page.add_redact_annot(line.rect + (0, band, 0, -band), fill=None)
         page.apply_redactions(
-            images=pymupdf.PDF_REDACT_IMAGE_NONE,
-            graphics=pymupdf.PDF_REDACT_LINE_ART_NONE,
+            images=cast(int, getattr(pymupdf, "PDF_REDACT_IMAGE_NONE")),
+            graphics=cast(int, getattr(pymupdf, "PDF_REDACT_LINE_ART_NONE")),
         )
 
     # ------------------------------------------------------------------ extraction
@@ -362,7 +370,9 @@ class PDFHandler(DocumentHandler):
     @classmethod
     def _page_lines(cls, page: pymupdf.Page) -> list[_Line]:
         lines: list[_Line] = []
-        text_dict = page.get_text("rawdict", flags=pymupdf.TEXTFLAGS_TEXT)
+        text_dict = cast(
+            dict[str, Any], page.get_text("rawdict", flags=pymupdf.TEXTFLAGS_TEXT)
+        )
 
         for block_num, block in enumerate(text_dict.get("blocks", [])):
             if block.get("type") != 0:
@@ -467,6 +477,9 @@ class PDFHandler(DocumentHandler):
         return "Helvetica"
 
     def _page_segments(self, page: pymupdf.Page) -> tuple[list[_Segment], _PageLayout]:
+        page_num = page.number
+        if page_num is None:
+            raise ValueError("Cannot extract segments from a detached PDF page.")
         lines = self._page_lines(page)
         layout = _PageLayout(page, lines)
 
@@ -478,8 +491,8 @@ class PDFHandler(DocumentHandler):
             else:
                 segments.append(
                     _Segment(
-                        key=f"page_{page.number}_seg_{len(segments)}",
-                        page_num=page.number,
+                        key=f"page_{page_num}_seg_{len(segments)}",
+                        page_num=page_num,
                         lines=[line],
                     )
                 )
@@ -622,8 +635,11 @@ class PDFHandler(DocumentHandler):
                 pymupdf.Rect(0, 0, rect.width, rect.height), scale_min=1
             )
             # Round down, so near-equal scales look equal.
+            fit_scale = fit.parameter if fit is not None else None
             placement.scale = (
-                math.floor(20 / fit.parameter) / 20 if fit.parameter > 1 else 1.0
+                math.floor(20 / fit_scale) / 20
+                if fit_scale is not None and fit_scale > 1
+                else 1.0
             )
             column = round(segment.bbox.x0 / 3)
             groups.setdefault(
@@ -742,5 +758,6 @@ def _baseline_ratio(family: str, line_height: float) -> float:
             css=f"body {{margin: 0;}} * {{font-family: {family}; font-size: 100px; "
             f"line-height: {line_height}; margin: 0; padding: 0;}}",
         )
-        span = page.get_text("dict")["blocks"][0]["lines"][0]["spans"][0]
-        return span["origin"][1] / 100
+        text_dict = cast(dict[str, Any], page.get_text("dict"))
+        span = text_dict["blocks"][0]["lines"][0]["spans"][0]
+        return float(span["origin"][1]) / 100
