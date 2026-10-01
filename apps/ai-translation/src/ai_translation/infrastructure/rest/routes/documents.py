@@ -2,9 +2,10 @@ import asyncio
 import uuid
 from io import BytesIO
 
-from fastapi import APIRouter, Depends, UploadFile, File, Request, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, UploadFile, File, Request, Query
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import delete
 
 from ai_translation.infrastructure.middleware import limiter
 
@@ -34,13 +35,32 @@ from ai_translation.infrastructure.database.repositories import (
     DocumentInsertionsRepository,
 )
 from ai_translation.infrastructure.database.schemas import TranslatedDocumentResponse
-from ai_translation.infrastructure.database.models import TranslatedDocument, DocumentSegments
+from ai_translation.infrastructure.database.models import (
+    TranslatedDocument,
+    DocumentSegments,
+    DocumentInsertions,
+    DocumentMedia,
+)
 
 router = APIRouter(prefix="/v1", tags=["documents"])
 
 
 def _get_handler(document_type: str) -> DocumentHandler:
     return PDFHandler() if document_type == "pdf" else DOCXHandler()
+
+
+async def _delete_downloaded_document(document_id: str) -> None:
+    from ai_translation.infrastructure.database import session as database_session
+
+    if database_session.AsyncSessionLocal is None:
+        return
+
+    async with database_session.AsyncSessionLocal() as cleanup_session:
+        for model in (DocumentMedia, DocumentInsertions, DocumentSegments, TranslatedDocument):
+            await cleanup_session.execute(
+                delete(model).where(model.document_id == document_id)
+            )
+        await cleanup_session.commit()
 
 
 @router.post("/translate-document")
@@ -200,6 +220,7 @@ async def translate_document(
 @router.get("/translated-document/{document_id}")
 async def download_translated_document(
     document_id: str,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_db_session),
 ):
     """Download the translated document by document ID."""
@@ -210,11 +231,13 @@ async def download_translated_document(
         if not document:
             raise NotFoundError("Document", document_id)
 
+        content = document.translated_document
         media_type = "application/pdf" if document.document_type == "pdf" else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         filename = f"translated_{document.original_file_name}"
+        background_tasks.add_task(_delete_downloaded_document, document_id)
 
         return Response(
-            content=document.translated_document,
+            content=content,
             media_type=media_type,
             headers={"Content-Disposition": content_disposition(filename)},
         )

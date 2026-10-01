@@ -38,8 +38,9 @@ export function translateErrors(
       !error ||
       typeof error !== "object" ||
       NON_RECURSABLE_ERROR_KEYS.has(key)
-    )
+    ) {
       return;
+    }
 
     if ("message" in error && typeof error.message === "string") {
       const { key: messageKey, params } = parseTranslateMessage(error.message);

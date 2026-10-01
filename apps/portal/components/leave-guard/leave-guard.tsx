@@ -147,7 +147,7 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
           </div>
 
           {/* Actions */}
-          <DialogFooter className="mt-6 flex-col-reverse gap-2 border-t bg-muted/30 px-6 py-4 sm:flex-row sm:justify-end">
+          <DialogFooter className="mt-6 p-2! flex-col-reverse gap-2 border-t bg-muted/30  sm:flex-row sm:justify-between">
             <DialogClose
               render={<Button variant="outline" className="w-full sm:w-auto" />}
             >
