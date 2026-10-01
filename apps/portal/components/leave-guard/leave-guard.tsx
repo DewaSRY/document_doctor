@@ -155,28 +155,26 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
       >
         <DialogContent
           showCloseButton={false}
-          className="max-w-md gap-0 overflow-hidden p-0"
+          className="max-w-md overflow-hidden rounded-2xl p-0 shadow-2xl"
         >
-          {/* Visual header */}
-          <div className="px-6 pt-6">
+          {/* Content */}
+          <div className="px-6 pb-6 pt-7 sm:px-7">
             <div className="flex flex-col items-center text-center">
-              <div
-                className="
-                  mb-5 flex size-14 items-center justify-center
-                  rounded-2xl
-                  bg-destructive/10
-                  ring-8 ring-destructive/5
-                "
-              >
-                <TriangleAlert
-                  className="size-7 text-destructive"
-                  strokeWidth={2}
-                  aria-hidden
-                />
+              {/* Warning icon */}
+              <div className="relative mb-5">
+                <div className="absolute inset-0 rounded-full bg-destructive/10 blur-xl" />
+
+                <div className="relative flex size-14 items-center justify-center rounded-full border border-destructive/15 bg-destructive/10">
+                  <TriangleAlert
+                    className="size-6 text-destructive"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                </div>
               </div>
 
-              <DialogHeader className="space-y-2">
-                <DialogTitle className="text-xl font-semibold tracking-tight">
+              <DialogHeader className="items-center space-y-2">
+                <DialogTitle className="text-lg font-semibold tracking-tight sm:text-xl">
                   {t(
                     pending?.variant === "deleteDocument"
                       ? "leaveGuard.deleteDocument.title"
@@ -184,7 +182,7 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
                   )}
                 </DialogTitle>
 
-                <DialogDescription className="text-center text-sm leading-6 text-muted-foreground">
+                <DialogDescription className="max-w-sm text-center text-sm leading-6 text-muted-foreground">
                   {t(
                     pending?.variant === "deleteDocument"
                       ? "leaveGuard.deleteDocument.description"
@@ -196,9 +194,9 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
           </div>
 
           {/* Actions */}
-          <DialogFooter className="mt-6 py-2! px-4! flex-col-reverse gap-2 border-t bg-muted/30  sm:flex-row sm:justify-between">
+          <DialogFooter className="flex-col gap-2 border-t bg-muted/20 p-4 sm:flex-row sm:justify-between">
             <DialogClose
-              render={<Button variant="outline" className="w-full sm:w-auto" />}
+              render={<Button variant="ghost" className="w-full sm:w-auto" />}
             >
               {t("leaveGuard.stay")}
             </DialogClose>
