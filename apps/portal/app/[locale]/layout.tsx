@@ -6,7 +6,6 @@ import { getMessages, getTranslation } from "@/i18n/server";
 import { TranslationsProvider } from "@/components/translations-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { LeaveGuardProvider } from "@/components/leave-guard";
-import { TimezoneSync } from "@/lib/timezone-sync";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/metadata";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "../globals.css";
@@ -80,10 +79,7 @@ export default async function RootLayout({
         <NuqsAdapter>
           <TranslationsProvider locale={locale} messages={messages}>
             <QueryProvider>
-              <LeaveGuardProvider>
-                <TimezoneSync />
-                {children}
-              </LeaveGuardProvider>
+              <LeaveGuardProvider>{children}</LeaveGuardProvider>
             </QueryProvider>
           </TranslationsProvider>
         </NuqsAdapter>
