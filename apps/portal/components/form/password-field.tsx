@@ -31,7 +31,7 @@ function PasswordField<T extends FieldValues>({
   ...inputProps
 }: PasswordFieldProps<T>) {
   const [visible, setVisible] = React.useState(false);
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation("common");
 
   return (
     <Controller

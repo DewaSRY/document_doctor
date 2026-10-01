@@ -47,5 +47,7 @@
     "alt": "Preview of {{name}}",
     "error": "This document can't be previewed here."
   },
-  "skipToContent": "Skip to content"
+  "skipToContent": "Skip to content",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password"
 }

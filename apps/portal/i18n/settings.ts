@@ -10,7 +10,6 @@ export function isAppLocale(value: string): value is AppLocale {
 /** Namespaces sent to the browser with every page. */
 export const namespaces = [
   "common",
-  "auth",
   "landing",
   "translator",
   "editor",

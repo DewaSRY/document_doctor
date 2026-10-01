@@ -47,5 +47,7 @@
     "alt": "Pratinjau {{name}}",
     "error": "Dokumen ini tidak dapat dipratinjau di sini."
   },
-  "skipToContent": "Langsung ke konten"
+  "skipToContent": "Langsung ke konten",
+  "showPassword": "Tampilkan kata sandi",
+  "hidePassword": "Sembunyikan kata sandi"
 }

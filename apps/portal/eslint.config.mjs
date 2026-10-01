@@ -16,8 +16,6 @@ const eslintConfig = defineConfig([
             {
               group: [
                 "@/feature/*/*",
-                "!@/feature/auth/constants",
-                "!@/feature/auth/dal",
                 "!@/feature/translator/config",
                 "!@/feature/tools/constants",
               ],
