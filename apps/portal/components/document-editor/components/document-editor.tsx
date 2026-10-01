@@ -16,7 +16,6 @@ import { Dropcursor, UndoRedo } from "@tiptap/extensions";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import {
   AlertCircle,
-  ArrowLeft,
   Check,
   Download,
   FileText,
@@ -24,11 +23,12 @@ import {
   Link2,
   Loader2,
   Printer,
-  Save,
+  Search as SearchIcon,
   type LucideIcon,
 } from "lucide-react";
 
 import { Link, useRouter } from "@/i18n/navigation";
+import { BrandMark } from "@/components/brand-logo";
 import { useLeaveGuard } from "@/components/leave-guard";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -695,21 +695,16 @@ export function DocumentEditor({
         <style>{`@page { size: ${firstPage.width}pt ${firstPage.height}pt; margin: 0; }`}</style>
       )}
       <div className="sticky top-16 z-30 bg-background print:hidden">
-        <div className="flex items-start gap-2 px-3 pt-2 sm:px-4">
+        <div className="flex items-center gap-3 px-3 py-2 sm:px-4">
           <Link
             href={backHref}
             aria-label={t("back")}
             title={t("back")}
-            className="mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-700 hover:bg-brand-100"
           >
-            <ArrowLeft className="size-4" aria-hidden />
+            <BrandMark className="size-6" />
           </Link>
-          <span
-            aria-hidden
-            className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary"
-          >
-            <FileText className="size-4.5" />
-          </span>
+
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
               <h1 className="truncate text-[1.05rem] leading-6 font-medium">
@@ -720,27 +715,105 @@ export function DocumentEditor({
                   {badge}
                 </span>
               )}
-              <span
-                aria-live="polite"
-                className="hidden shrink-0 items-center gap-1.5 px-1 text-xs text-muted-foreground sm:inline-flex"
-              >
-                {saving ? (
-                  <Loader2 className="size-3 animate-spin" aria-hidden />
-                ) : hasChanges ? (
-                  <span
-                    className="size-1.5 rounded-full bg-amber-500"
-                    aria-hidden
-                  />
-                ) : (
-                  <Check className="size-3" aria-hidden />
-                )}
-                {saving
-                  ? t("saving")
-                  : hasChanges
-                    ? t("unsaved", { count: changeCount })
-                    : t("saved")}
-              </span>
             </div>
+            <button
+              type="button"
+              onClick={() => save().catch(() => {})}
+              disabled={!hasChanges || saving}
+              aria-live="polite"
+              title={hasChanges ? t("saveShortcut") : undefined}
+              className={cn(
+                "-ml-1.5 mt-0.5 inline-flex items-center gap-1.5 rounded-full px-1.5 py-0.5 text-xs font-medium disabled:cursor-default",
+                saving
+                  ? "text-muted-foreground"
+                  : hasChanges
+                    ? "text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
+                    : "text-emerald-700 dark:text-emerald-400",
+              )}
+            >
+              {saving ? (
+                <Loader2 className="size-3 animate-spin" aria-hidden />
+              ) : hasChanges ? (
+                <span
+                  className="size-1.5 rounded-full bg-amber-500"
+                  aria-hidden
+                />
+              ) : (
+                <Check className="size-3" aria-hidden />
+              )}
+              {saving
+                ? t("saving")
+                : hasChanges
+                  ? t("unsaved", { count: changeCount })
+                  : t("saved")}
+            </button>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("find")}
+              title={t("find")}
+              onClick={() => setFindOpen(true)}
+              className="hidden sm:inline-flex"
+            >
+              <SearchIcon aria-hidden />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("print")}
+              title={t("printShortcut")}
+              onClick={print}
+              className="hidden sm:inline-flex"
+            >
+              <Printer aria-hidden />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={linkCopied ? t("linkCopied") : t("copyLink")}
+              title={linkCopied ? t("linkCopied") : t("copyLink")}
+              onClick={copyLink}
+            >
+              {linkCopied ? <Check aria-hidden /> : <Link2 aria-hidden />}
+            </Button>
+            {!canDownload ? null : hasChanges ? (
+              <Button
+                size="sm"
+                className="rounded-full"
+                disabled={saving || downloading}
+                onClick={saveAndDownload}
+              >
+                <Download aria-hidden />
+                <span className="hidden sm:inline">{t("saveAndDownload")}</span>
+              </Button>
+            ) : onDownload ? (
+              <Button
+                size="sm"
+                className="rounded-full"
+                disabled={saving || downloading}
+                onClick={() => {
+                  void triggerDownload();
+                }}
+              >
+                <Download aria-hidden />
+                <span className="hidden sm:inline">{t("download")}</span>
+              </Button>
+            ) : (
+              <a
+                href={downloadHref}
+                download
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+              >
+                <Download aria-hidden />
+                <span className="hidden sm:inline">{t("download")}</span>
+              </a>
+            )}
+
+            <div className="mx-1 h-5 w-px bg-border/60" aria-hidden />
+
             <MenuBar
               mode={mode}
               actions={actions}
@@ -766,70 +839,6 @@ export function DocumentEditor({
               pdf={pdfControls}
               onInsertImage={canInsert && onUploadImage ? pickImage : undefined}
             />
-          </div>
-
-          <div className="mt-1 flex shrink-0 items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("save")}
-              title={t("saveShortcut")}
-              disabled={!hasChanges || saving}
-              onClick={() => save().catch(() => {})}
-            >
-              <Save aria-hidden />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("print")}
-              title={t("printShortcut")}
-              onClick={print}
-              className="hidden sm:inline-flex"
-            >
-              <Printer aria-hidden />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={copyLink}
-              className="hidden rounded-full md:inline-flex"
-            >
-              {linkCopied ? <Check aria-hidden /> : <Link2 aria-hidden />}
-              {linkCopied ? t("linkCopied") : t("copyLink")}
-            </Button>
-            {!canDownload ? null : hasChanges ? (
-              <Button
-                size="sm"
-                className="rounded-full"
-                disabled={saving || downloading}
-                onClick={saveAndDownload}
-              >
-                <Download aria-hidden />
-                {t("saveAndDownload")}
-              </Button>
-            ) : onDownload ? (
-              <Button
-                size="sm"
-                className="rounded-full"
-                disabled={saving || downloading}
-                onClick={() => {
-                  void triggerDownload();
-                }}
-              >
-                <Download aria-hidden />
-                {t("download")}
-              </Button>
-            ) : (
-              <a
-                href={downloadHref}
-                download
-                className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
-              >
-                <Download aria-hidden />
-                {t("download")}
-              </a>
-            )}
           </div>
         </div>
 
