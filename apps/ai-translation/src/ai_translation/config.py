@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     # Server
     rest_host: str = "0.0.0.0"
-    rest_port: int = 8000
+    rest_port: int = 8081
     grpc_port: Optional[int] = None
 
     # Database
@@ -42,7 +42,12 @@ class Settings(BaseSettings):
     hf_token: Optional[str] = None
     qwen_model_name: Optional[str] = None
 
-    model_config = SettingsConfigDict(env_prefix="", case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
     def get_cors_origins_list(self) -> list[str]:
         """Parse comma-separated CORS origins into a list."""

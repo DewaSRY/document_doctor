@@ -1,22 +1,37 @@
-import os
 from functools import lru_cache
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DatabaseConfig(BaseSettings):
     """Database configuration from environment variables."""
 
-    db_host: str = os.environ.get("DB_HOST", "localhost")
-    db_port: int = int(os.environ.get("DB_PORT", "5432"))
-    db_user: str = os.environ.get("DB_USER", os.environ.get("POSTGRES_USER", "postgres"))
-    db_password: str = os.environ.get("DB_PASSWORD", os.environ.get("POSTGRES_PASSWORD", "postgres"))
-    db_name: str = os.environ.get("DB_NAME", os.environ.get("POSTGRES_DB", "ai_translation"))
+    db_host: str = "localhost"
+    db_port: int = 5432
+    db_user: str = Field(
+        default="postgres",
+        validation_alias=AliasChoices("DB_USER", "POSTGRES_USER"),
+    )
+    db_password: str = Field(
+        default="postgres",
+        validation_alias=AliasChoices("DB_PASSWORD", "POSTGRES_PASSWORD"),
+    )
+    db_name: str = Field(
+        default="ai_translation",
+        validation_alias=AliasChoices("DB_NAME", "POSTGRES_DB"),
+    )
+    
     db_pool_size: int = 20
     db_max_overflow: int = 0
     db_echo: bool = False
     db_echo_pool: bool = False
 
-    model_config = SettingsConfigDict(env_prefix="", case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
     @property
     def database_url(self) -> str:
