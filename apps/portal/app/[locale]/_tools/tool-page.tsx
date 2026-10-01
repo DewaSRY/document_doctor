@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { isAppLocale, type AppLocale } from "@/i18n/settings";
 import { getTranslation } from "@/i18n/server";
-import { canonicalFor, pageMetadata } from "@/lib/seo/metadata";
+import { canonicalFor, buildPageMetadata } from "@/lib/seo/metadata";
 import { TOOL_CATEGORIES, toolPath, type ToolId } from "@/lib/seo/routes";
 import {
   breadcrumbNode,
@@ -33,7 +33,7 @@ export async function toolMetadata(
 
   const { t } = await getTranslation(locale, "seo");
 
-  return pageMetadata({
+  return buildPageMetadata({
     locale,
     path: toolPath(tool),
     title: t(`tools.${tool}.meta.title`),

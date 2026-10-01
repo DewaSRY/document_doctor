@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 const GOOGLE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const BING_VERIFICATION = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 
-/** Defaults; indexable pages set their own via pageMetadata(). */
+/** Defaults; indexable pages set their own via buildPageMetadata(). */
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,

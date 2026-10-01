@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isAppLocale } from "@/i18n/settings";
 import { getTranslation } from "@/i18n/server";
-import { SITE_NAME, canonicalFor, pageMetadata } from "@/lib/seo/metadata";
+import { SITE_NAME, canonicalFor, buildPageMetadata } from "@/lib/seo/metadata";
 import { TOOL_IDS } from "@/lib/seo/routes";
 import { faqNode, graph, ORGANIZATION_ID, siteNodes } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -35,7 +35,7 @@ export async function generateMetadata({
 
   // Images come from the sibling opengraph-image.tsx file convention.
   return {
-    ...pageMetadata({
+    ...buildPageMetadata({
       locale,
       path: "",
       title: t("meta.title"),
