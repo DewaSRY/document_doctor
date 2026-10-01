@@ -47,7 +47,7 @@ async def _read_document_text(file: UploadFile) -> tuple[list[str], str]:
 
 
 @router.post("/summarize-document")
-@limiter.limit("20/minute")
+@limiter.limit("100/minute")
 async def summarize_document(
     request: Request,
     file: UploadFile = File(...),
@@ -95,7 +95,7 @@ async def summarize_document(
 
 
 @router.post("/extract-document")
-@limiter.limit("20/minute")
+@limiter.limit("100/minute")
 async def extract_document(
     request: Request,
     file: UploadFile = File(...),

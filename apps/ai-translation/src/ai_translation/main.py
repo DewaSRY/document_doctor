@@ -25,6 +25,7 @@ from ai_translation.infrastructure.rest.routes import (
     document_ai_router,
     file_tools_router,
     image_tools_router,
+    constant_router
 )
 from ai_translation.infrastructure.rest.error_handlers import register_exception_handlers
 from ai_translation.infrastructure.middleware import (
@@ -65,6 +66,7 @@ def create_app() -> FastAPI:
     app.include_router(document_ai_router, prefix="/api")
     app.include_router(file_tools_router, prefix="/api")
     app.include_router(image_tools_router, prefix="/api")
+    app.include_router(constant_router, prefix="/api")
 
     # Register exception handlers
     register_exception_handlers(app)

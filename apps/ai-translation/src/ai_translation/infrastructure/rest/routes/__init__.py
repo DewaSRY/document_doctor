@@ -4,6 +4,7 @@ from .documents import router as documents_router
 from .document_ai import router as document_ai_router
 from .file_tools import router as file_tools_router
 from .image_tools import router as image_tools_router
+from .constant import router as constant_router
 
 __all__ = [
     "health_router",
@@ -12,4 +13,5 @@ __all__ = [
     "document_ai_router",
     "file_tools_router",
     "image_tools_router",
+    "constant_router",
 ]
