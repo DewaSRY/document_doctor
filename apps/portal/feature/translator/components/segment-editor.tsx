@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertCircle, Languages, Loader2 } from "lucide-react";
 
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import ErrorState from "@/components/ui/error-state";
 import {
@@ -96,6 +96,7 @@ function TranslationEditor({
   layoutFailed: boolean;
   onRetryLayout: () => void;
 }) {
+  const router = useRouter();
   const { t } = useTranslation("translator");
   const id = document.document_id;
   const update = useUpdateDocumentSegments(id);
@@ -125,7 +126,10 @@ function TranslationEditor({
       }
       pageImageHref={pageImageHref}
       mediaHref={mediaHref}
-      onDownload={() => download.mutateAsync(id).then(() => {})}
+      onDownload={async () => {
+        await download.mutateAsync(id);
+        router.back();
+      }}
       backHref="/translate"
       badge={languagePair}
       details={[

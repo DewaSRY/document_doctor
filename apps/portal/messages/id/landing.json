@@ -75,7 +75,8 @@
             "description": "Dapatkan gambaran singkat dan poin penting dari dokumen panjang, dengan panjang dan bahasa pilihan Anda.",
             "formats": ["PDF", "DOCX"],
             "limit": "Maks. 5 MB",
-            "output": "Gambaran & poin penting"
+            "output": "Gambaran & poin penting",
+            "isComingSoon": true
           },
           {
             "icon": "extractor",
@@ -83,7 +84,8 @@
             "description": "Ambil nama orang, organisasi, tanggal, nominal, tempat, dan kontak — siap disalin atau diunduh.",
             "formats": ["PDF", "DOCX"],
             "limit": "Maks. 5 MB",
-            "output": "Salin, CSV, atau JSON"
+            "output": "Salin, CSV, atau JSON",
+            "isComingSoon": true
           }
         ]
       },
@@ -185,7 +187,8 @@
     "filtersLabel": "Saring alat berdasarkan kategori",
     "all": "Semua",
     "aiBadge": "AI",
-    "outputLabel": "Hasil"
+    "outputLabel": "Hasil",
+    "comingSoon": "Segera hadir"
   },
   "howItWorks": {
     "eyebrow": "Cara kerja",

@@ -78,13 +78,23 @@ export async function detectImageFormat(
   file: File,
 ): Promise<ImageFormat | null> {
   const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
-  const pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+
+  // PNG
   if (
     bytes.length >= 8 &&
-    pngSignature.every((value, index) => bytes[index] === value)
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
   ) {
     return "png";
   }
+
+  // JPEG
   if (
     bytes.length >= 3 &&
     bytes[0] === 0xff &&
@@ -93,12 +103,21 @@ export async function detectImageFormat(
   ) {
     return "jpeg";
   }
+
+  // WebP
   if (
     bytes.length >= 12 &&
-    String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
-    String.fromCharCode(...bytes.slice(8, 12)) === "WEBP"
+    bytes[0] === 0x52 && // R
+    bytes[1] === 0x49 && // I
+    bytes[2] === 0x46 && // F
+    bytes[3] === 0x46 && // F
+    bytes[8] === 0x57 && // W
+    bytes[9] === 0x45 && // E
+    bytes[10] === 0x42 && // B
+    bytes[11] === 0x50 // P
   ) {
     return "webp";
   }
+
   return null;
 }

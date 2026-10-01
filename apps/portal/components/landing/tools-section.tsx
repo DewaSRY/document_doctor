@@ -9,6 +9,7 @@ export type Tool = {
   /** What the tool hands back, shown as `formats → output` on its card. */
   output: string;
   limit: string;
+  isComingSoon?: boolean;
 };
 
 export type ToolGroup = {
@@ -39,6 +40,7 @@ export function ToolsSection({ t }: { t: LandingT }) {
           formats: t("tools.formatsLabel"),
           output: t("tools.outputLabel"),
           ai: t("tools.aiBadge"),
+          comingSoon: t("tools.comingSoon"),
         }}
       />
     </section>

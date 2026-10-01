@@ -70,7 +70,8 @@
             "description": "Get a short overview and the key points of a long document, in the length and language you choose.",
             "formats": ["PDF", "DOCX"],
             "limit": "Up to 5 MB",
-            "output": "Overview & key points"
+            "output": "Overview & key points",
+            "isComingSoon": true
           },
           {
             "icon": "extractor",
@@ -78,7 +79,8 @@
             "description": "Pull out people, organizations, dates, amounts, places and contact details, ready to copy or download.",
             "formats": ["PDF", "DOCX"],
             "limit": "Up to 5 MB",
-            "output": "Copy, CSV or JSON"
+            "output": "Copy, CSV or JSON",
+            "isComingSoon": true
           }
         ]
       },
@@ -180,7 +182,8 @@
     "filtersLabel": "Filter tools by category",
     "all": "All",
     "aiBadge": "AI",
-    "outputLabel": "Result"
+    "outputLabel": "Result",
+    "comingSoon": "Coming soon"
   },
   "howItWorks": {
     "eyebrow": "How it works",
