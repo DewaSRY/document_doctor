@@ -1,18 +1,7 @@
 {
   "comingSoon": "Segera",
-  "searchAccountsPlaceholder": "Cari akun",
-  "mainAccount": "Rekening utama",
   "appName": "Document Doctor",
-  "backToHome": "Kembali ke beranda",
-  "backToHomeDescription": "Mengarahkan Anda kembali ke halaman utama",
-  "brandTagline": "Pelajari lebih lanjut tentang {{appName}} di sini",
-  "getStarted": "Mulai sekarang",
   "language": "Bahasa",
-  "dashboardTitle": "Dasbor",
-  "yourAccounts": "Akun Anda",
-  "noAccounts": "Belum ada akun.",
-  "loadingAccounts": "Memuat akun…",
-  "loadAccountsError": "Gagal memuat akun.",
   "toggleSidebar": "Alihkan sidebar",
   "cancel": "Batal",
   "back": "Kembali",
@@ -34,8 +23,6 @@
       "description": "Anda belum mengunduh dokumen ini. Jika Anda keluar sekarang, dokumen ini akan dihapus secara permanen."
     }
   },
-  "availableBalance": "Saldo tersedia",
-  "searchPlaceholder": "Cari...",
   "sidebarTitle": "Sidebar",
   "sidebarDescription": "Menampilkan sidebar seluler.",
   "noDataFound": "Data tidak ditemukan",
