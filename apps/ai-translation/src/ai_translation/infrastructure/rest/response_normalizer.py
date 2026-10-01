@@ -14,9 +14,9 @@ def normalize_success_response(
     pagination: Optional[dict] = None,
 ) -> dict:
 
-    meta = None
+    meta: PaginationMeta | None = None
     if pagination:
-        meta = PaginationMeta(**pagination).model_dump()
+        meta = PaginationMeta(**pagination)
 
     response = SuccessResponse(
         data=data,
@@ -33,9 +33,9 @@ def normalize_error_response(
     code: int = 500,
     errors: Optional[list[dict]] = None,
 ) -> dict:
-    error_items = None
+    error_items: list[ErrorItem] | None = None
     if errors:
-        error_items = [ErrorItem(**err).model_dump() for err in errors]
+        error_items = [ErrorItem(**err) for err in errors]
 
     response = ErrorResponseData(
         data=[],

@@ -1,7 +1,6 @@
 import os
 from functools import lru_cache
-from pydantic import ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DatabaseConfig(BaseSettings):
@@ -17,7 +16,7 @@ class DatabaseConfig(BaseSettings):
     db_echo: bool = False
     db_echo_pool: bool = False
 
-    model_config = ConfigDict(env_prefix="", case_sensitive=False)
+    model_config = SettingsConfigDict(env_prefix="", case_sensitive=False)
 
     @property
     def database_url(self) -> str:

@@ -52,6 +52,14 @@ async def translate(
         translated_text = await asyncio.to_thread(get_translator().translate, params)
         model_name = get_translator().model.name_or_path
 
+        if model_name is None:
+            raise TranslationError(
+                message="Failed to retrieve the model name, contact the administrator",
+                details={
+                    "model_name": "unknown",
+                },
+            )
+
         response_data = {
             "translated_text": translated_text,
             "source_language": request.source_language,

@@ -1,10 +1,13 @@
 from typing import Generic, TypeVar, List, Optional
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
+from pydantic import BaseModel
+
 
 ModelType = TypeVar("ModelType")
-CreateSchemaType = TypeVar("CreateSchemaType")
-UpdateSchemaType = TypeVar("UpdateSchemaType")
+CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
+UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
@@ -25,7 +28,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """Get a record by ID."""
         return await self.session.get(self.model, obj_id)
 
-    async def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
+    async def get_all(self, skip: int = 0, limit: int = 100) -> Sequence[ModelType]:
         """Get all records with pagination."""
         query = select(self.model).offset(skip).limit(limit)
         result = await self.session.execute(query)
@@ -61,6 +64,6 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def count(self) -> int:
         """Count total records."""
-        query = select(func.count(self.model.id))
+        query = select(func.count()).select_from(self.model)
         result = await self.session.execute(query)
         return result.scalar() or 0

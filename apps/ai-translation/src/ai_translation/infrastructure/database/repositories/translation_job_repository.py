@@ -2,6 +2,7 @@ from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from collections.abc import Sequence
 from ai_translation.infrastructure.database.models import TranslationJob
 from ai_translation.infrastructure.database.schemas import (
     TranslationJobCreate,
@@ -29,7 +30,7 @@ class TranslationJobRepository(BaseRepository[TranslationJob, TranslationJobCrea
         status: str,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[TranslationJob]:
+    ) -> Sequence[TranslationJob]:
         """Get jobs filtered by status."""
         query = (
             select(self.model)
@@ -44,13 +45,13 @@ class TranslationJobRepository(BaseRepository[TranslationJob, TranslationJobCrea
     async def get_pending_jobs(
         self,
         limit: int = 100,
-    ) -> List[TranslationJob]:
+    ) -> Sequence[TranslationJob]:
         """Get all pending jobs."""
         return await self.get_by_status("pending", limit=limit)
 
     async def get_processing_jobs(
         self,
         limit: int = 100,
-    ) -> List[TranslationJob]:
+    ) -> Sequence[TranslationJob]:
         """Get all processing jobs."""
         return await self.get_by_status("processing", limit=limit)

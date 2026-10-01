@@ -2,17 +2,21 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
 
 from ai_translation.infrastructure.database.models import TranslatedDocument
 from ai_translation.infrastructure.database.schemas import (
     TranslatedDocumentCreate,
+    TranslatedDocumentUpdate,
 )
 from ai_translation.infrastructure.database.repositories.base_repository import (
     BaseRepository,
 )
 
 
-class TranslatedDocumentRepository(BaseRepository[TranslatedDocument, TranslatedDocumentCreate, dict]):
+class TranslatedDocumentRepository(
+    BaseRepository[TranslatedDocument, TranslatedDocumentCreate, TranslatedDocumentUpdate]
+):
     """Repository for TranslatedDocument operations."""
 
     def __init__(self, session: AsyncSession):
@@ -30,7 +34,7 @@ class TranslatedDocumentRepository(BaseRepository[TranslatedDocument, Translated
         target_language: str,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[TranslatedDocument]:
+    ) -> Sequence[TranslatedDocument]:
         """Get documents filtered by source and target languages."""
         query = (
             select(self.model)
@@ -51,7 +55,7 @@ class TranslatedDocumentRepository(BaseRepository[TranslatedDocument, Translated
         self,
         hours: int = 24,
         limit: int = 100,
-    ) -> List[TranslatedDocument]:
+    ) -> Sequence[TranslatedDocument]:
         """Get documents from the last N hours."""
         cutoff_time = datetime.utcnow() - timedelta(hours=hours)
         query = (
@@ -68,7 +72,7 @@ class TranslatedDocumentRepository(BaseRepository[TranslatedDocument, Translated
         document_type: str,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[TranslatedDocument]:
+    ) -> Sequence[TranslatedDocument]:
         """Get documents filtered by type (pdf or docx)."""
         query = (
             select(self.model)

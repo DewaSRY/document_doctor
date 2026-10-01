@@ -89,6 +89,21 @@ class TranslatedDocumentCreate(BaseModel):
     model_name: str = Field(..., max_length=255, description="Model name used")
 
 
+class TranslatedDocumentUpdate(BaseModel):
+    """Schema for updating a translated document record."""
+
+    original_file_name: str | None = Field(default=None, max_length=255)
+    original_file_size: int | None = Field(default=None, gt=0)
+    document_type: str | None = Field(default=None, max_length=10)
+    source_language: str | None = Field(default=None, min_length=2, max_length=10)
+    target_language: str | None = Field(default=None, min_length=2, max_length=10)
+    translated_document: bytes | None = None
+    status: str | None = Field(default=None, max_length=20)
+    emotion_tags: str | None = Field(default=None, max_length=255)
+    voice_tags: str | None = Field(default=None, max_length=255)
+    model_name: str | None = Field(default=None, max_length=255)
+
+
 class TranslatedDocumentResponse(BaseModel):
     """Schema for returning a translated document record (without binary content)."""
 

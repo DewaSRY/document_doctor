@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from collections.abc import Sequence
+
 from ai_translation.infrastructure.database.models import TranslationRecord
 from ai_translation.infrastructure.database.schemas import (
     TranslationRecordCreate,
@@ -25,7 +27,7 @@ class TranslationRecordRepository(BaseRepository[TranslationRecord, TranslationR
         target_language: str,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[TranslationRecord]:
+    ) -> Sequence[TranslationRecord]:
         """Get records filtered by source and target languages."""
         query = (
             select(self.model)
@@ -45,7 +47,7 @@ class TranslationRecordRepository(BaseRepository[TranslationRecord, TranslationR
         self,
         hours: int = 24,
         limit: int = 100,
-    ) -> List[TranslationRecord]:
+    ) -> Sequence[TranslationRecord]:
         """Get records from the last N hours."""
         cutoff_time = datetime.utcnow() - timedelta(hours=hours)
         query = (
@@ -62,7 +64,7 @@ class TranslationRecordRepository(BaseRepository[TranslationRecord, TranslationR
         text: str,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[TranslationRecord]:
+    ) -> Sequence[TranslationRecord]:
         """Search records by source text (partial match)."""
         query = (
             select(self.model)
@@ -78,7 +80,7 @@ class TranslationRecordRepository(BaseRepository[TranslationRecord, TranslationR
         model_name: str,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[TranslationRecord]:
+    ) -> Sequence[TranslationRecord]:
         """Get records by model name."""
         query = (
             select(self.model)

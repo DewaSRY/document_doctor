@@ -78,7 +78,14 @@ async def translate_document(
             chunks.append(chunk)
         file_content = b"".join(chunks)
 
-        file_ext = file.filename.split(".")[-1].lower()
+        
+        file_ext = file.filename.split(".")[-1].lower() if file.filename else None
+        if file_ext is None:
+            raise UnsupportedFileTypeError(
+                file_type="unknown",
+                supported_types=["pdf", "docx"],
+            )
+        
         if file_ext not in ["pdf", "docx"]:
             raise UnsupportedFileTypeError(
                 file_type=file_ext,
@@ -455,6 +462,8 @@ async def upload_document_media(
         # Trust the content, not the file name: Word only embeds real images.
         from PIL import Image, UnidentifiedImageError
 
+        width, height, = 0, 0
+
         try:
             with Image.open(BytesIO(content)) as image:
                 kind = _IMAGE_TYPES.get(image.format or "")
@@ -545,6 +554,7 @@ async def update_document_segments(
             insertions=insertions,
             media=media,
         )
+        
         await session.commit()
         await session.refresh(stored)
 

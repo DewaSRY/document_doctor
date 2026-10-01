@@ -1,10 +1,12 @@
 import logging
 import uuid
+from typing import cast
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from starlette.types import ExceptionHandler
 
 from ai_translation.infrastructure.rest.exceptions import APIException, ErrorCode
 from ai_translation.infrastructure.rest.response_normalizer import normalize_error_response
@@ -106,6 +108,9 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 def register_exception_handlers(app: FastAPI) -> None:
     """Register all exception handlers with the FastAPI app"""
-    app.add_exception_handler(APIException, api_exception_handler)
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(APIException, cast(ExceptionHandler, api_exception_handler))
+    app.add_exception_handler(
+        RequestValidationError,
+        cast(ExceptionHandler, validation_exception_handler),
+    )
     app.add_exception_handler(Exception, generic_exception_handler)
