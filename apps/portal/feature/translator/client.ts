@@ -1,6 +1,5 @@
 import axios from "axios";
 import { BaseClient } from "@/lib/api/base-client";
-import { AI_TRANSLATION_API_URL } from "./config";
 import type {
   DocumentLayout,
   DocumentSegments,
@@ -10,18 +9,9 @@ import type {
   UploadedImage,
 } from "./type";
 
-const aiTranslationApi = axios.create({
-  baseURL: AI_TRANSLATION_API_URL,
-  // Translation runs synchronously on the service, sentence by sentence, so
-  // a long document can take several minutes.
-  timeout: 15 * 60_000,
-});
+
 
 export class TranslatorClient extends BaseClient {
-  constructor() {
-    super(aiTranslationApi);
-  }
-
   translateDocument(
     file: File,
     sourceLanguage: string,

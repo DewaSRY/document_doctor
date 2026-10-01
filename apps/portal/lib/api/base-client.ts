@@ -1,5 +1,9 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
 import { browserClient } from "./browser-client";
+import { AI_TRANSLATION_API_URL } from "@/feature/translator/config";
+
+
 
 export type SafeParamValue =
   | string
@@ -71,34 +75,53 @@ export class BaseClient {
     options: GetRequestOptions,
   ): Promise<AxiosResponse<TResponse>> {
     const { endpoint, params, config } = options;
-    return this.instance.get<TResponse>(endpoint, this.withParams(config, params));
+    return this.instance.get<TResponse>(
+      endpoint,
+      this.withParams(config, params),
+    );
   }
 
   protected post<TResponse = unknown>(
     options: RequestOptions,
   ): Promise<AxiosResponse<TResponse>> {
     const { endpoint, body, params, config } = options;
-    return this.instance.post<TResponse>(endpoint, body, this.withParams(config, params));
+    return this.instance.post<TResponse>(
+      endpoint,
+      body,
+      this.withParams(config, params),
+    );
   }
 
   protected put<TResponse = unknown>(
     options: RequestOptions,
   ): Promise<AxiosResponse<TResponse>> {
     const { endpoint, body, params, config } = options;
-    return this.instance.put<TResponse>(endpoint, body, this.withParams(config, params));
+    return this.instance.put<TResponse>(
+      endpoint,
+      body,
+      this.withParams(config, params),
+    );
   }
 
   protected patch<TResponse = unknown>(
     options: RequestOptions,
   ): Promise<AxiosResponse<TResponse>> {
     const { endpoint, body, params, config } = options;
-    return this.instance.patch<TResponse>(endpoint, body, this.withParams(config, params));
+    return this.instance.patch<TResponse>(
+      endpoint,
+      body,
+      this.withParams(config, params),
+    );
   }
 
   protected delete<TResponse = unknown>(
     options: Omit<RequestOptions, "body">,
   ): Promise<AxiosResponse<TResponse>> {
     const { endpoint, params, config } = options;
-    return this.instance.delete<TResponse>(endpoint, this.withParams(config, params));
+    return this.instance.delete<TResponse>(
+      endpoint,
+      this.withParams(config, params),
+    );
   }
 }
+
