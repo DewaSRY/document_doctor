@@ -84,3 +84,22 @@ docker compose up --build -d
 ```
 
 Cloudflare Workers Free CPU allowance is too small for reliable Next SSR; use Workers Paid and load-test long translations and concurrent uploads. Workers isolate memory is limited to 128 MiB, so keep upload/download paths streaming and avoid buffering large payloads in Server Actions.
+
+############
+
+Updated todo list
+
+`AI_TRANSLATION_API_TOKEN` is a **shared secret** between the Cloudflare Worker and your FastAPI service. The Worker sends it to EC2 as `Authorization: Bearer …`; the API rejects requests without the matching token. It is never meant to be exposed to browser code.
+
+It isn’t issued by AWS or Cloudflare. Generate your own from a terminal:
+
+```sh
+openssl rand -hex 32
+```
+
+Use the same generated value in both places:
+
+- `portal_api_token` in your ignored `terraform.tfvars`
+- Cloudflare Worker secret, created from `portal` with `npx wrangler secret put AI_TRANSLATION_API_TOKEN` (Wrangler prompts for the value)
+
+For local development, your FastAPI `.env` has `DEV_MODE=true`, so authentication is bypassed when no token is configured. In production, the API requires `PORTAL_API_TOKEN`; Terraform places it in SSM, and the EC2 service loads it at startup. Don’t paste the generated value into chat or commit it.

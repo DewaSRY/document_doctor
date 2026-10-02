@@ -1,0 +1,41 @@
+name: PR Branch Rules
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches:
+      - main
+      - dev
+
+jobs:
+  validate-branches:
+    name: Validate PR Branches # reverences of pr validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enforce PR source/target branch rules
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          echo "Base branch: $BASE_REF"
+          echo "Head branch: $HEAD_REF"
+
+          if [ "$BASE_REF" = "main" ]; then
+            if [ "$HEAD_REF" != "dev" ]; then
+              echo "::error::Only the 'dev' branch is allowed to open a pull request into 'main'. This PR is from '$HEAD_REF'."
+              exit 1
+            fi
+
+          elif [ "$BASE_REF" = "dev" ]; then
+            case "$HEAD_REF" in
+              epic/*)
+                ;;
+              *)
+                echo "::error::Only branches matching 'epic/*' are allowed to open a pull request into 'dev'. This PR is from '$HEAD_REF'."
+                exit 1
+                ;;
+            esac
+          fi
+
+          echo "Branch rules satisfied."
