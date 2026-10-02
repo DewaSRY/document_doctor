@@ -41,16 +41,14 @@ class QwenTranslatorModel(BaseTranslator):
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name,
         )
-        # Decoder-only models must be padded on the left for batched generation.
         self.tokenizer.padding_side = "left"
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
         self.batch_size = int(os.getenv("TRANSLATION_BATCH_SIZE", "8"))
-        # generate() is not safe to run from several threads on one model.
         self._lock = threading.Lock()
 
-        self.model = AutoModelForCausalLM.from_pretrained(
+        self.model: Any = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             dtype=self.dtype,
         )

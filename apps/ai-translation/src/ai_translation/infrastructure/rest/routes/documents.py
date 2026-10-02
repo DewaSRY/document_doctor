@@ -70,8 +70,6 @@ async def translate_document(
     file: UploadFile = File(...),
     source_language: str = "id",
     target_language: str = "zh",
-    emotion_tags: str | None = Query(None),
-    voice_tags: str | None = Query(None),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict:
     """
@@ -80,8 +78,12 @@ async def translate_document(
     - **file**: PDF or DOCX document to translate (max 5MB)
     - **source_language**: Source language code (default: 'zh')
     - **target_language**: Target language code (default: 'id')
+
+    Letter will add this tag 
     - **emotion_tags**: Optional comma-separated emotion tags
     - **voice_tags**: Optional comma-separated voice tags
+
+
     """
     try:
         max_size = 5 * 1024 * 1024
@@ -116,13 +118,10 @@ async def translate_document(
 
         extracted_text = await handler.extract_text(file_content)
 
-        emotion_tags_list = [tag.strip() for tag in (emotion_tags.split(",") if emotion_tags else [])]
-        voice_tags_list = [tag.strip() for tag in (voice_tags.split(",") if voice_tags else [])]
+
 
         source_language_name = get_language_name(source_language)
         target_language_name = get_language_name(target_language)
-        emotion_names = [get_emotion_name(tag) for tag in emotion_tags_list]
-        voice_names = [get_voice_name(tag) for tag in voice_tags_list]
 
         # Translate each distinct sentence once, in batches, off the event loop.
         unique_sentences = list(
@@ -135,8 +134,6 @@ async def translate_document(
                     text=text,
                     source_language=source_language_name,
                     target_language=target_language_name,
-                    emotions_tags=emotion_names,
-                    voice_tags=voice_names,
                 )
                 for text in unique_sentences
             ],
@@ -174,8 +171,8 @@ async def translate_document(
             target_language=target_language,
             translated_document=translated_content,
             status="completed",
-            emotion_tags=",".join(emotion_tags_list) if emotion_tags_list else None,
-            voice_tags=",".join(voice_tags_list) if voice_tags_list else None,
+            emotion_tags= None,
+            voice_tags= None,
             model_name=model_name,
         )
         session.add(doc_record)

@@ -1,5 +1,3 @@
-
-
 import os
 import threading
 
@@ -65,15 +63,10 @@ class NllbTranslatorModel(BaseTranslator):
         self.model.to(self.device)
         self.model.eval()
 
-        # Helps some inference workloads avoid unnecessary
-        # training-related configuration.
         self.model.config.use_cache = True
-        # max_new_tokens is computed per request; drop the conflicting default.
         self.model.generation_config.max_length = None
 
         self.batch_size = int(os.getenv("TRANSLATION_BATCH_SIZE", "16"))
-        # generate() is not safe to run from several threads on one model,
-        # and tokenizer.src_lang is shared state.
         self._lock = threading.Lock()
 
     @staticmethod
@@ -112,12 +105,6 @@ class NllbTranslatorModel(BaseTranslator):
         self,
         params_list: list[TranslationParams],
     ) -> list[str]:
-        """
-        Translate many texts with batched generation.
-
-        All params must share the same source and target language.
-        URLs are kept verbatim. Results are returned in the input order.
-        """
         return translate_protecting_urls(params_list, self._translate_sorted)
 
     def _translate_sorted(
@@ -138,7 +125,6 @@ class NllbTranslatorModel(BaseTranslator):
         src_code = self._resolve_lang_code(first.source_language)
         tgt_code = self._resolve_lang_code(first.target_language)
 
-        # Sort by length so each batch carries little padding.
         order = sorted(
             range(len(params_list)),
             key=lambda index: len(params_list[index].text),

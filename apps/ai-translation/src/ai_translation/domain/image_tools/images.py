@@ -192,11 +192,14 @@ def convert_image(
 ) -> ImageResult:
     """Convert only the supported image-format pairs; SVG output is traced paths."""
     image, source_format = _open(file_content)
+    
     if expected_source_format:
         expected = "jpeg" if expected_source_format.lower() == "jpg" else expected_source_format.lower()
         if expected != source_format:
             raise ImageToolError("The file extension does not match the image format")
+        
     target_format = "jpeg" if target_format.lower() in ("jpg", "jpeg") else target_format.lower()
+
     if target_format not in CONVERSION_TARGETS.get(source_format, ()):
         raise ImageToolError(f"Conversion from {source_format.upper()} to {target_format.upper()} is not supported")
 

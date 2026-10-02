@@ -83,7 +83,8 @@ async def convert(
     try:
         target_format = format.lower()
         if target_format not in ("webp", "png", "jpg", "jpeg", "svg"):
-            raise ValidationError(message="Format must be one of: webp, png, jpg, svg")
+            raise ValidationError(message="Format must be one of: webp, png, jpg, jpeg, svg")
+        
         content, source_format = await read_upload(
             file, max_size_mb=MAX_IMAGE_MB, allowed_extensions=list(FORMATS)
         )

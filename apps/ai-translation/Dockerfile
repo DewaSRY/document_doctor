@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ============================================================
-# Build stage
+# Build
 # ============================================================
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 
@@ -11,9 +11,7 @@ ENV UV_COMPILE_BYTECODE=1 \
 
 WORKDIR /app
 
-# ------------------------------------------------------------
-# Install production dependencies only
-# ------------------------------------------------------------
+# Install dependencies first for better Docker layer caching
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
@@ -22,14 +20,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
         --no-install-project \
         --no-dev
 
-# ------------------------------------------------------------
-# Copy application source
-# ------------------------------------------------------------
-COPY . /app
+# Copy application
+COPY . .
 
-# ------------------------------------------------------------
-# Install application
-# ------------------------------------------------------------
+# Install the project
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync \
         --locked \
@@ -37,48 +31,36 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 
 # ============================================================
-# Runtime stage
+# Runtime
 # ============================================================
 FROM python:3.12-slim-bookworm AS runtime
 
-# ------------------------------------------------------------
-# Runtime environment
-# ------------------------------------------------------------
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:${PATH}" \
     HF_HOME="/models/huggingface" \
     HF_HUB_DISABLE_TELEMETRY=1 \
-    REST_HOST=0.0.0.0 \
-    REST_PORT=8000 \
-    QWEN_MODEL_NAME="Qwen/Qwen2.5-1.5B-Instruct"
+    NLLB_MODEL_NAME="facebook/nllb-200-distilled-600M" \
+    REST_HOST="0.0.0.0" \
+    REST_PORT="8000"
 
 # ------------------------------------------------------------
-# LibreOffice lays out DOCX -> PDF conversions. The fonts are
-# metric-compatible with Word's (Calibri, Cambria, Arial, Times
-# New Roman, Courier New) so text flows and breaks as in Word,
-# and Noto covers the scripts documents are translated into.
-# LibreOffice comes from backports: bookworm's 7.4 drops every
-# hyperlink when exporting to PDF.
+# System dependencies
 # ------------------------------------------------------------
-RUN echo "deb http://deb.debian.org/debian bookworm-backports main" \
-        > /etc/apt/sources.list.d/backports.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends -t bookworm-backports \
-        libreoffice-writer-nogui \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        libreoffice-writer-nogui \
         fontconfig \
         fonts-liberation2 \
-        fonts-crosextra-carlito \
-        fonts-crosextra-caladea \
         fonts-dejavu-core \
         fonts-noto-core \
         fonts-noto-cjk \
     && fc-cache -f \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/*
 
 # ------------------------------------------------------------
-# Create non-root user
+# Non-root user
 # ------------------------------------------------------------
 RUN groupadd --system app \
     && useradd \
@@ -88,36 +70,19 @@ RUN groupadd --system app \
         --home-dir /app \
         app
 
-# ------------------------------------------------------------
-# Application directory
-# ------------------------------------------------------------
 WORKDIR /app
 
-# ------------------------------------------------------------
-# Copy application
-# ------------------------------------------------------------
-COPY --from=builder --chown=app:app /app /app
+# Copy only what is required at runtime
+COPY --from=builder --chown=app:app /app/.venv /app/.venv
+COPY --from=builder --chown=app:app /app/pyproject.toml /app/pyproject.toml
+COPY --from=builder --chown=app:app /app/src /app/src
 
-# ------------------------------------------------------------
-# Model/cache directory
-#
-# The model is intentionally NOT downloaded during build.
-# It will be downloaded/loaded at runtime.
-# ------------------------------------------------------------
+# Model cache lives outside the image
 RUN mkdir -p /models/huggingface \
     && chown -R app:app /models
 
-# ------------------------------------------------------------
-# Run as non-root
-# ------------------------------------------------------------
 USER app
 
-# ------------------------------------------------------------
-# REST API
-# ------------------------------------------------------------
 EXPOSE 8000
 
-# ------------------------------------------------------------
-# Start server
-# ------------------------------------------------------------
 CMD ["ai-translation"]
