@@ -54,7 +54,7 @@ docker compose up --build -d
 curl http://127.0.0.1:8081/api/health
 ```
 
-The local compose file publishes the API and PostgreSQL only on loopback. gRPC is not configured or implemented; the service is REST-only.
+The local compose file publishes the API and PostgreSQL only on loopback.
 
 ## Runtime Configuration
 
