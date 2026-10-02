@@ -1,4 +1,5 @@
 import { BaseClient } from "@/lib/api/base-client";
+import { serverApiClient } from "@/lib/api/server-client";
 import type {
   DeleteDocumentResponse,
   DocumentLayout,
@@ -14,6 +15,7 @@ export class TranslatorClient extends BaseClient {
     file: File,
     sourceLanguage: string,
     targetLanguage: string,
+    clientIp?: string,
   ) {
     const body = new FormData();
 
@@ -25,6 +27,10 @@ export class TranslatorClient extends BaseClient {
       params: {
         source_language: sourceLanguage,
         target_language: targetLanguage,
+      },
+      config: {
+        timeout: 15 * 60_000,
+        headers: clientIp ? { "X-Portal-Client-IP": clientIp } : undefined,
       },
     });
   }
@@ -62,15 +68,6 @@ export class TranslatorClient extends BaseClient {
     });
   }
 
-  downloadDocument(documentId: string) {
-    return this.get<ArrayBuffer>({
-      endpoint: `/translated-document/${encodeURIComponent(documentId)}`,
-      config: {
-        responseType: "arraybuffer",
-      },
-    });
-  }
-
   deleteDocument(documentId: string) {
     return this.delete<TranslatorResponse<DeleteDocumentResponse>>({
       endpoint: `/translated-document/${encodeURIComponent(documentId)}`,
@@ -78,4 +75,4 @@ export class TranslatorClient extends BaseClient {
   }
 }
 
-export const translatorClient = new TranslatorClient();
+export const translatorClient = new TranslatorClient(serverApiClient);

@@ -34,7 +34,7 @@ import {
 } from "./tool-icons";
 import type { ToolGroup } from "./tools-section";
 import { SECTION_IDS, START_HREF } from "./types";
-import { useFeatureGroupsQuery } from "@/feature/constant/hooks/query";
+import { useFeatureGroupsQuery } from "@/feature/constant";
 
 const SECTION_LINKS = [
   { id: SECTION_IDS.useCases, key: "useCases" },

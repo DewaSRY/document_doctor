@@ -1,4 +1,5 @@
 import { BaseClient } from "@/lib/api/base-client";
+import { serverApiClient } from "@/lib/api/server-client";
 import type { ApiSuccessResponse } from "@/lib/api/types";
 import type {  FeatureGroup } from "./type";
 
@@ -14,4 +15,4 @@ export class ConstantClient extends BaseClient {
   }
 }
 
-export const constantClient = new ConstantClient();
+export const constantClient = new ConstantClient(serverApiClient);

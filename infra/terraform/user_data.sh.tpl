@@ -1,8 +1,8 @@
 #!/bin/bash
-set -euxo pipefail
+set -euo pipefail
 
 dnf update -y
-dnf install -y docker
+dnf install -y docker awscli-2
 systemctl enable --now docker
 usermod -aG docker ec2-user
 
@@ -38,8 +38,34 @@ mkdir -p /opt/ai-translation
 echo '${app_env_base64}' | base64 -d > /opt/ai-translation/app.env
 chmod 600 /opt/ai-translation/app.env
 
-echo '${nginx_conf_base64}' | base64 -d > /opt/ai-translation/nginx.conf
-chmod 644 /opt/ai-translation/nginx.conf
+umask 077
+aws ssm get-parameter \
+  --name "${secrets_parameter_name}" \
+  --with-decryption \
+  --query 'Parameter.Value' \
+  --output text \
+  --region "${aws_region}" \
+  > /opt/ai-translation/runtime-secrets.json
+python3 - <<'PY'
+import json
+
+secret_path = "/opt/ai-translation/runtime-secrets.json"
+env_path = "/opt/ai-translation/app.env"
+with open(secret_path, encoding="utf-8") as source:
+  secrets = json.load(source)
+with open(env_path, "a", encoding="utf-8") as target:
+  for name in ("PORTAL_API_TOKEN", "DB_PASSWORD", "POSTGRES_PASSWORD", "HF_TOKEN"):
+    value = secrets.get(name, "")
+    if "\n" in value or "\r" in value:
+      raise ValueError(f"{name} must not contain newlines")
+    if value:
+      target.write(f"{name}={value}\n")
+PY
+rm /opt/ai-translation/runtime-secrets.json
+chmod 600 /opt/ai-translation/app.env
+
+echo '${caddyfile_base64}' | base64 -d > /opt/ai-translation/Caddyfile
+chmod 644 /opt/ai-translation/Caddyfile
 
 echo '${docker_compose_yml_base64}' | base64 -d > /opt/ai-translation/docker-compose.yml
 chmod 644 /opt/ai-translation/docker-compose.yml

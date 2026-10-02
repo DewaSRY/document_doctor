@@ -1,6 +1,9 @@
 import "server-only";
 
-import { AI_TRANSLATION_API_URL } from "@/feature/translator/config";
+import {
+  AI_TRANSLATION_API_URL,
+  getAITranslationAuthorization,
+} from "@/feature/translator/config";
 import { PROXIED_TOOL_ENDPOINTS, RESULT_HEADERS, isProxiedTool } from "./constants";
 
 const FORWARDED_HEADERS = [
@@ -23,15 +26,25 @@ export async function proxyToolRequest(request: Request, tool: string): Promise<
     return Response.json({ message: "Expected a file upload" }, { status: 415 });
   }
 
-  const upstream = await fetch(`${AI_TRANSLATION_API_URL}${PROXIED_TOOL_ENDPOINTS[tool]}`, {
-    method: "POST",
-    headers: { "content-type": contentType },
-    body: request.body,
-    // Required by Node's fetch to stream a request body.
-    duplex: "half",
-    cache: "no-store",
-    signal: AbortSignal.timeout(10 * 60_000),
-  } as RequestInit).catch(() => null);
+  const clientIp = request.headers.get("cf-connecting-ip");
+  const upstream = await fetch(
+    `${AI_TRANSLATION_API_URL}${PROXIED_TOOL_ENDPOINTS[tool]}`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": contentType,
+        ...(clientIp ? { "x-portal-client-ip": clientIp } : {}),
+        ...(getAITranslationAuthorization()
+          ? { authorization: getAITranslationAuthorization()! }
+          : {}),
+      },
+      body: request.body,
+      // Required by Node's fetch to stream a request body.
+      duplex: "half",
+      cache: "no-store",
+      signal: AbortSignal.timeout(10 * 60_000),
+    } as RequestInit,
+  ).catch(() => null);
 
   if (!upstream) {
     return Response.json({ message: undefined }, { status: 502 });

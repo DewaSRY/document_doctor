@@ -1,9 +1,4 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import axios from "axios";
-import { browserClient } from "./browser-client";
-import { AI_TRANSLATION_API_URL } from "@/feature/translator/config";
-
-
 
 export type SafeParamValue =
   | string
@@ -47,7 +42,8 @@ function serializeParams(params: RequestParams): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (Array.isArray(value)) value.forEach((v) => search.append(key, v));
-    else if (value !== undefined && value !== null) search.append(key, String(value));
+    else if (value !== undefined && value !== null)
+      search.append(key, String(value));
   }
   return search.toString();
 }
@@ -60,7 +56,7 @@ function serializeParams(params: RequestParams): string {
 export class BaseClient {
   protected readonly instance: AxiosInstance;
 
-  constructor(instance: AxiosInstance = browserClient) {
+  constructor(instance: AxiosInstance) {
     this.instance = instance;
   }
 
@@ -135,4 +131,3 @@ export class BaseClient {
     );
   }
 }
-

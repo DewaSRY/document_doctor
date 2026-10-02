@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { translatorClient } from "./client";
 import {
   ACCEPTED_EXTENSIONS,
@@ -8,11 +9,7 @@ import {
   getFileExtension,
   isLanguageCode,
 } from "./constants";
-import type {
-  DeleteDocumentResponse,
-  DownloadDocumentResponse,
-  UpdateSegmentsBody,
-} from "./type";
+import type { DeleteDocumentResponse, UpdateSegmentsBody } from "./type";
 
 // Masking server action for handling API requests with packed results
 import { runMaskingServerAction } from "@/lib/api/pack-server-action";
@@ -39,10 +36,12 @@ export async function translateDocumentAction(formData: FormData) {
   }
 
   return runMaskingServerAction(async () => {
+    const clientIp = (await headers()).get("cf-connecting-ip") ?? undefined;
     const response = await translatorClient.translateDocument(
       file,
       sourceLanguage,
       targetLanguage,
+      clientIp,
     );
     return response.data.data;
   });
@@ -96,50 +95,6 @@ export async function uploadDocumentMediaAction(
       file,
     );
     return response.data.data;
-  });
-}
-
-function extractFileNameFromDisposition(
-  disposition?: string,
-  fallback = "translated-document",
-): string {
-  if (!disposition) return fallback;
-  const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
-  if (utf8Match?.[1]) {
-    try {
-      return decodeURIComponent(utf8Match[1]);
-    } catch {
-      // Fall through to plain file name.
-    }
-  }
-  const match = /filename="?([^";]+)"?/i.exec(disposition);
-  return match?.[1] ?? fallback;
-}
-
-export async function downloadDocumentAction(
-  documentId: string,
-): Promise<MaskingActionResult<DownloadDocumentResponse>> {
-  return runMaskingServerAction(async () => {
-    const response = await translatorClient.downloadDocument(documentId);
-    const headers = response.headers;
-    const contentType =
-      ((typeof headers?.get === "function"
-        ? headers.get("content-type")
-        : headers?.["content-type"]) as string | undefined) ??
-      "application/octet-stream";
-    const disposition = (
-      typeof headers?.get === "function"
-        ? headers.get("content-disposition")
-        : headers?.["content-disposition"]
-    ) as string | undefined;
-    const fileName = extractFileNameFromDisposition(disposition);
-    const base64 = Buffer.from(response.data).toString("base64");
-
-    return {
-      base64,
-      fileName,
-      contentType,
-    };
   });
 }
 

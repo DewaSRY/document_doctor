@@ -1,19 +1,23 @@
 """Basic tests for database models and repositories."""
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from ai_translation.infrastructure.database.models import Base, TranslationRecord, TranslationJob
-from ai_translation.infrastructure.database.schemas import (
-    TranslationRecordCreate,
-    TranslationJobCreate,
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from ai_translation.infrastructure.database.models import (
+    Base,
 )
 from ai_translation.infrastructure.database.repositories import (
-    TranslationRecordRepository,
     TranslationJobRepository,
+    TranslationRecordRepository,
+)
+from ai_translation.infrastructure.database.schemas import (
+    TranslationJobCreate,
+    TranslationRecordCreate,
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def async_session():
     """Create an in-memory SQLite database for testing."""
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")

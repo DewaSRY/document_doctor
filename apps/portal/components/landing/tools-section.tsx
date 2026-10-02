@@ -2,7 +2,7 @@
 
 import { ToolGrid } from "./tool-grid";
 import { SECTION_IDS } from "./types";
-import { useFeatureGroupsQuery } from "@/feature/constant/hooks/query";
+import { useFeatureGroupsQuery } from "@/feature/constant";
 
 export type Tool = {
   icon: string;

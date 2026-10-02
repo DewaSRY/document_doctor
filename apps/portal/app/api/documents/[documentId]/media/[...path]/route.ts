@@ -2,6 +2,7 @@ import {
   getMediaUpstreamUrl,
   isAllowedMediaPath,
 } from "@/feature/translator/media";
+import { getAITranslationAuthorization } from "@/feature/translator/config";
 
 /** Streams an image of the original Word document (word/media/…), or one
  *  added in the editor (upload/…), from the AI service, for the editor's pages. */
@@ -14,9 +15,12 @@ export async function GET(
     return new Response(null, { status: 404 });
   }
 
-  const upstream = await fetch(getMediaUpstreamUrl(documentId, path)).catch(
-    () => null,
-  );
+  const upstream = await fetch(getMediaUpstreamUrl(documentId, path), {
+    headers: getAITranslationAuthorization()
+      ? { Authorization: getAITranslationAuthorization()! }
+      : undefined,
+    cache: "no-store",
+  }).catch(() => null);
 
   if (!upstream?.ok || !upstream.body) {
     return new Response(null, { status: upstream?.status === 404 ? 404 : 502 });

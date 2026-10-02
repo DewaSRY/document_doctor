@@ -1,7 +1,7 @@
 [project]
 name = "ai-translation"
 version = "0.1.0"
-description = "AI translation service powered by Qwen"
+description = "AI translation and document processing service powered by NLLB"
 readme = "README.md"
 authors = [
     { name = "DewaAriesta", email = "dewa.ariesta@cashenable.com" }
@@ -29,7 +29,6 @@ dependencies = [
     "pillow>=11.0.0",
     "vtracer>=0.6.11",
     "pdf2docx>=0.5.8",
-    "pip>=26.2.1",
 ]
 
 [project.scripts]
@@ -46,4 +45,6 @@ dev = [
     "pytest-cov>=7.1.0",
     "ruff>=0.16.8",
     "httpx>=0.25.0",
+    "pytest-asyncio>=1.4.0",
+    "aiosqlite>=0.22.1",
 ]

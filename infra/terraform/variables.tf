@@ -5,7 +5,7 @@ variable "aws_region" {
 }
 
 variable "instance_type" {
-  description = "EC2 instance type. The service loads Qwen2.5-1.5B-Instruct on CPU in float32 (~6 GB resident) next to LibreOffice and postgres, so 16 GB of RAM is the comfortable minimum; t3.micro/small/medium will be OOM-killed while loading the model."
+  description = "EC2 instance type. The service loads NLLB-200 distilled 600M on CPU in float32 alongside LibreOffice and Postgres; 16 GB is the conservative default for inference headroom."
   type        = string
   default     = "t3.xlarge"
 }
@@ -22,8 +22,18 @@ variable "docker_image" {
   default     = "sdewa/ai-translation:latest"
 }
 
+variable "api_domain" {
+  description = "DNS-only hostname for the HTTPS AI API, pointed at the EC2 Elastic IP (for example api.example.com)."
+  type        = string
+}
+
+variable "acme_email" {
+  description = "Contact email used by Caddy when obtaining and renewing the TLS certificate."
+  type        = string
+}
+
 variable "app_port" {
-  description = "Port the ai-translation container listens on (REST_PORT). Only reachable from the instance itself (127.0.0.1) and from nginx over the internal docker network — not exposed to the internet directly."
+  description = "Port the ai-translation container listens on (REST_PORT). Only reachable from the instance and Caddy over the Docker network."
   type        = number
   default     = 8000
 }
@@ -37,66 +47,65 @@ variable "docker_compose_version" {
 variable "ssh_cidr_blocks" {
   description = "CIDR blocks allowed to SSH into the instance"
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = []
 }
 
 variable "app_cidr_blocks" {
-  description = "CIDR blocks allowed to reach nginx_port, i.e. the public entrypoint that reverse-proxies to ai-translation"
+  description = "CIDR blocks allowed to reach the public Caddy HTTP and HTTPS listeners"
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
 
-# --- nginx: reverse proxy + rate limiter in front of ai-translation ---
+# --- Caddy: HTTPS reverse proxy in front of ai-translation ---
 
-variable "nginx_image" {
-  description = "nginx Docker Hub image to run as the reverse proxy in front of ai-translation"
+variable "caddy_image" {
+  description = "Caddy image used as the HTTPS reverse proxy"
   type        = string
-  default     = "nginx:1.27-alpine"
+  default     = "caddy:2.10-alpine"
 }
 
-variable "nginx_port" {
-  description = "Public port nginx listens on and proxies to ai-translation on app_port"
+variable "http_port" {
+  description = "Public HTTP port for ACME challenges and HTTPS redirects"
   type        = number
   default     = 80
 }
 
-variable "nginx_rate_limit_rps" {
-  description = "nginx limit_req rate, in requests/second per client IP. Note the portal calls this service server-side, so all of its users share the portal host's IP(s)."
+variable "https_port" {
+  description = "Public HTTPS port for the portal Worker to call the AI API"
   type        = number
-  default     = 10
-}
-
-variable "nginx_rate_limit_burst" {
-  description = "nginx limit_req burst size: how many requests over nginx_rate_limit_rps a client can burst before nginx starts responding 429"
-  type        = number
-  default     = 20
-}
-
-variable "nginx_client_max_body_size" {
-  description = "nginx client_max_body_size. nginx's default is 1m; the service accepts documents up to 10 MB and PDF merges up to 50 MB in total."
-  type        = string
-  default     = "60m"
-}
-
-variable "nginx_proxy_timeout_seconds" {
-  description = "nginx proxy_read_timeout/proxy_send_timeout. Translation runs synchronously on CPU, and the portal waits up to 15 minutes for it (feature/translator/client.ts)."
-  type        = number
-  default     = 900
+  default     = 443
 }
 
 # --- App config (mirrors ai_translation.config.Settings / apps/ai-translation/.env.example) ---
 
 variable "hf_token" {
-  description = "Hugging Face Hub read token, passed through as HF_TOKEN. Optional for the public Qwen models; avoids download rate limits."
+  description = "Hugging Face Hub read token, passed through as HF_TOKEN. Optional for the public NLLB model; avoids download rate limits."
   type        = string
   default     = ""
   sensitive   = true
 }
 
-variable "qwen_model_name" {
-  description = "Hugging Face model id, passed through as QWEN_MODEL_NAME"
+variable "portal_api_token" {
+  description = "Shared bearer token required by the AI API and the Cloudflare Worker. Set the same random value as the Worker secret AI_TRANSLATION_API_TOKEN."
   type        = string
-  default     = "Qwen/Qwen2.5-1.5B-Instruct"
+  sensitive   = true
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_-]{32,}$", var.portal_api_token))
+    error_message = "portal_api_token must be at least 32 URL-safe characters."
+  }
+}
+
+variable "nllb_model_name" {
+  description = "Hugging Face model id, passed through as NLLB_MODEL_NAME"
+  type        = string
+  default     = "facebook/nllb-200-distilled-600M"
+}
+
+variable "model_license_allows_production" {
+  description = "Set true only after confirming the selected translation model's license and model card permit this production document-translation use. The current NLLB-200 checkpoint does not."
+  type        = bool
+  default     = false
 }
 
 variable "translation_batch_size" {

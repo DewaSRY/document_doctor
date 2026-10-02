@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { TOOL_HREFS } from "@/feature/tools/constants";
 import type { ToolGroup } from "./tools-section";
 import { SECTION_IDS, START_HREF, tList, type LandingT } from "./types";
-import { useFeatureGroupsQuery } from "@/feature/constant/hooks/query";
+import { useFeatureGroupsQuery } from "@/feature/constant";
 import { getTranslation } from "@/i18n/server";
 import { useTranslation } from "react-i18next";
 

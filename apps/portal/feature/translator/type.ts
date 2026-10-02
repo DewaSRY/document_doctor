@@ -74,12 +74,6 @@ export interface UpdateSegmentsBody {
   insertions?: InsertedBlock[];
 }
 
-export interface DownloadDocumentResponse {
-  base64: string;
-  fileName: string;
-  contentType: string;
-}
-
 export interface DeleteDocumentResponse {
   document_id: string;
 }

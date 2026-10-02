@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
-  downloadDocumentAction,
   getDocumentLayoutAction,
   getDocumentSegmentsAction,
   translateDocumentAction,
@@ -11,7 +10,7 @@ import {
 } from "../actions";
 import type { LanguageCode } from "../constants";
 import type { UpdateSegmentsBody } from "../type";
-import { downloadFromBase64 } from "../utils";
+import { downloadResponse } from "../utils";
 
 // Masking server action for handling API requests with packed results
 import { unpackActionResult } from "@/lib/api/unpack-server-result";
@@ -97,10 +96,16 @@ export function useUploadDocumentMedia(documentId: string) {
 export function useDownloadDocument() {
   return useMutation({
     mutationFn: async (documentId: string) => {
-      const result =
-        await downloadDocumentAction(documentId).then(unpackActionResult);
-      downloadFromBase64(result.base64, result.fileName, result.contentType);
-      return result;
+      const response = await fetch(
+        `/api/documents/${encodeURIComponent(documentId)}/download`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) {
+        throw Object.assign(new Error("Document download failed"), {
+          response: { status: response.status },
+        });
+      }
+      await downloadResponse(response);
     },
   });
 }

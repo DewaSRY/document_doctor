@@ -1,41 +1,58 @@
 services:
-  # ai-translation:
-  #   image: sdewa/ai-translation:latest
-  #   container_name: ai-translation
-  #   restart: unless-stopped
+  ai-translation:
+    image: sdewa/ai-translation:latest
+    build:
+      context: ./apps/ai-translation
+      dockerfile: Dockerfile
+    container_name: ai-translation
+    restart: unless-stopped
+    stop_grace_period: 45s
 
-  #   ports:
-  #     - "8081:8000"
+    ports:
+      - "127.0.0.1:8081:8000"
 
-  #   volumes:
-  #     - ai-translation-model-cache:/models/huggingface
+    volumes:
+      - ai-translation-model-cache:/models/huggingface
 
-  #   env_file:
-  #     - apps/ai-translation/.env
+    env_file:
+      - apps/ai-translation/.env
 
-  #   environment:
-  #     DB_HOST: postgres
-  #     DB_PORT: 5432
+    environment:
+      REST_HOST: 0.0.0.0
+      REST_PORT: 8000
+      DB_HOST: postgres
+      DB_PORT: 5432
 
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+    depends_on:
+      postgres:
+        condition: service_healthy
 
-  #   networks:
-  #     - translation-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15m
+
+    networks:
+      - translation-network
 
   postgres:
     image: postgres:16
     container_name: postgres-translation-ai
     restart: unless-stopped
 
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-user-translation-ai}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pass-translation-ai}
-      POSTGRES_DB: ${POSTGRES_DB:-db-translation-ai}
+    env_file:
+      - apps/ai-translation/.env
 
     ports:
-      - "5437:5432"
+      - "127.0.0.1:5437:5432"
 
     volumes:
       - postgres-translation-ai-data:/var/lib/postgresql/data
@@ -44,7 +61,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-user-translation-ai} -d ${POSTGRES_DB:-db-translation-ai}",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB",
         ]
       interval: 5s
       timeout: 5s

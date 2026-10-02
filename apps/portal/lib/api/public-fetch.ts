@@ -2,6 +2,7 @@ import "server-only";
 import { apiErrorFromResponse, ApiError, readTraceId } from "./error";
 import { isApiPage, type ApiPage, type ApiResponse } from "./envelope";
 import { logger } from "@/lib/logger";
+import { getAITranslationAuthorization } from "@/feature/translator/config";
 
 /**
  * Server transport for public reads (ADR-008 §7.1).
@@ -84,7 +85,12 @@ export async function publicFetch<T>(
   try {
     response = await fetch(url, {
       method: "GET",
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        ...(getAITranslationAuthorization()
+          ? { Authorization: getAITranslationAuthorization()! }
+          : {}),
+      },
       redirect: "manual",
       next: {
         revalidate: options.revalidate ?? PUBLIC_REVALIDATE_SECONDS,

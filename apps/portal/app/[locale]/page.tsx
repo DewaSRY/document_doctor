@@ -21,9 +21,6 @@ import { FinalCtaSection } from "@/components/landing/final-cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { tList } from "@/components/landing/types";
 import { TOOL_HREFS } from "@/feature/tools/constants";
-import { QueryClient } from "@tanstack/react-query";
-import { unpackActionResult } from "@/lib/api/unpack-server-result";
-import { getFeatureGroupsAction } from "@/feature/constant/actions";
 
 export async function generateMetadata({
   params,
@@ -90,17 +87,6 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
     },
     faqNode(locale, faqs),
   ]);
-
-
-  const queryClient = new QueryClient();
-
-  queryClient.query({
-    queryKey: ["featureGroups", locale],
-    queryFn: async () => {
-      return getFeatureGroupsAction(locale).then(unpackActionResult);
-    },
-  });
-
   return (
     <>
       <JsonLd data={jsonLd} />

@@ -1,15 +1,16 @@
 import logging
 import uuid
 from typing import cast
-from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from starlette.types import ExceptionHandler
 
-from ai_translation.infrastructure.rest.exceptions import APIException, ErrorCode
-from ai_translation.infrastructure.rest.response_normalizer import normalize_error_response
+from ai_translation.infrastructure.rest.exceptions import APIException
+from ai_translation.infrastructure.rest.response_normalizer import (
+    normalize_error_response,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,10 +28,9 @@ async def api_exception_handler(request: Request, exc: APIException) -> JSONResp
     request_id = get_request_id(request)
 
     logger.warning(
-        f"API Exception: {exc.error_code.value} - {exc.message}",
+        f"API Exception: {exc.error_code.value}",
         extra={
             "request_id": request_id,
-            "path": request.url.path,
             "method": request.method,
             "status_code": exc.status_code,
         },
@@ -62,7 +62,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         "Validation error",
         extra={
             "request_id": request_id,
-            "path": request.url.path,
             "method": request.method,
             "error_count": len(errors),
         },
@@ -85,11 +84,9 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
     request_id = get_request_id(request)
 
     logger.error(
-        "Unexpected error",
-        exc_info=True,
+        f"Unexpected error: {type(exc).__name__}",
         extra={
             "request_id": request_id,
-            "path": request.url.path,
             "method": request.method,
             "exception_type": type(exc).__name__,
         },

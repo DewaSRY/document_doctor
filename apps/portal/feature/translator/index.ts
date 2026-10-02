@@ -5,8 +5,6 @@ export {
   useUpdateDocumentSegments,
   useDownloadDocument,
 } from "./hooks/query";
-export { downloadDocumentAction } from "./actions";
-export { downloadFromBase64 } from "./utils";
 export {
   ACCEPT_ATTRIBUTE,
   LANGUAGE_CODES,
@@ -17,7 +15,6 @@ export type {
   DocumentSegment,
   DocumentSegments,
   TranslatedDocument,
-  DownloadDocumentResponse,
 } from "./type";
 export { TranslatorHeader } from "./components/translator-header";
 export { TranslateWizard } from "./components/translate-wizard";

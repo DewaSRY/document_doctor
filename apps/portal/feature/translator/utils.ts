@@ -6,27 +6,25 @@ export function getTranslatorErrorStatus(error: unknown): number | undefined {
   return (error as { response?: { status?: number } })?.response?.status;
 }
 
-/** Triggers a browser download of a binary file encoded as base64. */
-export function downloadFromBase64(
-  base64: string,
-  fileName: string,
-  contentType = "application/octet-stream",
-): void {
-  if (typeof window === "undefined") return;
-
-  const binaryString = window.atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+export async function downloadResponse(response: Response): Promise<void> {
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
+  const plainMatch = /filename="?([^";]+)"?/i.exec(disposition);
+  let fileName = "translated-document";
+  try {
+    fileName = utf8Match?.[1]
+      ? decodeURIComponent(utf8Match[1])
+      : (plainMatch?.[1] ?? fileName);
+  } catch {
+    fileName = plainMatch?.[1] ?? fileName;
   }
-  const blob = new Blob([bytes], { type: contentType });
-  const url = window.URL.createObjectURL(blob);
+
+  const url = window.URL.createObjectURL(await response.blob());
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = fileName;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  window.URL.revokeObjectURL(url);
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
 }

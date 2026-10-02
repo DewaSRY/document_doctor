@@ -38,6 +38,10 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_kms_alias" "ssm" {
+  name = "alias/aws/ssm"
+}
+
 # --- AMI: latest (standard, not minimal) Amazon Linux 2023 ---
 #
 # "al2023-ami-*" also matches the al2023-ami-minimal-* images, and
@@ -77,15 +81,15 @@ resource "local_file" "private_key" {
   file_permission = "0600"
 }
 
-# --- Security group: SSH + nginx (the only public entrypoint) ---
+# --- Security group: SSH + HTTP/HTTPS reverse proxy ---
 #
 # app_port is deliberately not opened here — ai-translation is only reachable
-# from nginx over the internal docker network (see docker-compose.prod.yaml),
+# from Caddy over the internal docker network (see docker-compose.prod.yaml),
 # and from the instance itself via the 127.0.0.1-bound debug port.
 
 resource "aws_security_group" "ai_translation" {
   name        = "ai-translation-sg"
-  description = "Allow SSH and nginx traffic to the ai-translation host"
+  description = "Allow SSH and Caddy HTTPS traffic to the ai-translation host"
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
@@ -97,9 +101,17 @@ resource "aws_security_group" "ai_translation" {
   }
 
   ingress {
-    description = "nginx (reverse proxy + rate limiter in front of ai-translation)"
-    from_port   = var.nginx_port
-    to_port     = var.nginx_port
+    description = "HTTP for ACME challenges and redirects"
+    from_port   = var.http_port
+    to_port     = var.http_port
+    protocol    = "tcp"
+    cidr_blocks = var.app_cidr_blocks
+  }
+
+  ingress {
+    description = "HTTPS API reverse proxy"
+    from_port   = var.https_port
+    to_port     = var.https_port
     protocol    = "tcp"
     cidr_blocks = var.app_cidr_blocks
   }
@@ -124,55 +136,109 @@ resource "random_password" "db" {
 }
 
 locals {
+  app_secrets = jsonencode({
+    PORTAL_API_TOKEN  = var.portal_api_token
+    DB_PASSWORD       = local.db_password
+    POSTGRES_PASSWORD = local.db_password
+    HF_TOKEN          = var.hf_token
+  })
+}
+
+resource "aws_ssm_parameter" "app_secrets" {
+  name        = "/ai-translation/runtime-secrets"
+  description = "Runtime credentials for the AI Translation EC2 service"
+  type        = "SecureString"
+  key_id      = data.aws_kms_alias.ssm.target_key_arn
+  value       = local.app_secrets
+}
+
+resource "aws_iam_role" "ai_translation" {
+  name = "ai-translation-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "read_app_secrets" {
+  name = "read-ai-translation-runtime-secrets"
+  role = aws_iam_role.ai_translation.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["ssm:GetParameter"]
+        Resource = aws_ssm_parameter.app_secrets.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt"]
+        Resource = data.aws_kms_alias.ssm.target_key_arn
+        Condition = {
+          StringEquals = {
+            "kms:ViaService"                      = "ssm.${var.aws_region}.amazonaws.com"
+            "kms:EncryptionContext:PARAMETER_ARN" = aws_ssm_parameter.app_secrets.arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "ai_translation" {
+  name = "ai-translation-ec2-profile"
+  role = aws_iam_role.ai_translation.name
+}
+
+locals {
   use_bundled_postgres = var.db_host == ""
   db_password          = var.db_password != "" ? var.db_password : random_password.db.result
 
-  nginx_conf = templatefile("${path.module}/nginx.conf.tpl", {
-    nginx_port            = var.nginx_port
-    app_port              = var.app_port
-    rate_limit_rps        = var.nginx_rate_limit_rps
-    rate_limit_burst      = var.nginx_rate_limit_burst
-    client_max_body_size  = var.nginx_client_max_body_size
-    proxy_timeout_seconds = var.nginx_proxy_timeout_seconds
+  caddyfile = templatefile("${path.module}/Caddyfile.tpl", {
+    api_domain = var.api_domain
+    acme_email = var.acme_email
+    app_port   = var.app_port
   })
 
-  # ai-translation + nginx (+ postgres unless var.db_host points elsewhere)
+  # ai-translation + Caddy (+ postgres unless var.db_host points elsewhere)
   # as a compose stack. Fully resolved at render time — no env-var
   # substitution happens on the instance itself.
   docker_compose_yml = templatefile("${path.module}/docker-compose.prod.yaml", {
     docker_image         = var.docker_image
     app_port             = var.app_port
-    nginx_image          = var.nginx_image
-    nginx_port           = var.nginx_port
+    caddy_image          = var.caddy_image
+    http_port            = var.http_port
+    https_port           = var.https_port
     postgres_image       = var.postgres_image
     use_bundled_postgres = local.use_bundled_postgres
   })
 
-  # Read by ai_translation.config.Settings and
-  # infrastructure/database/config.py, and by the postgres image
-  # (POSTGRES_*) when it is bundled. Empty optional values are left out so
-  # the app falls back to its own defaults.
+  # Non-secret settings only. Runtime credentials are fetched from SSM on boot.
   app_env = join("\n", concat(
     [
       "REST_HOST=0.0.0.0",
       "REST_PORT=${var.app_port}",
       "DEV_MODE=false",
       "DEBUG=false",
-      "QWEN_MODEL_NAME=${var.qwen_model_name}",
+      "NLLB_MODEL_NAME=${var.nllb_model_name}",
       "TRANSLATION_BATCH_SIZE=${var.translation_batch_size}",
       "DB_HOST=${local.use_bundled_postgres ? "postgres" : var.db_host}",
       "DB_PORT=${var.db_port}",
       "DB_USER=${var.db_user}",
-      "DB_PASSWORD=${local.db_password}",
       "DB_NAME=${var.db_name}",
       "RATE_LIMIT=${var.app_rate_limit}",
       "CORS_ORIGINS=${var.cors_origins}",
       "CORS_ALLOW_HEADERS=${var.cors_allow_headers}",
     ],
-    var.hf_token != "" ? ["HF_TOKEN=${var.hf_token}"] : [],
     local.use_bundled_postgres ? [
       "POSTGRES_USER=${var.db_user}",
-      "POSTGRES_PASSWORD=${local.db_password}",
       "POSTGRES_DB=${var.db_name}",
     ] : [],
     [""],
@@ -184,13 +250,15 @@ locals {
   # out config changes. No separate, driftable "redeploy script."
   user_data = templatefile("${path.module}/user_data.sh.tpl", {
     docker_compose_version    = var.docker_compose_version
+    aws_region                = var.aws_region
+    secrets_parameter_name    = aws_ssm_parameter.app_secrets.name
     app_env_base64            = base64encode(local.app_env)
-    nginx_conf_base64         = base64encode(local.nginx_conf)
+    caddyfile_base64          = base64encode(local.caddyfile)
     docker_compose_yml_base64 = base64encode(local.docker_compose_yml)
   })
 }
 
-# --- EC2 instance running ai-translation behind an nginx reverse proxy ---
+# --- EC2 instance running ai-translation behind Caddy ---
 
 resource "aws_instance" "ai_translation" {
   ami                    = data.aws_ami.al2023.id
@@ -198,6 +266,7 @@ resource "aws_instance" "ai_translation" {
   subnet_id              = data.aws_subnets.default.ids[0]
   key_name               = aws_key_pair.this.key_name
   vpc_security_group_ids = [aws_security_group.ai_translation.id]
+  iam_instance_profile   = aws_iam_instance_profile.ai_translation.name
 
   user_data = local.user_data
 
@@ -217,6 +286,11 @@ resource "aws_instance" "ai_translation" {
   # changes are rolled out with `make tf-redeploy` instead.
   lifecycle {
     ignore_changes = [ami, user_data]
+
+    precondition {
+      condition     = var.model_license_allows_production
+      error_message = "Production is blocked: confirm a translation model license that permits commercial document translation before setting model_license_allows_production=true."
+    }
   }
 
   tags = {

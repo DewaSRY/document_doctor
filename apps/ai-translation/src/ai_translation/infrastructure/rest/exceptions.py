@@ -48,7 +48,6 @@ class ValidationError(APIException):
 class FileError(APIException):
     """Base exception for file-related errors"""
 
-    pass
 
 
 class FileTooLargeError(FileError):
@@ -112,14 +111,13 @@ class TranslationError(APIException):
 
 
 class DocumentProcessingError(APIException):
-    """Raised when document processing fails"""
+    """Raised when processing fails without exposing internal exception text."""
 
     def __init__(self, message: str = "Document processing failed", details: dict[str, Any] | None = None):
         super().__init__(
-            message=message,
+            message="Document processing failed",
             error_code=ErrorCode.DOCUMENT_PROCESSING_ERROR,
-            status_code=422,
-            details=details,
+            status_code=500,
         )
 
 

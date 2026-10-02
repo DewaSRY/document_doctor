@@ -1,6 +1,4 @@
-from typing import Optional
 
-from pydantic import ConfigDict
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,21 +7,21 @@ class Settings(BaseSettings):
 
     # Server
     rest_host: str = "0.0.0.0"
-    rest_port: int = 8081
-    grpc_port: Optional[int] = None
+    rest_port: int = 8000
+    portal_api_token: str | None = None
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./test.db"
-    db_host: Optional[str] = None
-    db_port: Optional[int] = None
-    db_user: Optional[str] = None
-    db_password: Optional[str] = None
-    db_name: Optional[str] = None
+    db_host: str | None = None
+    db_port: int | None = None
+    db_user: str | None = None
+    db_password: str | None = None
+    db_name: str | None = None
 
     # PostgreSQL Docker variables
-    postgres_user: Optional[str] = None
-    postgres_password: Optional[str] = None
-    postgres_db: Optional[str] = None
+    postgres_user: str | None = None
+    postgres_password: str | None = None
+    postgres_db: str | None = None
 
     # Development
     dev_mode: bool = False
@@ -39,9 +37,7 @@ class Settings(BaseSettings):
     rate_limit: str = "100/minute"
 
     # Model configuration
-    hf_token: Optional[str] = None
-    qwen_model_name: Optional[str] = None
-
+    hf_token: str | None = None
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="",

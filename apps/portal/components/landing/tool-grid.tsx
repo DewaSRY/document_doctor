@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFeatureGroupsQuery } from "@/feature/constant/hooks/query";
+import { useFeatureGroupsQuery } from "@/feature/constant";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";

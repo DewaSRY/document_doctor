@@ -43,6 +43,14 @@ def test_convert_png_to_svg_traces_vector_paths() -> None:
     assert b"data:image/png" not in result.content
 
 
+def test_convert_jpeg_to_svg_traces_vector_paths() -> None:
+    result = convert_image(_image_bytes("JPEG"), "svg")
+
+    assert result.format == "svg"
+    assert b"<svg" in result.content[:1024]
+    assert b"<path" in result.content
+
+
 def test_convert_transparent_webp_to_jpeg_uses_white_background() -> None:
     result = convert_image(_image_bytes("WEBP", "RGBA", (20, 120, 220, 0)), "jpg")
 
@@ -52,7 +60,7 @@ def test_convert_transparent_webp_to_jpeg_uses_white_background() -> None:
 
 @pytest.mark.parametrize(
     ("source", "target"),
-    [("PNG", "png"), ("JPEG", "svg"), ("WEBP", "webp"), ("GIF", "png")],
+    [("PNG", "png"), ("WEBP", "webp"), ("GIF", "png")],
 )
 def test_reject_unsupported_conversion(source: str, target: str) -> None:
     with pytest.raises(ImageToolError):

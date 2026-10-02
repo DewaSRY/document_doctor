@@ -17,7 +17,9 @@ const eslintConfig = defineConfig([
               group: [
                 "@/feature/*/*",
                 "!@/feature/translator/config",
+                "!@/feature/translator/media",
                 "!@/feature/tools/constants",
+                "!@/feature/tools/proxy",
               ],
               message:
                 "Import from the feature's barrel (@/feature/<name>) instead of its internals.",
@@ -31,6 +33,7 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    ".open-next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

@@ -9,18 +9,13 @@ output "public_ip" {
 }
 
 output "app_url" {
-  description = "ai-translation base URL, through nginx. Set the portal's AI_TRANSLATION_API_URL to this plus /v1."
-  value       = "http://${aws_eip.ai_translation.public_ip}:${var.nginx_port}"
+  description = "HTTPS AI API base URL. Set the Worker secret AI_TRANSLATION_API_URL to this plus /api/v1."
+  value       = "https://${var.api_domain}"
 }
 
 output "health_url" {
-  description = "Health check, through nginx"
-  value       = "http://${aws_eip.ai_translation.public_ip}:${var.nginx_port}/health"
-}
-
-output "docs_url" {
-  description = "FastAPI Swagger UI, through nginx"
-  value       = "http://${aws_eip.ai_translation.public_ip}:${var.nginx_port}/docs"
+  description = "Health check, through Caddy"
+  value       = "https://${var.api_domain}/api/health"
 }
 
 output "ssh_command" {
@@ -29,7 +24,7 @@ output "ssh_command" {
 }
 
 output "rendered_user_data" {
-  description = "The exact first-boot script aws_instance.ai_translation was given. EC2 only runs it once, on first boot, so `make tf-redeploy` pipes this over SSH to bring an already-running instance in line with the current config (new image, new nginx settings, etc). Sensitive: embeds the database password and HF token in plaintext."
+  description = "The exact first-boot script aws_instance.ai_translation was given. Sensitive values are embedded in base64 in the script; protect the Terraform state and restrict EC2 user-data access."
   value       = local.user_data
   sensitive   = true
 }

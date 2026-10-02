@@ -31,10 +31,9 @@ function preferredLocale(request: NextRequest): AppLocale {
   return defaultLocale;
 }
 
-/** Every page lives under /<locale>. Locale-less URLs ("/", "/translate")
- *  redirect to the visitor's language; the redirect is temporary (307)
- *  because its target depends on the request. */
-export default function proxy(request: NextRequest) {
+/** Every page lives under /<locale>. Locale-less URLs redirect to the
+ *  visitor's language; the target depends on the request, so use 307. */
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (hasLocalePrefix(pathname)) {
